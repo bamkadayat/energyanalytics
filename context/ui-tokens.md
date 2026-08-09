@@ -51,11 +51,12 @@ It sits at luminance 0.006, very close to black, which drives two decisions:
 - **Interaction states move lighter, not darker.** Darkening a near-black base produces
   no perceptible change, so hover lightens to `--navy-800` and only `active` goes darker
   to `--navy-950`.
-- **Links stay on the nordic accent.** At near-black, a link would be indistinguishable
-  from body text and the underline would be its only affordance. `--link` is therefore
-  the one place the primary is deliberately *not* used.
+- **Links use it too**, so nothing branded drifts to a second blue. The consequence is
+  that a link is close to body text in colour, which makes the underline load-bearing:
+  links must be underlined **at rest**, never on hover alone. That is a rule in
+  `ui-rules.md`, not a preference.
 
-The nordic ramp is retained as an accent for links and the `info` status family.
+The nordic ramp is retained for the `info` status family only.
 
 | Step | Value | Role |
 | --- | --- | --- |
@@ -89,7 +90,7 @@ The nordic ramp is retained as an accent for links and the `info` status family.
 | `--fg-muted` | `text-fg-muted` | `--slate-600` | labels, units, captions |
 | `--fg-inverse` | `text-fg-inverse` | `--white` | text on inverse surfaces |
 | `--fg-inverse-muted` | `text-fg-inverse-muted` | `--navy-200` | subdued text on inverse surfaces |
-| `--link` | `text-link` | `--nordic-700` | links — always with underline; see *The primary* |
+| `--link` | `text-link` | `--navy-900` | links — **always underlined at rest** |
 | `--icon` | `text-icon` | `--slate-600` | standalone icons |
 
 Renamed from `--color-text-*` / `--color-icon-default`: Tailwind derives the utility from
@@ -216,7 +217,7 @@ Verified against WCAG 2.2 AA. Every meaning-carrying pair passes:
 | `--fg` on `--surface` | 17.85:1 | 4.5 |
 | `--fg-secondary` on `--surface` | 10.35:1 | 4.5 |
 | `--fg-muted` on `--page` | 7.24:1 | 4.5 |
-| `--link` on `--surface` | 7.56:1 | 4.5 |
+| `--link` on `--surface` | 18.67:1 | 4.5 |
 | `--on-action-primary` on `--action-primary` | 18.67:1 | 4.5 |
 | `--on-action-primary` on `--action-primary-hover` | 15.68:1 | 4.5 |
 | `--on-action-secondary` on `--action-secondary` | 14.56:1 | 4.5 |

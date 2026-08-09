@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { FiArrowLeft, FiLogIn } from "react-icons/fi";
 import { LoginForm } from "@/features/auth";
+import { hasValidSession } from "@/features/auth/api/session";
 import { PRICE_AREA } from "@/shared/config";
 
 export const metadata: Metadata = {
   title: "Sign in · Nordic Power & Weather Explorer",
 };
+
+/** Reading the session is request-time work, so this route is allowed to block. */
+export const instant = false;
 
 /**
  * Sign-in page.
@@ -17,7 +22,22 @@ export const metadata: Metadata = {
  * password means none of them could do anything. A control that cannot work is worse
  * than a missing one.
  */
-export default function LoginPage() {
+export default async function LoginPage() {
+  /*
+   * Already signed in? Go straight to the dashboard. Showing a login form to someone who
+   * is logged in is a dead end — the form's only outcome is the page they are being kept
+   * from.
+   *
+   * This verifies the signature and expiry rather than merely checking the cookie
+   * exists, and that distinction matters. Doing it optimistically in proxy.ts would
+   * loop forever on an expired cookie: proxy sees a cookie and sends you to /dashboard,
+   * the dashboard verifies it, fails, and sends you back here. Because both ends now
+   * agree on what "signed in" means, an expired cookie lands on the form exactly once.
+   */
+  if (await hasValidSession()) {
+    redirect("/dashboard");
+  }
+
   return (
     <div className="flex flex-1 items-center justify-center bg-page px-4 py-16">
       <div className="w-full max-w-md">
@@ -41,7 +61,7 @@ export default function LoginPage() {
 
         <Link
           href="/"
-          className="mt-6 inline-flex items-center gap-2 text-sm text-link underline-offset-4 hover:underline"
+          className="mt-6 inline-flex items-center gap-2 text-sm text-link underline underline-offset-4"
         >
           <FiArrowLeft aria-hidden="true" className="size-4" />
           Back to the overview
