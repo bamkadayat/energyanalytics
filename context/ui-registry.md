@@ -246,6 +246,22 @@ A list rather than prose: each observation is independent and should be scannabl
 label, up to six across at `2xl`. Deliberately denser than a content card: a KPI strip is
 scanned at a glance, and full card padding pushes the charts below the fold.
 
+## Range dropdown
+
+`components/range-select.tsx` — how many days the range views cover (7 / 14 / 30 / 60).
+
+- a **native `<select>`**, styled with tokens, not a custom listbox. A bespoke dropdown
+  means re-implementing roving focus, type-ahead, `aria-activedescendant` and the mobile
+  picker; getting one of those wrong is worse than the stock control looking less bespoke
+- unlike the chart/table toggles this one **does navigate** — a different range is
+  different data, which only the server can fetch. `router.replace(..., { scroll: false })`
+  keeps the position, and `useTransition` keeps the old numbers on screen while the new
+  ones load rather than collapsing the section into a skeleton
+- an unknown value falls back to 30, like every other parameter. `?range=1000` would
+  otherwise fire a thousand price requests
+- capped at 60 days: the price API is one request per day, so a 90-day option would fire
+  90 parallel requests at one host on a cold cache
+
 ## Chart card with view toggle
 
 `components/view-card.tsx` — wraps every chart section: title on the left, an icon
