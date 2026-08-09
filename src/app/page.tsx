@@ -18,8 +18,8 @@ export default function Home() {
         <Wordmark tone="inverse" />
 
         {/* Persistent entry point, always in reach as the page scrolls. */}
-        <Suspense fallback={<SessionCtaPlaceholder size="md" />}>
-          <SessionCta size="md" />
+        <Suspense fallback={<SessionCtaPlaceholder size="lg" />}>
+          <SessionCta size="lg" />
         </Suspense>
       </header>
 
@@ -39,7 +39,9 @@ export default function Home() {
             never disagree about whether you are signed in.
           */}
           <div className="mt-2">
-            <Suspense fallback={<SessionCtaPlaceholder size="lg" />}>
+            <Suspense
+              fallback={<SessionCtaPlaceholder size="lg" className="sm:w-48" />}
+            >
               <SessionCta size="lg" className="sm:min-w-48" />
             </Suspense>
           </div>

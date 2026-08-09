@@ -38,7 +38,7 @@ export async function SessionCta({
 const PLACEHOLDER_SIZE: Record<ButtonSize, string> = {
   sm: "h-8 w-24",
   md: "h-9 w-28",
-  lg: "h-12 w-32 sm:w-48",
+  lg: "h-12 w-32",
 };
 
 /**
@@ -47,11 +47,17 @@ const PLACEHOLDER_SIZE: Record<ButtonSize, string> = {
  * Deliberately shows no label. Rendering "Log in" and correcting it a moment later would
  * flash the wrong word at the primary control on the page.
  */
-export function SessionCtaPlaceholder({ size = "lg" }: { size?: ButtonSize }) {
+export function SessionCtaPlaceholder({
+  size = "lg",
+  className = "",
+}: {
+  size?: ButtonSize;
+  className?: string;
+}) {
   return (
     <div
       aria-hidden="true"
-      className={`rounded-pill bg-surface-inverse opacity-40 ${PLACEHOLDER_SIZE[size]}`}
+      className={`rounded-pill bg-surface-inverse opacity-40 ${PLACEHOLDER_SIZE[size]} ${className}`.trim()}
     />
   );
 }

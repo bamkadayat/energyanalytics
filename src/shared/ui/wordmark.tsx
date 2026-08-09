@@ -13,13 +13,13 @@ import { LogoMark } from "./logo-mark";
 export function Wordmark({ tone = "default" }: { tone?: "default" | "inverse" }) {
   return (
     <span
-      className={`flex items-center gap-2.5 ${
+      className={`flex items-center gap-3 ${
         tone === "inverse" ? "text-fg-inverse" : "text-fg"
       }`}
     >
-      <LogoMark className="size-7 shrink-0" />
+      <LogoMark className="size-9 shrink-0" />
 
-      <span className="text-sm font-semibold tracking-tight">
+      <span className="text-base font-semibold tracking-tight sm:text-lg">
         Nordic Power &amp; Weather
       </span>
     </span>
