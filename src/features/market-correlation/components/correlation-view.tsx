@@ -11,7 +11,9 @@ import { areTomorrowPricesExpected, resolveOsloDay } from "@/shared/lib/oslo-day
 import type { Fetched } from "@/shared/lib/fetched";
 import { StatusMessage } from "@/shared/ui";
 import { alignPriceAndWeather } from "../utils/align-hours";
+import { toChartSeries } from "../utils/to-chart-series";
 import type { ViewParams } from "../utils/view-params";
+import { CorrelationChart } from "./correlation-chart";
 import { SourceStatus } from "./source-status";
 
 /**
@@ -79,9 +81,17 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
 
       {hasAnything ? (
         <>
+          <figure className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
+            <CorrelationChart series={toChartSeries(aligned)} />
+            <figcaption className="text-sm text-fg-muted">
+              Spot price (solid, left axis) against {metric.label.toLowerCase()} (dashed,
+              right axis) for {formatOsloDate(day)}, by hour in Oslo time. The two axes use
+              independent scales.
+            </figcaption>
+          </figure>
+
           {/*
-            Stands in for the chart until Phase 4. It is a real text summary rather than
-            placeholder copy, and it stays afterwards: ui-rules.md requires the chart
+            Kept alongside the chart, not replaced by it: ui-rules.md requires the chart
             never be the only way to understand the result.
           */}
           <p className="text-fg-secondary">
