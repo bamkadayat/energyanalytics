@@ -186,6 +186,21 @@ rather than optional.
 - Numeric cells: `text-right font-mono tabular-nums` so decimal points line up
 - Wrapped in `overflow-x-auto` so the table scrolls rather than the page
 
+## Hero call to action
+
+`src/app/_components/hero-cta.tsx` — the landing page's single control, session-aware.
+
+- signed out → **Log in** (`/login`); signed in → **Go to dashboard** (`/dashboard`).
+  A control should say exactly what it does, and "Log in" is a lie to someone already
+  logged in
+- pill: `rounded-pill bg-surface px-7 py-3 text-base font-medium text-fg`
+- reading the session is request-time, so it is mounted in `<Suspense>`; the headline,
+  subtitle and visual stay in the prerendered shell rather than the whole page going
+  dynamic for one button
+- the fallback reserves the exact footprint and shows **no label**. Rendering "Log in"
+  and correcting it afterwards would flash the wrong word at the one control that
+  matters
+
 ## Hero visual
 
 `src/app/_components/hero-visual.tsx` — decorative, `aria-hidden`, in a
