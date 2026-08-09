@@ -1,26 +1,234 @@
 @import "tailwindcss";
 
+/*
+ * Nordic Power & Weather Explorer — design tokens + base layer
+ *
+ * Reference and rationale: context/ui-tokens.md. Usage rules: context/ui-rules.md.
+ * This is the only place color values are allowed to exist.
+ *
+ * Three layers, in order:
+ *   1. :root foundation  — raw scale values. Implementation detail; never referenced
+ *                          outside this file.
+ *   2. :root semantic    — role-named tokens. Readable at runtime via getComputedStyle,
+ *                          which is how the ECharts canvas consumes them.
+ *   3. @theme            — the Tailwind bridge. Turns each semantic token into a utility
+ *                          class (bg-surface, text-fg-muted, border-line).
+ *
+ * Components use layer 3 utilities, or var(--token) from layer 2 when no utility fits.
+ * Light-only theme; color-scheme is pinned so the browser does not restyle form controls
+ * and scrollbars out from under it.
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* ---- 1. Foundation: neutral ---- */
+  --white: #ffffff;
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-900: #0f172a;
+
+  /* ---- 1. Foundation: Nordic blue ---- */
+  --nordic-50: #f0f9ff;
+  --nordic-100: #e0f2fe;
+  --nordic-200: #bae6fd;
+  --nordic-600: #0369a1;
+  --nordic-700: #075985;
+  --nordic-800: #0c4a6e;
+  --nordic-900: #082f49;
+
+  /* ---- 2. Semantic: surfaces ---- */
+  --page: var(--slate-50);
+  --surface: var(--white);
+  --surface-subtle: var(--slate-100);
+  --surface-selected: var(--nordic-100);
+  --surface-inverse: var(--slate-900);
+
+  /* ---- 2. Semantic: foreground ---- */
+  --fg: var(--slate-900);
+  --fg-secondary: var(--slate-700);
+  --fg-muted: var(--slate-600);
+  --fg-inverse: var(--white);
+  --link: var(--nordic-700);
+  --icon: var(--slate-600);
+
+  /* ---- 2. Semantic: lines and focus ---- */
+  --line: var(--slate-300);
+  --line-strong: var(--slate-500);
+  --line-selected: var(--nordic-600);
+  --focus: var(--nordic-600);
+
+  /* ---- 2. Semantic: actions ---- */
+  --action-primary: var(--nordic-700);
+  --action-primary-hover: var(--nordic-800);
+  --action-primary-active: var(--nordic-900);
+  --on-action-primary: var(--white);
+  --action-secondary: var(--nordic-100);
+  --action-secondary-hover: var(--nordic-200);
+  --on-action-secondary: var(--nordic-800);
+  --disabled: var(--slate-200);
+  --on-disabled: var(--slate-600);
+
+  /* ---- 2. Semantic: status. Always pair with text or an icon, never color alone. ---- */
+  --success-surface: #dcfce7;
+  --success-line: #16a34a;
+  --success-fg: #166534;
+  --warning-surface: #fef3c7;
+  --warning-line: #d97706;
+  --warning-fg: #92400e;
+  --error-surface: #fee2e2;
+  --error-line: #dc2626;
+  --error-fg: #991b1b;
+  --info-surface: var(--nordic-100);
+  --info-line: #0284c7;
+  --info-fg: var(--nordic-700);
+
+  /*
+   * ---- 2. Semantic: data visualization ----
+   * Every series clears 3:1 against --surface, but they do NOT clear 3:1 against each
+   * other: all four sit at near-identical luminance, so the palette separates by hue
+   * alone. Price/wind is the closest pair. The solid-area vs dashed-line distinction in
+   * ui-rules.md is therefore load-bearing accessibility, not decoration.
+   */
+  --chart-price: #2563eb;
+  --chart-price-fill: rgb(37 99 235 / 14%);
+  --chart-wind: #0f766e;
+  --chart-temperature: #c2410c;
+  --chart-solar: #a16207;
+  --chart-missing: var(--slate-500);
+  --chart-grid: var(--slate-200);
+  --chart-axis: var(--slate-600);
+  --chart-crosshair: var(--slate-700);
+  --chart-tooltip-surface: var(--slate-900);
+  --chart-tooltip-fg: var(--white);
+
+  /* ---- 2. Semantic: sizing ---- */
+  --chart-min-height: clamp(18rem, 40vh, 28rem);
 }
 
+/*
+ * ---- 3. Tailwind bridge ----
+ *
+ * `--color-*: initial` clears Tailwind's built-in palette, so raw color utilities
+ * (bg-zinc-50, text-black) generate no CSS at all. Combined with the ESLint guard in
+ * eslint.config.mjs, adding an off-palette color is a lint error rather than a silently
+ * dead class.
+ */
+@theme {
+  --color-*: initial;
+}
+
+/*
+ * `inline` emits the underlying var reference into each utility instead of adding a
+ * second layer of indirection. Names mirror layer 2 exactly, prefixed with --color-,
+ * so the mapping stays mechanical.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-selected: var(--surface-selected);
+  --color-surface-inverse: var(--surface-inverse);
+
+  --color-fg: var(--fg);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-inverse: var(--fg-inverse);
+  --color-link: var(--link);
+  --color-icon: var(--icon);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-line-selected: var(--line-selected);
+  --color-focus: var(--focus);
+
+  --color-action-primary: var(--action-primary);
+  --color-action-primary-hover: var(--action-primary-hover);
+  --color-action-primary-active: var(--action-primary-active);
+  --color-on-action-primary: var(--on-action-primary);
+  --color-action-secondary: var(--action-secondary);
+  --color-action-secondary-hover: var(--action-secondary-hover);
+  --color-on-action-secondary: var(--on-action-secondary);
+  --color-disabled: var(--disabled);
+  --color-on-disabled: var(--on-disabled);
+
+  --color-success-surface: var(--success-surface);
+  --color-success-line: var(--success-line);
+  --color-success-fg: var(--success-fg);
+  --color-warning-surface: var(--warning-surface);
+  --color-warning-line: var(--warning-line);
+  --color-warning-fg: var(--warning-fg);
+  --color-error-surface: var(--error-surface);
+  --color-error-line: var(--error-line);
+  --color-error-fg: var(--error-fg);
+  --color-info-surface: var(--info-surface);
+  --color-info-line: var(--info-line);
+  --color-info-fg: var(--info-fg);
+
+  /* Exposed for DOM legend swatches and table keys. The canvas reads layer 2 directly. */
+  --color-chart-price: var(--chart-price);
+  --color-chart-wind: var(--chart-wind);
+  --color-chart-temperature: var(--chart-temperature);
+  --color-chart-solar: var(--chart-solar);
+  --color-chart-missing: var(--chart-missing);
+
+  /* Typography. Geist is wired up as a CSS variable in layout.tsx. */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/*
+ * Non-color scales. Not `inline` — these are literal values, so Tailwind emits them as
+ * real custom properties that arbitrary values can reference too.
+ *
+ * Spacing deliberately keeps Tailwind's default 0.25rem scale; that scale IS the spacing
+ * token system, and a parallel one would only invite drift.
+ */
+@theme {
+  --radius-control: 0.5rem;
+  --radius-card: 0.75rem;
+  --radius-pill: 9999px;
+
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.06), 0 1px 3px 0 rgb(15 23 42 / 0.1);
+  --shadow-popover: 0 8px 24px -4px rgb(15 23 42 / 0.18);
+
+  --container-content: 72rem;
+
+  /* Fluid, so headings survive 200% zoom and narrow viewports without a media query. */
+  --text-display: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem);
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.02em;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  body {
+    background: var(--page);
+    color: var(--fg);
+    font-family: var(--font-sans), system-ui, sans-serif;
+  }
+
+  /*
+   * A visible focus indicator on every keyboard-reachable control is a WCAG 2.2 AA
+   * requirement, so it is set globally rather than left to each component.
+   */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
