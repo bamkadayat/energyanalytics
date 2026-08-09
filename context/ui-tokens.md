@@ -178,9 +178,18 @@ legend swatches and table keys. The chart itself reads layer 2 via `getComputedS
 
 | Token | Utility | Value |
 | --- | --- | --- |
-| `--radius-control` | `rounded-control` | `0.5rem` — buttons, inputs, toggles |
-| `--radius-card` | `rounded-card` | `0.75rem` — cards, panels |
-| `--radius-pill` | `rounded-pill` | `9999px` — chips, segmented controls |
+| `--radius-control` | `rounded-control` | `0.5rem` — **inputs only**: text fields, textareas, selects |
+| `--radius-card` | `rounded-card` | `0.75rem` — cards, panels, banners |
+| `--radius-pill` | `rounded-pill` | `9999px` — **every button**, plus chips and segmented controls |
+
+**Radius is assigned by role, not by taste.** The split is *controls you press* versus
+*controls you type into*: buttons and button-like links are always `rounded-pill`, and
+inputs are always `rounded-control`. A pill-shaped text field reads as a tag or a search
+chip, and long values sit awkwardly against the curve.
+
+This is enforced in code, not by convention — `shared/ui/button.tsx` is the only place
+button styling is written, and a test asserts every variant emits `rounded-pill` and no
+other radius.
 | `--shadow-card` | `shadow-card` | subtle two-stop card elevation |
 | `--shadow-popover` | `shadow-popover` | tooltips, menus |
 | `--container-content` | `max-w-content` | `72rem` page max width |

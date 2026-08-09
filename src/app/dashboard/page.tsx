@@ -9,7 +9,7 @@ import {
   ViewControls,
 } from "@/features/market-correlation";
 import { APP_TIME_ZONE, PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
-import { Wordmark } from "@/shared/ui";
+import { Button, Wordmark } from "@/shared/ui";
 
 export const metadata: Metadata = {
   title: "Dashboard · Nordic Power & Weather Explorer",
@@ -61,12 +61,9 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
         </div>
 
         <form action={logout}>
-          <button
-            type="submit"
-            className="rounded-control border border-line-strong px-3 py-1.5 text-sm font-medium text-fg-secondary hover:bg-surface-subtle"
-          >
+          <Button type="submit" variant="outline" size="sm">
             Sign out
-          </button>
+          </Button>
         </form>
       </header>
 

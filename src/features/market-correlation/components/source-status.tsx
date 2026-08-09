@@ -1,7 +1,7 @@
 import type { PriceFetchResult } from "@/features/energy-prices";
 import type { WeatherFetchResult } from "@/features/weather-forecast";
 import { TOMORROW_PRICES_PUBLISHED_HOUR, WEATHER_METRICS } from "@/shared/config";
-import { StatusMessage } from "@/shared/ui";
+import { buttonClasses, StatusMessage } from "@/shared/ui";
 import type { AlignmentCoverage } from "../types";
 import { viewParamsHref, type ViewParams } from "../utils/view-params";
 
@@ -122,7 +122,7 @@ function RetryLink({ params }: { params: ViewParams }) {
   return (
     <a
       href={viewParamsHref(params)}
-      className="inline-block rounded-control border border-line-strong px-3 py-1.5 text-sm font-medium hover:bg-surface-subtle"
+      className={buttonClasses({ variant: "outline", size: "sm" })}
     >
       Try again
     </a>

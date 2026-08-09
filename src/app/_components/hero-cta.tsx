@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { hasValidSession } from "@/features/auth/api/session";
+import { buttonClasses } from "@/shared/ui";
 
-const PILL =
-  "inline-flex items-center justify-center rounded-pill bg-surface px-7 py-3 text-base font-medium text-fg transition-colors hover:bg-surface-subtle";
+const PILL = buttonClasses({ variant: "inverse", size: "lg" });
 
 /**
  * The page's single call to action, which changes with the session.

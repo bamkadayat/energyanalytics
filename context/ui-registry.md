@@ -84,6 +84,36 @@ one fails the suite.
 
 ---
 
+## Buttons
+
+`src/shared/ui/button.tsx` — the **only** place button styling is written. Import
+`Button` for `<button>`, or `buttonClasses()` for a `<Link>` or `<a>`; never write the
+classes inline.
+
+`buttonClasses` returns a string rather than the component wrapping everything, because
+these styles apply to three elements — `<button>`, Next's `<Link>`, and a plain `<a>` —
+and a component per element would be the same rule copied three times.
+
+| Variant | Use |
+| --- | --- |
+| `primary` | the main action (sign in) |
+| `secondary` | supporting action on a light surface |
+| `outline` | low-emphasis action (sign out, retry) |
+| `inverse` | on `--surface-inverse` — a white pill against navy |
+
+| Size | Padding | Use |
+| --- | --- | --- |
+| `sm` | `px-3 py-1.5 text-sm` | inline actions inside banners and headers |
+| `md` | `px-4 py-2 text-sm` | default |
+| `lg` | `px-7 py-3 text-base` | the hero call to action |
+
+**Every variant is `rounded-pill`**, and a test asserts it — buttons had previously
+drifted between `rounded-pill` and `rounded-control` because each was styled at its call
+site. Every variant also carries a `disabled:` treatment, so a disabled button never
+still looks pressable.
+
+---
+
 ## Logo mark and wordmark
 
 `src/shared/ui/logo-mark.tsx` — two wind gusts above a rising measurement line ending in
