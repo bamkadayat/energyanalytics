@@ -33,7 +33,7 @@ export function MetricHighlights() {
   return (
     <section className="bg-page py-16 sm:py-24">
       <div className="mx-auto w-full max-w-content px-4 sm:px-6">
-        <h2 className="mx-auto max-w-2xl text-balance text-center text-display font-semibold text-fg">
+        <h2 className="animate-reveal mx-auto max-w-2xl text-balance text-center text-display font-semibold text-fg">
           The same 24 hours, three ways to read them
         </h2>
 
@@ -56,7 +56,7 @@ function MetricCard({ id, featured }: { id: WeatherMetricId; featured: boolean }
 
   return (
     <li
-      className={`relative flex min-h-80 flex-col overflow-hidden rounded-card p-6 sm:p-8 ${
+      className={`animate-reveal relative flex min-h-80 flex-col overflow-hidden rounded-card p-6 sm:p-8 ${
         featured
           ? "bg-surface-inverse text-fg-inverse lg:min-h-[26rem]"
           : "bg-surface-selected text-fg lg:min-h-96"

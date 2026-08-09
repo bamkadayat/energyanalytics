@@ -256,6 +256,28 @@ rather than optional.
   "Log in" and correcting it afterwards would flash the wrong word at the primary
   control on the page
 
+## Landing page motion
+
+Two utilities in `globals.css`, both pure CSS — the landing page needs no client
+JavaScript and stays prerendered.
+
+- `.animate-enter` — on load. Set the stagger per element with
+  `[--enter-delay:180ms]`. `animation-fill-mode: both` holds the start state through the
+  delay, so nothing flashes before it begins
+- `.animate-reveal` — on scroll, via `animation-timeline: view()`
+
+**The scroll reveal is wrapped in `@supports (animation-timeline: view())`.** This is not
+optional: the rule sets an invisible start state, so applying it where the timeline is
+unsupported would leave content permanently blank. Outside the guard the element is
+simply visible, which is what Firefox and older browsers get.
+
+**Both are switched off explicitly under `prefers-reduced-motion`.** The base-layer rule
+only shortens `animation-duration`, and a scroll-driven animation ignores duration
+entirely — its progress comes from the timeline, not from time. Relying on the global
+rule alone would leave the reveals fully active for users who asked for less motion.
+
+Current stagger: header 0 → headline 90ms → subtitle 180ms → CTA 270ms → visual 340ms.
+
 ## Metric highlight cards
 
 `src/app/_components/metric-highlights.tsx` — three cards below the hero, one per weather
