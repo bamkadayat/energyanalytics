@@ -16,6 +16,8 @@ already been decided. Where they conflict, this file wins.
 | `react` / `react-dom` | 19.2.8 | installed |
 | `tailwindcss` | 4.3.3 | installed, configured |
 | `eslint` + `eslint-config-next` | 9 / 16.3.0 | installed |
+| `react-icons` | 5.7.0 | installed |
+| `server-only` | 0.0.1 | installed |
 | `echarts` + `echarts-for-react` | — | **required, not yet installed** |
 | `date-fns` (+ timezone support) | — | **required, not yet installed** |
 | test runner (Vitest + RTL, Playwright) | — | **required, not yet installed** |
@@ -70,6 +72,24 @@ code. Verified specifics for this repo:
   `crypto.randomUUID()` still fail the prerender. Only `connection()`, `use cache`, or a
   client component fix those. Verified the hard way in the auth slice.
 - `next dev` rewrites `AGENTS.md`. Commit the regenerated block with your work.
+
+## react-icons
+
+Icon set. Import **individual icons by name** (`import { FiChevronDown } from
+"react-icons/fi"`) so bundling stays tree-shaken — importing the package root pulls in
+thousands of components.
+
+Rules for this project:
+
+- Icons are decorative unless they are the only label. Pass `aria-hidden` when adjacent
+  text already says it, and give the element an accessible name when it does not.
+- Size with the `size-*` utilities or `className`, not a hard-coded `size` prop, so icons
+  scale with text at 200 % zoom.
+- Colour comes from `currentColor` — never pass a colour prop, or the ESLint token guard
+  is bypassed.
+- `StatusMessage` keeps its hand-rolled SVGs deliberately: their shapes are pinned by
+  tests as one of the three redundant signals, and swapping icon sets should be a
+  conscious change to that contract, not a side effect of a refactor.
 
 ## server-only
 
