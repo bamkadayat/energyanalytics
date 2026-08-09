@@ -110,7 +110,7 @@ and a component per element would be the same rule copied three times.
 **Width comes from content, never from a fixed size.** Where a button needs more
 presence — the hero call to action against a 4.5rem headline — add a responsive
 *minimum* (`sm:min-w-48`), not a width. A fixed width clips a longer label, and this
-button's label changes with the session ("Log in" versus "Go to dashboard"). Leave the
+button's label changes with the session ("Login" versus "Go to dashboard"). Leave the
 minimum off below `sm`, where it would span most of the viewport and read as a
 full-width bar.
 
@@ -243,8 +243,8 @@ rather than optional.
 `src/app/_components/session-cta.tsx` — used in the navbar (`size="md"`) and the hero
 (`size="lg"`).
 
-- signed out → **Log in** (`/login`); signed in → **Go to dashboard** (`/dashboard`).
-  A control should say exactly what it does, and "Log in" is a lie to someone already
+- signed out → **Login** (`/login`); signed in → **Go to dashboard** (`/dashboard`).
+  A control should say exactly what it does, and "Login" is a lie to someone already
   logged in
 - **one component for both placements**, so the navbar and the hero can never disagree
   about whether you are signed in
@@ -253,7 +253,7 @@ rather than optional.
   subtitle and visual stay in the prerendered shell rather than the page going dynamic
   for two buttons
 - the fallback reserves the exact footprint per size and shows **no label**. Rendering
-  "Log in" and correcting it afterwards would flash the wrong word at the primary
+  "Login" and correcting it afterwards would flash the wrong word at the primary
   control on the page
 
 ## Sign-in card

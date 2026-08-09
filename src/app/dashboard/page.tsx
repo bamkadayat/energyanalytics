@@ -62,7 +62,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
 
         <form action={logout}>
           <Button type="submit" variant="outline" size="sm">
-            Sign out
+            Logout
           </Button>
         </form>
       </header>

@@ -7,18 +7,18 @@ import { hasValidSession } from "@/features/auth/api/session";
 import { PRICE_AREA } from "@/shared/config";
 
 export const metadata: Metadata = {
-  title: "Sign in · Nordic Power & Weather Explorer",
+  title: "Login · Nordic Power & Weather Explorer",
 };
 
 /** Reading the session is request-time work, so this route is allowed to block. */
 export const instant = false;
 
 /**
- * Sign-in page.
+ * Login page.
  *
  * The card follows the reference layout — badge, heading, supporting line, one field, a
  * full-width action — but carries only the controls this app actually has. There is no
- * email field, no "forgot password" and no social sign-in, because a single shared
+ * email field, no "forgot password" and no social login, because a single shared
  * password means none of them could do anything. A control that cannot work is worse
  * than a missing one.
  */
@@ -48,7 +48,7 @@ export default async function LoginPage() {
             </span>
 
             <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-semibold text-fg">Sign in</h1>
+              <h1 className="text-3xl font-semibold text-fg">Login</h1>
               <p className="text-pretty text-fg-muted">
                 The {PRICE_AREA.label} dashboard is password protected. Enter the shared
                 password to continue.
