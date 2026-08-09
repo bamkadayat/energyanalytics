@@ -7,12 +7,19 @@
  *
  * `RawEnergyPrice` is intentionally absent. The raw provider shape never leaves the
  * feature; only validated domain data crosses this boundary.
+ *
+ * The fetchers are server-only — they use `use cache`. Client components must import
+ * only the types from here.
  */
 export type {
   EnergyPrice,
   ParsedPrices,
   ParsePricesFailure,
   ParsePricesResult,
+  PriceErrorReason,
+  PriceFetchResult,
 } from "./types";
 
 export { parseEnergyPrices } from "./utils/parse-prices";
+export { toPriceResult } from "./utils/to-price-result";
+export { getPrices, getPendingPrices, getSettledPrices } from "./api/get-prices";

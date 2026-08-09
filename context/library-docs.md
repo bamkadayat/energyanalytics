@@ -44,6 +44,23 @@ code. Verified specifics for this repo:
 - Without that flag the project falls back to the previous model (`fetch` options,
   `unstable_cache`, route segment config). **Do not mix the two models.**
 - Uncached, request-time content goes inside `<Suspense>` so the shell still prerenders.
+- **`new Date()` in a server component is a build error.** With Cache Components, reading
+  the clock during prerender fails with `blocking-prerender-current-time`. `<Suspense>`
+  alone does **not** fix it — verified. Call `await connection()` from `next/server`
+  first, which stops prerendering at that point and moves the rest to request time:
+
+  ```tsx
+  async function CurrentHour() {
+    await connection();          // prerendering stops here
+    const now = new Date();      // request-time only
+  }
+  ```
+
+  This matters for the whole app: selecting today/tomorrow, resolving the current hour,
+  and deciding whether tomorrow's prices are published all read the clock. Each belongs
+  in a `connection()`-guarded component inside a `<Suspense>` boundary, so the shell
+  stays static and only the time-dependent part streams. A route structured this way
+  reports as `◐ (Partial Prerender)` in the build output rather than `○ (Static)`.
 - `next dev` rewrites `AGENTS.md`. Commit the regenerated block with your work.
 
 ## Tailwind CSS v4

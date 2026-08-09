@@ -40,22 +40,24 @@ One commit per item, per the workflow in `progress-tracker.md`.
 
 ---
 
-## Phase 2 — Providers and alignment (test-first)
+## Phase 2 — Providers and alignment (test-first) ✅ complete
 
 The core of the project. No UI in this phase.
 
-- [ ] `features/energy-prices/types` — `RawEnergyPrice` + domain `EnergyPrice`
-- [ ] `features/weather-forecast/types` — `RawHourlyWeather` + domain shape, columnar
-- [ ] Parse/validate at each boundary: `unknown` → domain, rejecting malformed payloads
-- [ ] `features/*/api` — server fetchers with timeouts, `use cache` + explicit `cacheLife`
-- [ ] Discriminated-union results per source, including `not-published`
-- [ ] `market-correlation/utils` — timestamp alignment, pure, clock injected
+- [x] `features/energy-prices/types` — `RawEnergyPrice` + domain `EnergyPrice`
+- [x] `features/weather-forecast/types` — `RawHourlyWeather` + domain shape, columnar
+- [x] Parse/validate at each boundary: `unknown` → domain, rejecting malformed payloads
+- [x] `shared/lib` — Oslo day/hour helpers and `fetchJson` with timeouts
+- [x] `features/*/api` — server fetchers with timeouts, `use cache` + explicit `cacheLife`
+- [x] Discriminated-union results per source, including `not-published`
+- [x] `market-correlation/utils` — timestamp alignment, pure, clock injected
 
-Tests required before moving on: provider parsing, timezone-aware alignment, malformed
-and unequal-length arrays, missing values staying missing, the DST 23/25-hour days, the
-not-yet-published branch.
+**Gate:** `pnpm test` green (84 tests); alignment provably correct without a running
+app. ✅ Additionally verified end to end against the live APIs via a temporary probe.
 
-**Gate:** `pnpm test` green; alignment provably correct without a running app.
+Carried into Phase 3: reading the clock requires `await connection()` — see
+`library-docs.md`. `WEATHER_REQUEST_PARAMS` must stay on every Open-Meteo request or the
+units silently stop matching their labels.
 
 ---
 

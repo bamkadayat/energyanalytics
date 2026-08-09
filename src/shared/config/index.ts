@@ -79,6 +79,24 @@ export const WEATHER_METRICS: Readonly<Record<WeatherMetricId, WeatherMetric>> =
 
 export const WEATHER_METRIC_IDS = Object.keys(WEATHER_METRICS) as WeatherMetricId[];
 
+/**
+ * Query parameters that pin Open-Meteo's response to the contract this app assumes.
+ * All three were verified against the live API.
+ *
+ * - `wind_speed_unit=ms`: Open-Meteo answers **km/h** by default. Without this, every
+ *   wind reading would be ~3.6x too large while labelled "m/s" — a wrong chart that
+ *   looks entirely plausible.
+ * - `timeformat=unixtime`: the default returns naive local strings ("2026-08-09T00:00")
+ *   whose zone lives in a separate field, which `new Date()` would silently read in the
+ *   server's zone. Epoch seconds are unambiguous.
+ * - `timezone`: makes `start_date`/`end_date` mean an Oslo calendar day.
+ */
+export const WEATHER_REQUEST_PARAMS = {
+  timezone: APP_TIME_ZONE,
+  timeformat: "unixtime",
+  wind_speed_unit: "ms",
+} as const;
+
 export const DEFAULT_WEATHER_METRIC: WeatherMetricId = "wind";
 
 /** Price unit shown throughout. Excludes VAT, grid charges, and other consumer costs. */
