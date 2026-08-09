@@ -9,6 +9,7 @@ import {
   ViewControls,
 } from "@/features/market-correlation";
 import { APP_TIME_ZONE, PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
+import { Wordmark } from "@/shared/ui";
 
 export const metadata: Metadata = {
   title: "Dashboard · Nordic Power & Weather Explorer",
@@ -43,6 +44,8 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
     <div className="mx-auto flex w-full max-w-content flex-col gap-8 px-4 py-8 sm:px-6 sm:py-12">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-3">
+          <Wordmark />
+
           <h1 className="max-w-2xl text-display font-semibold text-fg">
             Nordic Power &amp; Weather Explorer
           </h1>
