@@ -16,7 +16,13 @@ The first release supports:
 - Weather metrics: wind speed, temperature, and solar radiation
 - One primary correlation chart, summary cards, clear status states, and an accessible data table
 
-Keep the prototype focused. Do not add authentication, a database, global state management, WebSockets, multi-page navigation, or speculative production infrastructure unless the user explicitly expands the scope.
+Keep the prototype focused. Do not add a database, global state management, WebSockets, or speculative production infrastructure unless the user explicitly expands the scope.
+
+**Scope expanded 2026-08-09:** the user added a public landing page and a password gate.
+The app is now three routes — `/` (static hero), `/login`, and `/dashboard` (the explorer,
+protected). Authentication is a single shared password in an env var, verified server-side
+and carried in a signed httpOnly cookie. No database, no user records, no auth library.
+Everything else above still holds.
 
 ## Data Sources and Domain Truths
 

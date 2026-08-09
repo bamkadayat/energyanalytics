@@ -88,6 +88,7 @@ The nordic ramp is retained as an accent for links and the `info` status family.
 | `--fg-secondary` | `text-fg-secondary` | `--slate-700` | body copy |
 | `--fg-muted` | `text-fg-muted` | `--slate-600` | labels, units, captions |
 | `--fg-inverse` | `text-fg-inverse` | `--white` | text on inverse surfaces |
+| `--fg-inverse-muted` | `text-fg-inverse-muted` | `--navy-200` | subdued text on inverse surfaces |
 | `--link` | `text-link` | `--nordic-700` | links — always with underline; see *The primary* |
 | `--icon` | `text-icon` | `--slate-600` | standalone icons |
 
@@ -211,6 +212,8 @@ Verified against WCAG 2.2 AA. Every meaning-carrying pair passes:
 | `--on-action-secondary` on `--action-secondary` | 14.56:1 | 4.5 |
 | `--on-action-secondary` on `--action-secondary-hover` | 11.44:1 | 4.5 |
 | `--fg` on `--surface-selected` | 16.39:1 | 4.5 |
+| `--fg-inverse` on `--surface-inverse` | 18.67:1 | 4.5 |
+| `--fg-inverse-muted` on `--surface-inverse` | 11.44:1 | 4.5 |
 | `--on-disabled` on `--disabled` | 6.15:1 | 4.5 |
 | status `fg` on status `surface` (all four) | 6.37–6.80:1 | 4.5 |
 | `--chart-axis` on `--surface` | 7.58:1 | 4.5 |

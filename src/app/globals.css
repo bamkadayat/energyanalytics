@@ -67,6 +67,8 @@
   --fg-secondary: var(--slate-700);
   --fg-muted: var(--slate-600);
   --fg-inverse: var(--white);
+  /* Subdued text on --surface-inverse. 11.44:1 against navy-900. */
+  --fg-inverse-muted: var(--navy-200);
   /*
    * Deliberately on the nordic accent rather than the navy primary: at near-black a
    * link would be indistinguishable from body text, leaving the underline as its only
@@ -157,6 +159,7 @@
   --color-fg-secondary: var(--fg-secondary);
   --color-fg-muted: var(--fg-muted);
   --color-fg-inverse: var(--fg-inverse);
+  --color-fg-inverse-muted: var(--fg-inverse-muted);
   --color-link: var(--link);
   --color-icon: var(--icon);
 
