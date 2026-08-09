@@ -114,6 +114,21 @@ button's label changes with the session ("Log in" versus "Go to dashboard"). Lea
 minimum off below `sm`, where it would span most of the viewport and read as a
 full-width bar.
 
+**Hover and focus share one ring.** `.btn-ring` in `globals.css` draws an `outline` at
+`outline-offset: 3px`, and each variant sets `--btn-ring-color`.
+
+`outline` rather than a border or box-shadow: it sits outside the box and makes its own
+transparent gap, so nothing reflows on hover and no rule needs to know what colour the
+surrounding surface is. It is declared transparent up front so the colour transitions
+rather than snapping.
+
+The same declaration serves `:focus-visible`, which fixed a real bug — the global focus
+ring is `--focus` (near-black navy) and was **invisible** against the navy hero. Any
+variant that sets `--btn-ring-color` now gets a visible focus ring on its own surface.
+
+The `inverse` variant also inverts its fill on hover (navy fill, white text). Its ring is
+white, and a white ring around a white pill on navy would be invisible.
+
 **Every variant is `rounded-pill`**, and a test asserts it — buttons had previously
 drifted between `rounded-pill` and `rounded-control` because each was styled at its call
 site. Every variant also carries a `disabled:` treatment, so a disabled button never

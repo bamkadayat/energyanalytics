@@ -23,16 +23,26 @@ export type ButtonSize = "sm" | "md" | "lg";
  * `ui-rules.md`.
  */
 const BASE =
-  "inline-flex items-center justify-center rounded-pill font-medium transition-colors disabled:cursor-not-allowed disabled:bg-disabled disabled:text-on-disabled";
+  "btn-ring inline-flex items-center justify-center rounded-pill font-medium transition-colors disabled:cursor-not-allowed disabled:bg-disabled disabled:text-on-disabled";
 
+/*
+ * Each variant declares `--btn-ring-color`, which `.btn-ring` in globals.css uses for
+ * both the hover ring and the focus ring. The colour has to be chosen per variant: a
+ * ring is only visible against the surface the button sits on, and those differ.
+ */
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    "bg-action-primary text-on-action-primary hover:bg-action-primary-hover active:bg-action-primary-active",
+    "bg-action-primary text-on-action-primary hover:bg-action-primary-hover active:bg-action-primary-active [--btn-ring-color:var(--action-primary)]",
   secondary:
-    "bg-action-secondary text-on-action-secondary hover:bg-action-secondary-hover",
-  outline: "border border-line-strong text-fg-secondary hover:bg-surface-subtle",
-  /** For use on `--surface-inverse`: a white pill against the navy field. */
-  inverse: "bg-surface text-fg hover:bg-surface-subtle",
+    "bg-action-secondary text-on-action-secondary hover:bg-action-secondary-hover [--btn-ring-color:var(--action-primary)]",
+  outline:
+    "border border-line-strong text-fg-secondary hover:bg-surface-subtle [--btn-ring-color:var(--line-strong)]",
+  /*
+   * On `--surface-inverse`. Hover inverts the fill so the white ring has something to
+   * read against — a white ring around a white pill on navy would be invisible.
+   */
+  inverse:
+    "bg-surface text-fg hover:bg-surface-inverse hover:text-fg-inverse [--btn-ring-color:var(--fg-inverse)]",
 };
 
 const SIZES: Record<ButtonSize, string> = {

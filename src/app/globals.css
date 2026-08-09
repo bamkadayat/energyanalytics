@@ -281,7 +281,34 @@
   }
 }
 
+/*
+ * Button ring, shared by hover and focus.
+ *
+ * `outline` rather than a border or box-shadow: it sits outside the box and creates its
+ * own transparent gap via outline-offset, so nothing reflows and no rule needs to know
+ * what colour the surrounding background is.
+ *
+ * It is declared transparent up front so the colour can transition rather than snap.
+ *
+ * The same declaration serves :focus-visible, which also fixes a real bug: the global
+ * focus ring is --focus (near-black navy) and was invisible against the navy hero. A
+ * variant that sets --btn-ring-color now gets a visible focus ring too.
+ */
 @layer components {
+  .btn-ring {
+    outline: 2px solid transparent;
+    outline-offset: 3px;
+    transition:
+      outline-color 150ms ease,
+      background-color 150ms ease,
+      color 150ms ease;
+  }
+
+  .btn-ring:hover,
+  .btn-ring:focus-visible {
+    outline-color: var(--btn-ring-color, var(--focus));
+  }
+
   .animate-rotor,
   .animate-rotor-slow,
   .animate-rotor-slower {

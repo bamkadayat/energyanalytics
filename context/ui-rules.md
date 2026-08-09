@@ -82,6 +82,9 @@ Target WCAG 2.2 AA. Beyond the token-level contrast already verified:
   the data table, `<label>` tied to every control.
 - Every control keyboard operable; the global `:focus-visible` ring must stay visible —
   never `outline: none` without an equivalent replacement.
+- **The global focus ring is `--focus`, a near-black navy, so it is invisible on
+  `--surface-inverse`.** Anything placed on a dark surface must override it. Buttons do
+  this through `--btn-ring-color`; other controls need their own override.
 - Never rely on color, line style, position, or icon **alone** — pair at least two.
 - Chart controls need accessible names, and the chart's purpose must be stated in
   surrounding text.
