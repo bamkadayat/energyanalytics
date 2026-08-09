@@ -24,7 +24,7 @@ Scaffold, `src/` layout, design tokens, enforcement.
 
 ---
 
-## Phase 1 — Dependencies and configuration ✅ complete (in review)
+## Phase 1 — Dependencies and configuration ✅ complete
 
 One commit per item, per the workflow in `progress-tracker.md`.
 
@@ -84,19 +84,24 @@ Still owed from this phase: a stale-data state. Nothing currently distinguishes
 
 ---
 
-## Phase 4 — The chart
+## Phase 4 — The chart ✅ complete
 
-- [ ] `CorrelationChart` as a `"use client"` leaf
-- [ ] Price solid + area fill on left axis; metric **dashed** on right axis
-- [ ] Colors resolved via `getComputedStyle(...).trim()`, never inlined
-- [ ] Axis-triggered crosshair tooltip, both values, same timestamp
-- [ ] Legend, axis labels, units, date, timezone
-- [ ] Canvas renderer, animation off, `--chart-min-height`, no fixed pixel height
-- [ ] Non-causation qualifier rendered adjacent to the chart
-- [ ] Gaps render as gaps
+- [x] `CorrelationChart` as a `"use client"` leaf
+- [x] Price solid + area fill on left axis; metric **dashed** on right axis
+- [x] Colors resolved via `getComputedStyle(...).trim()`, never inlined
+- [x] Axis-triggered crosshair tooltip, both values, same timestamp
+- [x] Legend, axis labels, units, date, timezone
+- [x] Canvas renderer, animation off, `--chart-min-height`, no fixed pixel height
+- [x] Non-causation qualifier rendered adjacent to the chart
+- [x] Gaps render as gaps (`connectNulls: false`)
 
-**Gate:** dual axes obviously independent; chart legible at 200% zoom and at 360px wide;
-`/imprint` run.
+Added beyond the plan: the x-axis is a **category axis over server-formatted Oslo
+labels**, not a time axis. A time axis formats ticks in the viewer's timezone, which
+would relabel Norwegian market hours for a reader abroad while the values stayed put.
+
+**Gate:** ⚠️ partially met. The dual axes are labelled and independent, and the palette is
+recorded in `ui-registry.md` — but **legibility at 200% zoom and 360px wide has not been
+checked**, because nothing has been verified visually yet. Carried into Phase 6.
 
 ---
 

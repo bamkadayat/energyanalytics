@@ -12,10 +12,13 @@ component patterns live in `ui-registry.md`. This file is the rules for using bo
    or ECharts options resolved at runtime.
 3. **Never reference a foundation token** (`--slate-600`, `--nordic-700`) outside
    `globals.css`. They are implementation detail; semantic tokens are the contract.
-4. **Never write a hex value, `rgb()`, or a raw Tailwind color class.** This is enforced
+4. **Links are underlined at rest, never on hover alone.** `--link` is the navy primary,
+   so colour alone does not distinguish a link from body text — the underline is the
+   affordance, not decoration.
+5. **Never write a hex value, `rgb()`, or a raw Tailwind color class.** This is enforced
    by `no-restricted-syntax` in `eslint.config.mjs` — `pnpm lint` fails. Do not silence
    the rule; fix the color.
-5. A color that has no semantic token yet is a **missing token**, not a licence to inline
+6. A color that has no semantic token yet is a **missing token**, not a licence to inline
    a value. Add it to `src/app/globals.css` and `ui-tokens.md` together.
 
 Use `--on-*` foregrounds only on their paired background. `text-on-action-primary` outside

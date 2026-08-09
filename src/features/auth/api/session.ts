@@ -3,19 +3,14 @@ import "server-only";
 import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { getAuthSecret } from "@/shared/config/server";
+import { SESSION_COOKIE } from "../utils/session-cookie";
 import {
   createSessionToken,
   isValidSessionToken,
   SESSION_DURATION_MS,
 } from "../utils/session-token";
 
-/**
- * Prefixed so the browser enforces its own rules on top of ours: `__Host-` requires
- * Secure, path `/`, and no Domain, and refuses the cookie otherwise. It cannot be set
- * over plain HTTP, so development falls back to the unprefixed name.
- */
-export const SESSION_COOKIE =
-  process.env.NODE_ENV === "production" ? "__Host-ea_session" : "ea_session";
+export { SESSION_COOKIE } from "../utils/session-cookie";
 
 export async function createSession(now: number = Date.now()): Promise<void> {
   const expiresAt = now + SESSION_DURATION_MS;

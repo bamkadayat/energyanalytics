@@ -4,19 +4,22 @@ Living status for **Nordic Power & Weather Explorer**. Per `AGENTS.md`, update t
 after every feature — alongside `ui-registry.md`.
 
 **Last updated:** 2026-08-09
-**Current phase:** Phase 2 complete → Phase 3 next
-**Gates:** `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm test` ✅ 84 passed · `pnpm build` ✅
+**Current phase:** Phases 0–5 complete → Phase 6 next
+**Gates:** `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm test` ✅ 168 passed · `pnpm build` ✅
 
 ---
 
 ## Workflow
 
-**GitHub Flow.** `main` is always deployable. One short-lived task branch per slice →
-PR → `main`. No long-lived `dev` branch (it was dropped in Phase 1; it sat on the same
-commit as `main` and only added a second merge per change).
+Feature branch → merge into **`dev`** → the developer merges `dev` into `main`. `dev` is
+the integration branch; `main` is what ships.
 
-Branch naming follows Conventional Commits: `chore/`, `test/`, `feat/`, `docs/`.
-Keep commits small and individually green — never batch a phase into one commit.
+> Superseded: this file previously described GitHub Flow with no long-lived `dev`
+> branch. That changed partway through Phase 4.
+
+Branch naming follows Conventional Commits: `chore/`, `test/`, `feat/`, `docs/`,
+`style/`, `refactor/`, `fix/`. Keep commits small and individually green — never batch a
+phase into one commit.
 
 ---
 
@@ -26,92 +29,105 @@ Keep commits small and individually green — never batch a phase into one commi
 | --- | --- |
 | 0 — Foundation | ✅ merged |
 | 1 — Dependencies and configuration | ✅ merged |
-| 2 — Providers and alignment | ✅ complete |
-| 3 — Page composition and states | ⬜ next |
-| 4 — Chart | ⬜ not started |
-| 5 — Cards, insights, data view | ⬜ not started |
-| 6 — Accessibility, performance, polish | ⬜ not started |
+| 2 — Providers and alignment | ✅ merged |
+| 3 — Page composition and states | ✅ merged |
+| 4 — Chart | ✅ merged |
+| 5 — Cards, insights, data view | ✅ merged |
+| 6 — Accessibility, performance, polish | ⬜ **next** |
 
-### Open pull requests
-
-`feat/provider-fetchers` — the last Phase 2 slice. Everything earlier is merged.
+Plus an unplanned track, added on request partway through and not in `build-plan.md`:
+**landing page, password authentication, and a full design pass.** See below.
 
 ---
 
 ## Completed
 
+### 2026-08-09 — Landing page, auth and design pass (unplanned)
+
+Scope expansion requested mid-build. `project-overview.md` originally ruled out
+authentication and multi-page navigation; it now records the change.
+
+- **Routes** — `/` static landing, `/login`, `/dashboard` (protected). The explorer moved
+  from `/` to `/dashboard`.
+- **Auth** — one shared password in an env var, HMAC-signed session cookie carrying only
+  an expiry, `httpOnly` + `SameSite=Lax` + `__Host-` prefixed in production. Constant-time
+  comparison on both the password and the signature; the password is hashed before
+  comparison so a wrong-length guess is indistinguishable from wrong content. Secrets sit
+  behind `server-only`, making a client import a build error. No database.
+- **Proxy** — verifies the signature (Node runtime), redirecting both ways in one hop.
+  Pages re-check as defence in depth.
+- **Primary colour** `#0B1128`, with a navy ramp. Interaction states move *lighter*
+  because the base is near-black. Contrast audit re-run; every pair passes.
+- **Buttons centralised** in `shared/ui/button.tsx` — one radius (`rounded-pill`), four
+  variants, three sizes, a shared hover/focus ring, all pinned by tests.
+- **Own SVG logo** replacing a 900 KB PNG: inline, `currentColor`, no white badge needed.
+- **Landing sections** — hero with an animated offshore wind scene, three metric cards
+  linking to filtered dashboard views, closing CTA band, footer carrying the data
+  qualifications.
+- **Motion** — CSS-only load stagger and scroll reveals, both guarded for
+  `prefers-reduced-motion`, scroll reveals behind `@supports`.
+
+### 2026-08-09 — Phase 5: cards, observations, data table
+
+- Summary cards, deterministic observations and an hourly table, all from **one**
+  `deriveDaySummary` call over the same aligned dataset — no second derivation path, so a
+  card cannot disagree with the chart beside it.
+- The table is the accessible alternative to the canvas, built on `<details>` with no
+  client JavaScript. Hours are row headers; the caption states that an em dash means *no
+  reading*, not zero.
+- A test asserts the generated observations contain no causal vocabulary
+  (because / due to / driven by / correlat-…), so a future edit that reaches for one
+  fails the suite.
+
+### 2026-08-09 — Phase 4: the chart
+
+- Dual-axis ECharts client component. Price solid with area fill on the left; the metric
+  dashed on the right.
+- **Category axis over server-formatted Oslo labels, not a time axis.** A time axis
+  formats ticks in the *viewer's* timezone, which would relabel Norwegian market hours
+  for anyone abroad while the values stayed put.
+- Colours resolved from tokens via `getComputedStyle` + `.trim()`, through
+  `useSyncExternalStore` rather than a `setState` in an effect — it is a browser-only
+  value, not state the component owns.
+- `connectNulls: false`, so a gap stays a gap.
+
+### 2026-08-09 — Phase 3: page composition and states
+
+- Server conductor with `Promise.allSettled` across both providers, six UI states, retry,
+  and provenance stamped inside the cached scope (`withFetchedAt`).
+- **`searchParams` is not awaited at page level** — that blocks the whole route from
+  prerendering. The promise is passed into `<Suspense>` instead.
+- Gate verified by pointing the weather base URL at an unreachable host: prices still
+  render, with a warning naming the failure and offering retry.
+
 ### 2026-08-09 — Phase 2: providers and alignment
 
-Six slices. No UI; the riskiest logic proven before anything renders. 84 tests.
+Six slices. No UI; the riskiest logic proven before anything renders.
 
-- **energy-prices** — raw→domain parser. Domain type is narrower than the provider's
-  (EUR and exchange rate dropped at the boundary). Invalid entries are dropped and
-  counted, never repaired; an empty array is a successful parse, not an error.
-- **weather-forecast** — columnar parser. Refuses naive timestamps rather than guessing
-  a zone. A length-mismatched column is marked unavailable and null-filled, never
-  truncated, because the arrays are positional.
-- **market-correlation** — the hour join. Joins on a normalized hour key, never array
-  index; returns the union of both sources so a one-sided hour stays visible.
-- **shared/lib/oslo-day** — all zone-aware work in one place. Day arithmetic on the
-  calendar, not on milliseconds.
-- **shared/lib/fetch-json** — every failure mode as a value; nothing throws.
-- **providers/api** — cached fetchers, lifetime chosen by which function is called.
+- Parsers for both providers, refusing naive timestamps and never repairing a missing
+  value into a zero.
+- The hour join — on a normalized hour key, never array index; union of both sources so a
+  one-sided hour stays visible.
+- `shared/lib` — Oslo day/hour helpers and `fetchJson`, which turns every failure into a
+  value.
 
 Contract bugs caught by checking the live APIs instead of assuming:
 
 - Open-Meteo returns wind in **km/h** by default while config declared m/s — every
-  reading would have been ~3.6x too large under a correct-looking label. Pinned via
-  `WEATHER_REQUEST_PARAMS`.
+  reading would have been ~3.6x too large under a correct-looking label.
 - The price API returns **404 with an HTML body** for an unpublished day, not an empty
-  array. The 404 body is never parsed.
-- `timeformat=unixtime` confirmed working, which is what lets the weather parser reject
-  ambiguous timestamps outright.
-
-Verified end to end with a temporary probe: `prices:ok weather:ok` from the live APIs,
-then reverted.
+  array.
 
 ### 2026-08-09 — Phase 1: dependencies and configuration
 
-Four slices, one commit each:
-
-- **Runtime deps** — echarts 6.1.0, echarts-for-react 3.0.6 (peer range is
-  `react >=16`, so React 19.2.8 needs no override), date-fns 4.4.0, @date-fns/tz 1.5.0.
-  Plain date-fns cannot do IANA zone conversion; the v4 companion supplies `TZDate`.
-- **Test harness** — vitest 4 + @vitejs/plugin-react + jsdom, RTL 16 (supports React 19),
-  jest-dom matchers. `vitest.config.mts` duplicates the `@/* → ./src/*` alias because
-  Vitest does not read tsconfig paths. `.mts` avoids the CJS/ESM warning from Vite's
-  native config loader. Globals stay off so `tsconfig` needs no `types` override, which
-  would shadow default `@types` resolution. Added `typecheck`, `test`, `test:watch`.
-- **Cache Components** — `cacheComponents: true`. Isolated because it changes rendering
-  semantics app-wide: PPR becomes default, request-time APIs must sit inside
-  `<Suspense>`, and the app is pinned to the Node.js runtime.
-- **Shared config** — `src/shared/config` as the single door for `Europe/Oslo`, NO1,
-  Oslo coordinates, base URLs, the three weather variables with units, request timeout,
-  publication hour, and `cacheLife` profiles.
+echarts + echarts-for-react, date-fns + `@date-fns/tz`, Vitest + RTL + jsdom, Cache
+Components enabled, and `shared/config` as the single door for every stable value.
 
 ### 2026-08-09 — Phase 0: foundation
 
-- Moved `app/` → `src/app/`; `@/*` now resolves to `./src/*`. `features/` does not exist
-  yet; `shared/` was created in Phase 1.
-- Design tokens in `src/app/globals.css` as a single stylesheet: foundation scale →
-  semantic tokens in `:root` → `@theme` Tailwind bridge, plus the base layer (body,
-  global `:focus-visible` ring, `prefers-reduced-motion`).
-- Semantic tokens kept as real `:root` custom properties so the ECharts canvas can read
-  them via `getComputedStyle` — canvas cannot consume `var()`.
-- Renamed tokens that would have produced awkward utilities: `--color-text-*` → `--fg-*`,
-  `--color-border-*` → `--line*`, `--color-*-text` → `--*-fg`. Promoted the one inline
-  literal (`#bae6fd`) to `--nordic-200`.
-- Extended beyond color: radii, shadows, `--container-content`, fluid `--text-display`,
-  `--chart-min-height`. Spacing left on Tailwind's default scale.
-- Cleared Tailwind's default palette (`--color-*: initial`) and added a
-  `no-restricted-syntax` guard in `eslint.config.mjs` rejecting hex values, color
-  functions, and raw palette classes. Verified it fires on all four violation forms.
-- Light-only theme; scaffold's `prefers-color-scheme: dark` block removed,
-  `color-scheme: light` pinned.
-- Verified in the built CSS that token utilities emit, the raw palette is gone, and
-  semantic tokens survive in `:root` for the chart.
-- Context docs written: `architecture.md`, `ui-tokens.md`, `ui-rules.md`,
-  `code-standards.md`, `library-docs.md`, `build-plan.md`, this file.
+`src/` layout, the three-layer token system in one stylesheet, Tailwind's default palette
+cleared with an ESLint guard rejecting hex values and raw colour classes, and the context
+docs.
 
 ---
 
@@ -119,32 +135,53 @@ Four slices, one commit each:
 
 | Question | Status |
 | --- | --- |
-| `AGENTS.md` rule 4 says "run `/recover`", but `skills/` was deleted — the skill does not exist | **unresolved**: restore under `.claude/skills/` (where they would actually be invocable) or edit the rule |
-| `ui-registry.md` does not exist yet, though `AGENTS.md` requires updating it every feature | create at `context/ui-registry.md` before the first component (Phase 4) |
+| `AGENTS.md` rule 4 says "run `/recover`", but `skills/` was deleted — the skill does not exist | **unresolved**: restore under `.claude/skills/`, or edit the rule |
+| `--fg` is `--slate-900` while the primary is `--navy-900`. Both near-black, but body text is not strictly the brand colour | **open**: unify only if the navy tint is wanted on every paragraph |
+| `public/logo.png` is unreferenced since the SVG mark landed, but still ~900 KB in the repo | **open**: delete, or keep as the source for an OG image |
+| ~~`ui-registry.md` does not exist~~ | ✅ resolved — created in Phase 3 and maintained since |
 | ~~`PROJECT_DESCRIPTIONS.md` duplicates `project-overview.md`~~ | ✅ resolved — deleted |
-| ~~`ui-registry.md` location ambiguity~~ | ✅ resolved — `context/`, since `skills/imprint` is gone |
 | ~~date-fns timezone companion package~~ | ✅ resolved — `@date-fns/tz` 1.5.0 |
+
+---
+
+## Owed work
+
+- **Nothing has been verified visually.** The chart, the wind scene, the animations, the
+  card motifs and the login flow have never been seen rendered — confidence rests on
+  builds passing and unit tests. `pnpm dev` with the dashboard password would close most
+  of this quickly.
+- **No stale-data state.** Nothing distinguishes "retrieved three hours ago" from fresh
+  beyond the timestamp, and `cacheLife("hours")` makes that gap real. Listed in
+  `ui-rules.md`'s state table but not implemented.
+- **No OG image** for link previews.
+- All of Phase 6.
 
 ---
 
 ## Known risks
 
 - **Chart palette separates by hue alone.** All four series sit at near-identical
-  luminance; the solid-vs-dashed distinction is what satisfies "never rely on color
-  alone." Do not simplify the line styles. See `ui-tokens.md`.
+  luminance; the solid-vs-dashed distinction is what satisfies "never rely on colour
+  alone." Do not simplify the line styles.
+- **Links must be underlined at rest.** `--link` is the near-black primary, so colour
+  alone does not distinguish a link from body text.
 - **Tomorrow's prices publish ~13:00 Europe/Oslo.** A miss must not be cached at the same
   lifetime as a hit. `CACHE_PROFILE.pricesPending` exists for exactly this.
-- **Alignment must join on normalized timestamps, never array index.** DST days have 23
-  or 25 hours.
-- **Cache Components is on**, so `searchParams` and other request-time APIs must live
-  inside a `<Suspense>` boundary, and no route may set `runtime = 'edge'`.
-- **Reading the clock needs `await connection()`.** `new Date()` in a server component
-  fails the build with `blocking-prerender-current-time`, and `<Suspense>` alone does not
-  fix it. Verified. Affects day selection, current-hour lookup, and the
-  prices-published check. See `library-docs.md`.
+- **Alignment joins on normalized timestamps, never array index.** DST days have 23 or 25
+  hours.
+- **Cache Components traps**, all hit and verified:
+  - `new Date()` / `Date.now()` in a server component fails the build. Needs
+    `await connection()`; `<Suspense>` alone does not fix it, and `instant = false`
+    explicitly does not clear synchronous-IO errors.
+  - `searchParams` awaited at page level blocks the whole route from prerendering.
+  - A `redirect()` inside a streaming route commits a 200 and navigates client-side.
+    Redirect in Proxy for a real 307.
+- **Middleware is called Proxy in Next 16** (`proxy.ts`), and its docs are explicit that
+  it is not an authorization layer. Routes must re-check.
 - **`WEATHER_REQUEST_PARAMS` must stay on every Open-Meteo request.** Drop it and the
   units silently stop matching their labels.
-- **Generated route types** (`LayoutProps`/`PageProps`) only exist after `next dev` or
-  `next build`; a cold clone type-errors until then.
-- **The Vitest alias is a second copy** of the `@/*` mapping. Changing it in
-  `tsconfig.json` means changing `vitest.config.mts` too.
+- **Generated route types** only exist after `next dev` or `next build`; a cold clone
+  type-errors until then.
+- **The Vitest alias is a second copy** of the `@/*` mapping.
+- **Never interpolate a Tailwind class name.** The default palette is cleared, so
+  `bg-${x}-surface` emits nothing and fails silently.

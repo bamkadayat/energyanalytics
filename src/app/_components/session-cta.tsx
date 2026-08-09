@@ -6,7 +6,7 @@ import { buttonClasses, type ButtonSize } from "@/shared/ui";
  * The call to action, wherever it appears, with its label following the session.
  *
  * A signed-in visitor is sent straight to the dashboard rather than through a login form
- * they do not need — a control should say exactly what it does, and "Log in" is a lie to
+ * they do not need — a control should say exactly what it does, and "Login" is a lie to
  * someone already logged in.
  *
  * Both the navbar and the hero render this, so the two can never disagree about whether
@@ -29,7 +29,7 @@ export async function SessionCta({
     </Link>
   ) : (
     <Link href="/login" className={classes}>
-      Log in
+      Login
     </Link>
   );
 }
@@ -44,7 +44,7 @@ const PLACEHOLDER_SIZE: Record<ButtonSize, string> = {
 /**
  * Reserves the button's footprint while the session resolves.
  *
- * Deliberately shows no label. Rendering "Log in" and correcting it a moment later would
+ * Deliberately shows no label. Rendering "Login" and correcting it a moment later would
  * flash the wrong word at the primary control on the page.
  */
 export function SessionCtaPlaceholder({

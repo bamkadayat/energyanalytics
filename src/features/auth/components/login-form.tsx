@@ -59,7 +59,7 @@ export function LoginForm() {
       </div>
 
       <Button type="submit" size="lg" disabled={pending} className="w-full">
-        {pending ? "Signing in…" : "Sign in"}
+        {pending ? "Logging in…" : "Login"}
       </Button>
     </form>
   );

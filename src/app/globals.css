@@ -46,7 +46,7 @@
   --navy-900: #0b1128;
   --navy-950: #06091a;
 
-  /* ---- 1. Foundation: Nordic blue (accent; links and info status) ---- */
+  /* ---- 1. Foundation: Nordic blue (accent; the info status family only) ---- */
   --nordic-50: #f0f9ff;
   --nordic-100: #e0f2fe;
   --nordic-200: #bae6fd;
@@ -72,11 +72,11 @@
   /* Subdued text on --surface-inverse. 11.44:1 against navy-900. */
   --fg-inverse-muted: var(--navy-200);
   /*
-   * Deliberately on the nordic accent rather than the navy primary: at near-black a
-   * link would be indistinguishable from body text, leaving the underline as its only
-   * affordance.
+   * The primary, so links match every other branded element. At near-black a link is
+   * close to body text, which makes the underline load-bearing rather than decorative:
+   * `ui-rules.md` requires links to be underlined at rest, never on hover alone.
    */
-  --link: var(--nordic-700);
+  --link: var(--navy-900);
   --icon: var(--slate-600);
 
   /* ---- 2. Semantic: lines and focus ---- */
