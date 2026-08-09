@@ -12,8 +12,13 @@ import type { Fetched } from "@/shared/lib/fetched";
 import { StatusMessage } from "@/shared/ui";
 import { alignPriceAndWeather } from "../utils/align-hours";
 import { toChartSeries } from "../utils/to-chart-series";
+import { deriveDaySummary } from "../utils/derive-summary";
+import { deriveInsights } from "../utils/derive-insights";
 import type { ViewParams } from "../utils/view-params";
 import { CorrelationChart } from "./correlation-chart";
+import { SummaryCards } from "./summary-cards";
+import { HourlyTable } from "./hourly-table";
+import { InsightsList } from "./insights-list";
 import { SourceStatus } from "./source-status";
 
 /**
@@ -68,6 +73,10 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
   const metric = WEATHER_METRICS[params.metric];
   const hasAnything = aligned.hours.length > 0;
 
+  // Cards, observations, chart and table all read this one derivation.
+  const summary = deriveDaySummary(aligned, now);
+  const insights = deriveInsights(aligned, summary);
+
   return (
     <div className="flex flex-col gap-6">
       <h2 className="text-lg font-medium text-fg">{formatOsloDate(day)}</h2>
@@ -81,6 +90,8 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
 
       {hasAnything ? (
         <>
+          <SummaryCards aligned={aligned} summary={summary} />
+
           <figure className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
             <CorrelationChart series={toChartSeries(aligned)} />
             <figcaption className="text-sm text-fg-muted">
@@ -89,6 +100,8 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
               independent scales.
             </figcaption>
           </figure>
+
+          <InsightsList insights={insights} />
 
           {/*
             Kept alongside the chart, not replaced by it: ui-rules.md requires the chart
@@ -99,6 +112,8 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
             {aligned.coverage.matchedHours} have both a spot price in {PRICE_UNIT} and a{" "}
             {metric.label.toLowerCase()} reading in {metric.unit}.
           </p>
+
+          <HourlyTable aligned={aligned} day={day} />
 
           <StatusMessage tone="info" title="How to read this">
             {WEATHER_LOCATION.label} weather is shown as a representative location within
