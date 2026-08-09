@@ -9,6 +9,8 @@ export type { AlignedHours, AlignmentCoverage } from "./types";
 export type { SearchParamsInput, ViewParams } from "./utils/view-params";
 
 export { alignPriceAndWeather } from "./utils/align-hours";
+export { CorrelationView } from "./components/correlation-view";
+export { ViewControls } from "./components/view-controls";
 export {
   hrefWith,
   parseViewParams,
