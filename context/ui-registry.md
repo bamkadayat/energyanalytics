@@ -84,6 +84,24 @@ one fails the suite.
 
 ---
 
+## Logo mark and wordmark
+
+`src/shared/ui/logo-mark.tsx` — two wind gusts above a rising measurement line ending in
+a data point. Moving air, read as a series.
+
+- **Inline SVG on `currentColor`**, not an image file. It needs no request, scales
+  without blurring, and takes the colour of whatever it sits in — which is what removed
+  the white badge the previous PNG needed on the navy hero
+- three strokes and one dot, deliberately. Anything more disappears at 36px, the size it
+  is used at almost everywhere
+- `viewBox 0 0 24 24`, `strokeWidth 2`, round caps and joins
+- `Wordmark` sets colour once on the wrapper and both mark and text inherit, so there is
+  one `tone` switch rather than an asset per background
+- `src/app/icon.svg` is the same drawing with the navy pinned, since a favicon has no
+  inherited colour to take
+
+---
+
 ## Segmented link controls
 
 `src/features/market-correlation/components/view-controls.tsx` — day and metric
@@ -167,6 +185,21 @@ rather than optional.
   are `<th scope="col">`
 - Numeric cells: `text-right font-mono tabular-nums` so decimal points line up
 - Wrapped in `overflow-x-auto` so the table scrolls rather than the page
+
+## Hero call to action
+
+`src/app/_components/hero-cta.tsx` — the landing page's single control, session-aware.
+
+- signed out → **Log in** (`/login`); signed in → **Go to dashboard** (`/dashboard`).
+  A control should say exactly what it does, and "Log in" is a lie to someone already
+  logged in
+- pill: `rounded-pill bg-surface px-7 py-3 text-base font-medium text-fg`
+- reading the session is request-time, so it is mounted in `<Suspense>`; the headline,
+  subtitle and visual stay in the prerendered shell rather than the whole page going
+  dynamic for one button
+- the fallback reserves the exact footprint and shows **no label**. Rendering "Log in"
+  and correcting it afterwards would flash the wrong word at the one control that
+  matters
 
 ## Hero visual
 

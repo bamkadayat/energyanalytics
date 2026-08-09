@@ -227,6 +227,15 @@
   --text-display: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem);
   --text-display--line-height: 1.15;
   --text-display--letter-spacing: -0.02em;
+
+  /*
+   * Landing-page headline only. Deliberately larger and tighter than --text-display:
+   * a marketing headline is the page's single focal point, whereas the dashboard's h1
+   * competes with live data and should not shout.
+   */
+  --text-hero: clamp(2.5rem, 1.6rem + 4.4vw, 4.5rem);
+  --text-hero--line-height: 1.02;
+  --text-hero--letter-spacing: -0.03em;
 }
 
 /*
