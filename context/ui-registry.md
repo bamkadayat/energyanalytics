@@ -127,11 +127,49 @@ something looks wrong.
 
 ---
 
+## Summary card
+
+`components/summary-cards.tsx` — a `<dl>` grid, `sm:grid-cols-2 lg:grid-cols-3`, gap-3.
+
+- card: `rounded-card border border-line bg-surface p-4`, contents `gap-1`
+- term (`<dt>`): `font-mono text-xs uppercase tracking-wider text-fg-muted`
+- value (`<dd>`): `font-mono text-2xl font-semibold text-fg`, unit beside it at
+  `text-sm text-fg-muted`
+- optional note: `text-xs text-fg-muted`
+
+**The unit is suppressed when the value is missing**, so a card never reads
+`— NOK/kWh`. When a card cannot apply at all (the current hour, while viewing tomorrow)
+it says so in the note rather than showing a bare dash that looks like a data failure.
+
+## Chart container
+
+`figure` wrapper: `rounded-card border border-line bg-surface p-4`, `gap-3`, with a
+`<figcaption>` at `text-sm text-fg-muted` naming both series, their axis sides and the
+date. The caption is what makes the dual axes legible to someone who cannot see the
+line styles.
+
+## Observations list
+
+`components/insights-list.tsx` — a `<section aria-labelledby>` with an `<h3>`, then a
+`<ul>` whose items use `border-l-2 border-line-selected pl-3 text-sm text-fg-secondary`.
+A list rather than prose: each observation is independent and should be scannable.
+
+## Hourly data table
+
+`components/hourly-table.tsx` — the accessible alternative to the canvas, and required
+rather than optional.
+
+- Built on `<details>`/`<summary>`, so the disclosure is keyboard operable with **no
+  JavaScript and no client component**
+- `FiChevronRight` rotated by `group-open:rotate-90`, `aria-hidden`
+- `<caption>` states the day, the timezone, and that `—` means *no reading*, not zero
+- Hours are `<th scope="row">` so each cell is announced with its hour; column headers
+  are `<th scope="col">`
+- Numeric cells: `text-right font-mono tabular-nums` so decimal points line up
+- Wrapped in `overflow-x-auto` so the table scrolls rather than the page
+
+---
+
 ## Not yet established
 
-Patterns the next slices need to define, listed so they get decided once rather than
-improvised per component:
-
-- summary card
-- chart container and its legend
-- data table, including the disclosure that expands it
+- stale-data indication (nothing yet distinguishes "retrieved 3 hours ago" from fresh)

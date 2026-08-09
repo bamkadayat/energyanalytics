@@ -10,7 +10,11 @@ export type { SearchParamsInput, ViewParams } from "./utils/view-params";
 
 export { alignPriceAndWeather } from "./utils/align-hours";
 export { toChartSeries } from "./utils/to-chart-series";
+export { deriveDaySummary, deriveEveningComparison } from "./utils/derive-summary";
+export { deriveInsights } from "./utils/derive-insights";
 export type { ChartSeries } from "./utils/to-chart-series";
+export type { DaySummary, EveningComparison, HourValue } from "./utils/derive-summary";
+export type { Insight } from "./utils/derive-insights";
 export { CorrelationChart } from "./components/correlation-chart";
 export { CorrelationView } from "./components/correlation-view";
 export { ViewControls } from "./components/view-controls";

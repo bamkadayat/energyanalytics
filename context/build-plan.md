@@ -100,16 +100,19 @@ Still owed from this phase: a stale-data state. Nothing currently distinguishes
 
 ---
 
-## Phase 5 — Cards, insights, accessible data view
+## Phase 5 — Cards, insights, accessible data view ✅ complete
 
-- [ ] Summary cards: current-hour price, daily average, lowest hour, highest hour,
-      selected metric at the current hour
-- [ ] Deterministic insights only — min/max hour, peak timing, evening vs daily average
-- [ ] Expandable data table: timestamp, price, weather value, units
-- [ ] Concise text summary so the chart is not the only way to understand the result
+- [x] Summary cards: current-hour price, daily average, cheapest hour, most expensive
+      hour, selected metric now and at its peak
+- [x] Deterministic observations only — min/max hour, metric peak, evening vs daily
+      average. A test asserts no causal vocabulary appears
+- [x] Expandable data table: hour, price, weather value, units — `<details>`-based, no
+      client JavaScript
+- [x] Concise text summary alongside the chart
 
-**Gate:** cards, chart, insights, and table all read the **same validated dataset** — no
-second derivation path. VAT/grid-charge exclusion stated where prices appear.
+**Gate:** ✅ cards, chart, observations and table all read one `deriveDaySummary` call
+over the same aligned dataset — there is no second derivation path. The VAT/grid-charge
+exclusion is stated in the info callout beside the chart.
 
 ---
 
