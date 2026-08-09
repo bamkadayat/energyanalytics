@@ -256,6 +256,26 @@ rather than optional.
   "Log in" and correcting it afterwards would flash the wrong word at the primary
   control on the page
 
+## Metric highlight cards
+
+`src/app/_components/metric-highlights.tsx` — three cards below the hero, one per weather
+metric, on a `bg-page` section.
+
+- outer cards `bg-surface-selected text-fg`; the featured card `bg-surface-inverse
+  text-fg-inverse`
+- the featured card is **taller**, and the grid uses `lg:items-center` so the outer two
+  centre against it. That is what lifts the middle card — not a shadow
+- `min-h-80` / `lg:min-h-96` (featured `lg:min-h-[26rem]`) leaves the lower area open for
+  artwork, with the link pinned by `mt-auto`
+- each card links to `/dashboard?day=today&metric=<id>` — a real filtered view, not a
+  "Read more" pointing nowhere. Signed-out visitors are redirected to sign in
+- artwork bleeds off the bottom-right corner, tinted with that metric's **chart colour**,
+  so a card and its series on the dashboard read as the same thing
+- the motifs are **instruments, not readings** — a gust, a thermometer, a sun. A stylised
+  price curve would put invented market data on the marketing page
+- the featured card overrides the focus ring (`focus-visible:outline-fg-inverse`), since
+  the global `--focus` navy is invisible on it
+
 ## Hero visual
 
 `src/app/_components/hero-visual.tsx` — decorative, `aria-hidden`, in a
