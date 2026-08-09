@@ -10,8 +10,10 @@ import {
   deriveDurationCurve,
   derivePriceHeatmap,
 } from "../utils/derive-range-views";
-import type { ViewParams } from "../utils/view-params";
+import { hrefWith, type ViewParams } from "../utils/view-params";
 import { DurationCurveChart } from "./duration-curve";
+import { DurationCurveTable, HeatmapTable } from "./range-tables";
+import { ViewCard } from "./view-card";
 import { PriceHeatmapChart } from "./price-heatmap";
 
 /**
@@ -82,25 +84,54 @@ export async function RangeViews({ params }: { params: ViewParams }) {
         </StatusMessage>
       ) : null}
 
-      <figure className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
-        <PriceHeatmapChart heatmap={heatmap} />
-        <figcaption className="text-sm text-fg-muted">
-          Spot price by hour of day, one column per day, oldest first. Darker is more
-          expensive; the scale is ordered by lightness so it still reads without colour.
-          {heatmap.collapsedHours > 0
-            ? ` ${heatmap.collapsedHours} hour(s) share a cell where the clock went back.`
-            : ""}
-        </figcaption>
-      </figure>
+      <ViewCard
+        title="Price by hour and day"
+        mode={params.heatmap}
+        chartHref={hrefWith(params, { heatmap: "chart" })}
+        tableHref={hrefWith(params, { heatmap: "table" })}
+        caption={
+          <>
+            Spot price by hour of day, one column per day, oldest first. Darker is more
+            expensive; the scale is ordered by lightness so it still reads without colour.
+            {heatmap.collapsedHours > 0
+              ? ` ${heatmap.collapsedHours} hour(s) share a cell where the clock went back.`
+              : ""}
+          </>
+        }
+      >
+        {params.heatmap === "chart" ? (
+          <PriceHeatmapChart heatmap={heatmap} />
+        ) : (
+          <HeatmapTable heatmap={heatmap} />
+        )}
+      </ViewCard>
 
-      <figure className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
-        <DurationCurveChart curve={curve} />
-        <figcaption className="text-sm text-fg-muted">
-          Price duration curve: every hour sorted from most to least expensive. Read it as
-          &ldquo;this share of hours cost at least this much&rdquo;. Drag the slider or
-          scroll to zoom into the expensive shoulder.
-        </figcaption>
-      </figure>
+      <ViewCard
+        title="Price duration curve"
+        mode={params.curve}
+        chartHref={hrefWith(params, { curve: "chart" })}
+        tableHref={hrefWith(params, { curve: "table" })}
+        caption={
+          params.curve === "chart" ? (
+            <>
+              Every hour sorted from most to least expensive. Read it as &ldquo;this share
+              of hours cost at least this much&rdquo;. Drag the slider or scroll to zoom
+              into the expensive shoulder.
+            </>
+          ) : (
+            <>
+              The same curve as deciles. 720 sorted rows would answer no question anyone
+              actually asks; these ten lines answer the one the curve exists for.
+            </>
+          )
+        }
+      >
+        {params.curve === "chart" ? (
+          <DurationCurveChart curve={curve} />
+        ) : (
+          <DurationCurveTable curve={curve} />
+        )}
+      </ViewCard>
     </section>
   );
 }

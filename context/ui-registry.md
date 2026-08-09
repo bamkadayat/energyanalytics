@@ -224,19 +224,28 @@ line styles.
 `<ul>` whose items use `border-l-2 border-line-selected pl-3 text-sm text-fg-secondary`.
 A list rather than prose: each observation is independent and should be scannable.
 
-## View mode toggle
+## Chart card with view toggle
 
-`components/view-mode-toggle.tsx` — switches the day's data between chart and table.
+`components/view-card.tsx` — wraps every chart section: title on the left, an icon
+chart/table toggle on the right, content, then a caption.
 
-- links, not client state: the mode is a URL parameter like day and metric, so a table
-  view is shareable and the back button works
-- same segmented-pill treatment as the other controls, with `aria-current`
-- **labels are visible, not icon-only.** An icon pair alone would leave the control
-  unlabelled for anyone who does not recognise the glyphs — and this toggle decides
+- **one toggle per card, not one for the page.** Each view answers a different question,
+  and someone reading the duration curve as numbers should not have their heatmap switch
+  underneath them. Each card's mode is its own URL parameter (`view`, `heatmap`, `curve`)
+- links, not client state, so any combination of modes is shareable and the back button
+  works
+- icon-only, which is **only** acceptable because each link carries an `aria-label`. An
+  unnamed icon pair would leave the control unidentifiable — and this control decides
   whether the data is reachable at all for a screen-reader user
-- in chart mode the table **stays available as a disclosure below**. The canvas is opaque
-  to assistive technology, so the numbers must be reachable without changing view; the
-  toggle is a convenience, not the only route
+- selection carries background **and** border plus `aria-current`, never colour alone
+- in chart mode the day's table **stays available as a disclosure below**. The canvas is
+  opaque to assistive technology, so the numbers must be reachable without changing view;
+  the toggle is a convenience, not the only route
+
+Tabular forms live in `range-tables.tsx`. The heatmap's table is the same grid in text —
+day rows, hour columns, sticky headers. The duration curve's is **deciles, not 720 sorted
+rows**: the raw list would answer no question anyone asks, while ten lines answer the one
+the curve exists for.
 
 ## Hourly data table
 

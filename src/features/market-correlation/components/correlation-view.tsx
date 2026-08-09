@@ -14,12 +14,13 @@ import { alignPriceAndWeather } from "../utils/align-hours";
 import { toChartSeries } from "../utils/to-chart-series";
 import { deriveDaySummary } from "../utils/derive-summary";
 import { deriveInsights } from "../utils/derive-insights";
-import type { ViewParams } from "../utils/view-params";
+import { hrefWith, type ViewParams } from "../utils/view-params";
 import { CorrelationChart } from "./correlation-chart";
 import { SummaryCards } from "./summary-cards";
 import { HourlyTable } from "./hourly-table";
 import { InsightsList } from "./insights-list";
 import { SourceStatus } from "./source-status";
+import { ViewCard } from "./view-card";
 
 /**
  * The conductor: resolves the day, fetches both providers, joins them, and hands the
@@ -92,18 +93,25 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
         <>
           <SummaryCards aligned={aligned} summary={summary} />
 
-          {params.view === "chart" ? (
-            <figure className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
-              <CorrelationChart series={toChartSeries(aligned)} />
-              <figcaption className="text-sm text-fg-muted">
+          <ViewCard
+            title="Hour by hour"
+            mode={params.view}
+            chartHref={hrefWith(params, { view: "chart" })}
+            tableHref={hrefWith(params, { view: "table" })}
+            caption={
+              <>
                 Spot price (solid, left axis) against {metric.label.toLowerCase()}{" "}
                 (dashed, right axis) for {formatOsloDate(day)}, by hour in Oslo time. The
                 two axes use independent scales.
-              </figcaption>
-            </figure>
-          ) : (
-            <HourlyTable aligned={aligned} day={day} standalone />
-          )}
+              </>
+            }
+          >
+            {params.view === "chart" ? (
+              <CorrelationChart series={toChartSeries(aligned)} />
+            ) : (
+              <HourlyTable aligned={aligned} day={day} standalone />
+            )}
+          </ViewCard>
 
           <InsightsList insights={insights} />
 
