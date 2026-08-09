@@ -84,13 +84,54 @@ one fails the suite.
 
 ---
 
+## Segmented link controls
+
+`src/features/market-correlation/components/view-controls.tsx` — day and metric
+selectors.
+
+**Links, not buttons.** The selection *is* the URL, so navigating is the whole
+interaction: they work before JavaScript loads and keep the back button meaningful. No
+`"use client"` boundary anywhere in the control.
+
+- group: `rounded-pill border border-line bg-surface p-1`, items `gap-1`
+- item: `rounded-pill px-4 py-1.5 text-sm`
+- selected: `bg-surface-selected border-line-selected text-on-action-secondary`,
+  `font-medium`, plus `aria-current="page"`
+- unselected: `border-surface` — a border of the same width in the container's own
+  colour, so selecting an option cannot shift the layout
+- label above each group: `font-mono text-xs uppercase tracking-wider text-fg-muted`
+
+Selection is carried by border, background **and** `aria-current` — never colour alone.
+
+---
+
+## Page furniture
+
+**Masthead** — `text-display font-semibold` title, then a `font-mono text-sm
+text-fg-muted` meta line joining price area · weather location · timezone with `·`.
+Those three facts are the caveats the page must never bury, so the structure states them
+rather than decorating.
+
+**Mono for data.** Geist Mono is used for times, dates, numbers and provenance; Geist
+Sans for prose. Within a fixed single-family token system this is the one typographic
+distinction available, and it earns its place by marking which text is instrument
+readout and which is explanation.
+
+**Provenance footer** — `border-t border-line pt-4 font-mono text-xs text-fg-muted`, one
+line per source, each with a `<time dateTime>` carrying the machine-readable instant.
+Shown always, not only on success: knowing the data is three hours old matters most when
+something looks wrong.
+
+**Loading region** — states what is being waited for rather than spinning, sized with
+`min-h-[var(--chart-min-height)]` so the page does not jump, and marked `aria-busy`.
+
+---
+
 ## Not yet established
 
 Patterns the next slices need to define, listed so they get decided once rather than
 improvised per component:
 
-- day / metric selector controls (segmented control; selected state uses
-  `surface-selected` + `line-selected`)
 - summary card
 - chart container and its legend
 - data table, including the disclosure that expands it
