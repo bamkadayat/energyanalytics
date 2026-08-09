@@ -4,8 +4,8 @@ Living status for **Nordic Power & Weather Explorer**. Per `AGENTS.md`, update t
 after every feature — alongside `ui-registry.md`.
 
 **Last updated:** 2026-08-09
-**Current phase:** Phase 1 complete (in review) → Phase 2 next
-**Gates:** `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm test` ✅ 1 passed · `pnpm build` ✅
+**Current phase:** Phase 2 complete → Phase 3 next
+**Gates:** `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm test` ✅ 84 passed · `pnpm build` ✅
 
 ---
 
@@ -25,31 +25,50 @@ Keep commits small and individually green — never batch a phase into one commi
 | Phase | Status |
 | --- | --- |
 | 0 — Foundation | ✅ merged |
-| 1 — Dependencies and configuration | ✅ complete, **4 PRs open** |
-| 2 — Providers and alignment | ⬜ next |
-| 3 — Page composition and states | ⬜ not started |
+| 1 — Dependencies and configuration | ✅ merged |
+| 2 — Providers and alignment | ✅ complete |
+| 3 — Page composition and states | ⬜ next |
 | 4 — Chart | ⬜ not started |
 | 5 — Cards, insights, data view | ⬜ not started |
 | 6 — Accessibility, performance, polish | ⬜ not started |
 
 ### Open pull requests
 
-| # | Branch | Contents | Base |
-| --- | --- | --- | --- |
-| 1 | `chore/deps-charts-dates` | echarts, echarts-for-react, date-fns, @date-fns/tz | `main` |
-| 2 | `test/vitest-setup` | vitest, RTL, jsdom, scripts | **stacked on #1** |
-| 3 | `feat/cache-components` | `cacheComponents: true` | `main` |
-| 4 | `feat/shared-config` | `src/shared/config` | `main` |
-
-**Merge #1 before #2** — both touch `pnpm-lock.yaml`, so #2 was stacked to avoid a
-conflict. #3 and #4 are independent and can merge in any order.
-
-Still no feature code. `src/app/page.tsx` remains the scaffold landing page, migrated
-onto design tokens so it renders correctly; it is replaced in Phase 3.
+`feat/provider-fetchers` — the last Phase 2 slice. Everything earlier is merged.
 
 ---
 
 ## Completed
+
+### 2026-08-09 — Phase 2: providers and alignment
+
+Six slices. No UI; the riskiest logic proven before anything renders. 84 tests.
+
+- **energy-prices** — raw→domain parser. Domain type is narrower than the provider's
+  (EUR and exchange rate dropped at the boundary). Invalid entries are dropped and
+  counted, never repaired; an empty array is a successful parse, not an error.
+- **weather-forecast** — columnar parser. Refuses naive timestamps rather than guessing
+  a zone. A length-mismatched column is marked unavailable and null-filled, never
+  truncated, because the arrays are positional.
+- **market-correlation** — the hour join. Joins on a normalized hour key, never array
+  index; returns the union of both sources so a one-sided hour stays visible.
+- **shared/lib/oslo-day** — all zone-aware work in one place. Day arithmetic on the
+  calendar, not on milliseconds.
+- **shared/lib/fetch-json** — every failure mode as a value; nothing throws.
+- **providers/api** — cached fetchers, lifetime chosen by which function is called.
+
+Contract bugs caught by checking the live APIs instead of assuming:
+
+- Open-Meteo returns wind in **km/h** by default while config declared m/s — every
+  reading would have been ~3.6x too large under a correct-looking label. Pinned via
+  `WEATHER_REQUEST_PARAMS`.
+- The price API returns **404 with an HTML body** for an unpublished day, not an empty
+  array. The 404 body is never parsed.
+- `timeformat=unixtime` confirmed working, which is what lets the weather parser reject
+  ambiguous timestamps outright.
+
+Verified end to end with a temporary probe: `prices:ok weather:ok` from the live APIs,
+then reverted.
 
 ### 2026-08-09 — Phase 1: dependencies and configuration
 
@@ -119,6 +138,12 @@ Four slices, one commit each:
   or 25 hours.
 - **Cache Components is on**, so `searchParams` and other request-time APIs must live
   inside a `<Suspense>` boundary, and no route may set `runtime = 'edge'`.
+- **Reading the clock needs `await connection()`.** `new Date()` in a server component
+  fails the build with `blocking-prerender-current-time`, and `<Suspense>` alone does not
+  fix it. Verified. Affects day selection, current-hour lookup, and the
+  prices-published check. See `library-docs.md`.
+- **`WEATHER_REQUEST_PARAMS` must stay on every Open-Meteo request.** Drop it and the
+  units silently stop matching their labels.
 - **Generated route types** (`LayoutProps`/`PageProps`) only exist after `next dev` or
   `next build`; a cold clone type-errors until then.
 - **The Vitest alias is a second copy** of the `@/*` mapping. Changing it in

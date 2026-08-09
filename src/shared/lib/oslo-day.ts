@@ -98,9 +98,25 @@ export function osloDayBounds(day: OsloDay): { start: Date; end: Date } {
  * 02:00, and would silently request the wrong day's prices.
  */
 export function pricePathFor(day: OsloDay): string {
-  const month = String(day.month).padStart(2, "0");
-  const dayOfMonth = String(day.day).padStart(2, "0");
+  const { month, dayOfMonth } = padded(day);
   return `${day.year}/${month}-${dayOfMonth}`;
+}
+
+/**
+ * `YYYY-MM-DD` for APIs that take a calendar date, such as Open-Meteo's
+ * `start_date`/`end_date`. Same reasoning as `pricePathFor`: built from Oslo parts, not
+ * from `toISOString()`.
+ */
+export function isoDateFor(day: OsloDay): string {
+  const { month, dayOfMonth } = padded(day);
+  return `${day.year}-${month}-${dayOfMonth}`;
+}
+
+function padded(day: OsloDay): { month: string; dayOfMonth: string } {
+  return {
+    month: String(day.month).padStart(2, "0"),
+    dayOfMonth: String(day.day).padStart(2, "0"),
+  };
 }
 
 /**
