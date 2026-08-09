@@ -6,5 +6,12 @@
  * insights and data table all read (context/architecture.md §2).
  */
 export type { AlignedHours, AlignmentCoverage } from "./types";
+export type { SearchParamsInput, ViewParams } from "./utils/view-params";
 
 export { alignPriceAndWeather } from "./utils/align-hours";
+export {
+  hrefWith,
+  parseViewParams,
+  viewParamsHref,
+  VIEW_PARAM_KEYS,
+} from "./utils/view-params";
