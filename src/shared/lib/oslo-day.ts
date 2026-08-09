@@ -120,6 +120,37 @@ function padded(day: OsloDay): { month: string; dayOfMonth: string } {
 }
 
 /**
+ * The `count` Oslo days ending with the day containing `now`, oldest first.
+ *
+ * Walks the calendar rather than subtracting milliseconds, for the same reason
+ * `resolveOsloDay` does: a DST day is 23 or 25 hours, so millisecond arithmetic drifts
+ * onto the wrong date twice a year — and over a 30-day window it would drift silently.
+ */
+export function osloDaysBack(now: Date, count: number): OsloDay[] {
+  const today = osloDayOf(now);
+  const days: OsloDay[] = [];
+
+  for (let offset = count - 1; offset >= 0; offset -= 1) {
+    const zoned = new TZDate(
+      today.year,
+      today.month - 1,
+      today.day - offset,
+      12,
+      0,
+      0,
+      APP_TIME_ZONE,
+    );
+    days.push({
+      year: zoned.getFullYear(),
+      month: zoned.getMonth() + 1,
+      day: zoned.getDate(),
+    });
+  }
+
+  return days;
+}
+
+/**
  * Whether tomorrow's day-ahead prices should exist yet.
  *
  * Before publication the provider answers 404. That is a normal state, not a failure,

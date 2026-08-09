@@ -21,4 +21,4 @@ export type {
 
 export { parseHourlyWeather } from "./utils/parse-weather";
 export { toWeatherResult } from "./utils/to-weather-result";
-export { getWeather } from "./api/get-weather";
+export { getWeather, getWeatherRange } from "./api/get-weather";

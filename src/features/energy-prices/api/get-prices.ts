@@ -51,6 +51,20 @@ export async function getPendingPrices(
  * pass `settled` from `areTomorrowPricesExpected`, so the decision stays with the clock
  * rather than being guessed at inside a cached scope.
  */
+/**
+ * Prices across a range of days.
+ *
+ * One cached call **per day**, in parallel, rather than one call for the range. The
+ * provider is per-day anyway, and per-day cache entries mean yesterday stays warm when
+ * today is refetched — a range key would evict all 30 days every time the window slid.
+ *
+ * Failures are dropped rather than propagated: a range view is still useful with 29 of
+ * 30 days, and a single provider hiccup should not blank the whole page.
+ */
+export async function getPriceRange(days: OsloDay[]): Promise<Fetched<PriceFetchResult>[]> {
+  return Promise.all(days.map((day) => getSettledPrices(day)));
+}
+
 export function getPrices(
   day: OsloDay,
   settled: boolean,
