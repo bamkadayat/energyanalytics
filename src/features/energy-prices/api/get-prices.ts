@@ -2,6 +2,7 @@ import { cacheLife } from "next/cache";
 import { API_BASE_URL, PRICE_AREA } from "@/shared/config";
 import { fetchJson } from "@/shared/lib/fetch-json";
 import { pricePathFor, type OsloDay } from "@/shared/lib/oslo-day";
+import { withFetchedAt, type Fetched } from "@/shared/lib/fetched";
 import type { PriceFetchResult } from "../types";
 import { toPriceResult } from "../utils/to-price-result";
 
@@ -14,11 +15,13 @@ function priceUrl(day: OsloDay): string {
  *
  * Day-ahead prices are final once published, so a long lifetime is safe.
  */
-export async function getSettledPrices(day: OsloDay): Promise<PriceFetchResult> {
+export async function getSettledPrices(
+  day: OsloDay,
+): Promise<Fetched<PriceFetchResult>> {
   "use cache";
   cacheLife("hours");
 
-  return toPriceResult(await fetchJson(priceUrl(day)));
+  return withFetchedAt(toPriceResult(await fetchJson(priceUrl(day))));
 }
 
 /**
@@ -32,11 +35,13 @@ export async function getSettledPrices(day: OsloDay): Promise<PriceFetchResult> 
  * prices that appear minutes later, and the user would keep seeing "not available yet"
  * long after it stopped being true.
  */
-export async function getPendingPrices(day: OsloDay): Promise<PriceFetchResult> {
+export async function getPendingPrices(
+  day: OsloDay,
+): Promise<Fetched<PriceFetchResult>> {
   "use cache";
   cacheLife("minutes");
 
-  return toPriceResult(await fetchJson(priceUrl(day)));
+  return withFetchedAt(toPriceResult(await fetchJson(priceUrl(day))));
 }
 
 /**
@@ -46,6 +51,9 @@ export async function getPendingPrices(day: OsloDay): Promise<PriceFetchResult> 
  * pass `settled` from `areTomorrowPricesExpected`, so the decision stays with the clock
  * rather than being guessed at inside a cached scope.
  */
-export function getPrices(day: OsloDay, settled: boolean): Promise<PriceFetchResult> {
+export function getPrices(
+  day: OsloDay,
+  settled: boolean,
+): Promise<Fetched<PriceFetchResult>> {
   return settled ? getSettledPrices(day) : getPendingPrices(day);
 }

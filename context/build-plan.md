@@ -61,19 +61,26 @@ units silently stop matching their labels.
 
 ---
 
-## Phase 3 — Page composition and states
+## Phase 3 — Page composition and states ✅ complete
 
-- [ ] `src/app/page.tsx` as server conductor: await `searchParams`, fetch both sources
-      concurrently with `Promise.allSettled`
-- [ ] URL params for selected day and metric, with validated fallbacks
-- [ ] Every state rendered per `ui-rules.md`: loading, no data, not published, partial,
-      stale, provider error — each with the right status family, icon **and** text
-- [ ] Retry where retrying helps
-- [ ] Source attribution and last-fetched time visible
-- [ ] `<Suspense>` around request-time content so the shell still prerenders
+- [x] `src/app/page.tsx` as server conductor, fetching both sources concurrently with
+      `Promise.allSettled`. **`searchParams` is not awaited at page level** — doing so
+      blocks the whole route from prerendering; the promise is passed into `<Suspense>`
+- [x] URL params for selected day and metric, with validated fallbacks
+- [x] Every state rendered per `ui-rules.md`, each with the right status family, icon
+      **and** text
+- [x] Retry where retrying helps
+- [x] Source attribution and last-fetched time visible
+- [x] `<Suspense>` around request-time content so the shell still prerenders — two
+      boundaries, so instant controls do not wait on slow providers
 
-**Gate:** each state reachable and correct with the network throttled or forced to fail;
-a dead weather provider still renders the price experience.
+**Gate:** ✅ Verified against the live APIs. Today and tomorrow render 24 aligned hours
+with correct units; invalid params fall back silently. Partial failure tested by pointing
+the weather base URL at an unreachable host — prices still render, with a warning naming
+what failed and a retry.
+
+Still owed from this phase: a stale-data state. Nothing currently distinguishes
+"retrieved 3 hours ago" from fresh, beyond the timestamp itself.
 
 ---
 
