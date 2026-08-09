@@ -47,8 +47,14 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
         <div className="flex flex-col gap-3">
           <Wordmark />
 
-          <h1 className="max-w-2xl text-display font-semibold text-fg">
-            Nordic Power &amp; Weather Explorer
+          {/*
+            Visually hidden rather than deleted. The wordmark above already carries the
+            product name, so showing it again as a heading said the same thing twice —
+            but a page still needs an h1, or the document starts at h2 and the heading
+            outline has a hole in it.
+          */}
+          <h1 className="sr-only">
+            Dashboard — {PRICE_AREA.label} prices and {WEATHER_LOCATION.label} weather
           </h1>
 
           {/*
