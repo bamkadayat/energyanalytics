@@ -173,14 +173,18 @@ rather than optional.
 `src/app/_components/hero-visual.tsx` — decorative, `aria-hidden`, in a
 `aspect-[4/3] rounded-card border border-line-strong` panel.
 
-Renders a looping `<video>` when `videoSrc` is passed, and otherwise an animated SVG
-wind field. **Pass a video by dropping a licensed clip into `public/` and setting
-`videoSrc`; nothing else changes.**
+Renders a looping `<video>` when `videoSrc` is passed, and otherwise an inline offshore
+wind scene: three turbines at different depths with rotating blades and vortex wakes, a
+perspective sea grid, drifting wind ticks and a service vessel crossing the horizon.
+**Pass a video by dropping a licensed clip into `public/` and setting `videoSrc`;
+nothing else changes.**
 
-- SVG gradients take `stopColor="var(--token)"`, so the visual follows the palette rather
+- SVG gradients and fills take `var(--token)`, so the visual follows the palette rather
   than pinning colours past the ESLint guard
-- each layer is drawn twice end to end and shifted `-50%`, so the loop is seamless
-- speeds differ per layer (`animate-drift`, `-slow`, `-slower`) to read as depth
+- depth is carried by three consistent signals: size, position relative to the horizon,
+  and rotation speed. Nearer turbines are larger, lower and faster
+- rotors need `transform-box: view-box` on the animated group so `transform-origin`
+  resolves in SVG user units — without it the blades orbit the bounding box and wobble
 - keyframes live in `globals.css`; the global `prefers-reduced-motion` rule collapses
   them, so no per-component media query is needed
 - it depicts nothing resembling data — a decorative price curve would put fabricated
