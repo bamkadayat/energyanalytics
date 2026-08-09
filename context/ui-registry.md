@@ -256,6 +256,37 @@ rather than optional.
   "Log in" and correcting it afterwards would flash the wrong word at the primary
   control on the page
 
+## Site footer
+
+`src/app/_components/site-footer.tsx` — `border-t border-line bg-page`, wordmark and
+source links on one row, small print below.
+
+- this is where the data qualifications live on the public page: VAT and grid-charge
+  exclusion, Oslo as a representative point rather than a regional average, and the
+  non-causation statement. They read as small print here, which is what they are — the
+  dashboard states them again beside the actual numbers
+- source links are attribution, and required by `ui-rules.md`
+- **no copyright year.** `new Date().getFullYear()` in a server component fails the build
+  under Cache Components with `blocking-prerender-current-time`, and a year hard-coded
+  today is wrong in January
+
+## Closing call-to-action band
+
+`src/app/_components/closing-cta.tsx` — a navy panel inset from the page edges, closing
+the landing page.
+
+- `rounded-card bg-surface-inverse` inside `max-w-content`, so it reads as a panel on the
+  light section rather than a full-bleed band
+- centred stack: `text-display` heading, `text-fg-inverse-muted` paragraph, then the same
+  `SessionCta` used in the navbar and hero
+- background texture is the **logo mark itself**, oversized and bled off both edges at
+  `opacity-5`, one mirrored with `-scale-x-100`. At that opacity it reads as texture, not
+  as the logo appearing three times on one page
+- `animate-reveal`, like the cards above it
+
+Three CTAs now share one page. They are all the same component, so they cannot disagree
+about the session.
+
 ## Landing page motion
 
 Two utilities in `globals.css`, both pure CSS — the landing page needs no client
