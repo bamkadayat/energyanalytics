@@ -3,10 +3,14 @@ import Image from "next/image";
 /**
  * The mark plus the product name.
  *
- * The logo file has **no alpha channel** — its white background is opaque — so it is set
- * inside a white badge. On the navy hero that reads as a deliberate roundel rather than
- * a white rectangle someone forgot to cut out; on light surfaces the badge is invisible.
- * A transparent PNG or an SVG would remove the need for the badge entirely.
+ * The logo file still has **no alpha channel** (PNG colour type 2), so its off-white
+ * background is opaque and the mark is set inside a white badge. On the navy hero that
+ * reads as a deliberate roundel rather than a pale rectangle; on light surfaces the
+ * badge is invisible. A transparent PNG or an SVG would remove the need for it.
+ *
+ * The artwork is fine line work with generous internal padding, so it is scaled slightly
+ * beyond the badge and clipped. Rendered to fit, the strokes fall below a pixel at this
+ * size and the glyph turns to mush.
  *
  * `alt=""` because the product name sits right beside it: announcing both would make a
  * screen reader say the name twice.
@@ -14,15 +18,15 @@ import Image from "next/image";
 export function Wordmark({ tone = "default" }: { tone?: "default" | "inverse" }) {
   return (
     <span className="flex items-center gap-2.5">
-      <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-pill bg-surface">
+      <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-pill bg-surface">
         <Image
           src="/logo.png"
           alt=""
-          width={32}
-          height={32}
-          // The source is 1254px square for a 32px slot; next/image resizes it, but a
-          // smaller export (or an SVG) would cut ~940 KB from the origin payload.
-          className="size-7 object-contain"
+          width={36}
+          height={36}
+          // The source is 1254px square and ~900 KB for a 36px slot; next/image resizes
+          // it, but a smaller export or an SVG would cut most of that from the origin.
+          className="size-9 scale-125 object-contain"
           priority
         />
       </span>
