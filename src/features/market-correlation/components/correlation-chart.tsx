@@ -2,8 +2,9 @@
 
 import type { EChartsOption } from "echarts";
 import ReactECharts from "echarts-for-react";
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo } from "react";
 import type { ChartSeries } from "../utils/to-chart-series";
+import { useChartTokens } from "./use-chart-tokens";
 
 /**
  * The one place in this app that needs the DOM.
@@ -48,47 +49,36 @@ interface ChartPalette {
   tooltipText: string;
 }
 
-/** The tokens never change after load, so there is nothing to subscribe to. */
-const noSubscription = () => () => {};
+const TOKENS = [
+  "--chart-price",
+  "--chart-price-fill",
+  "--chart-grid",
+  "--chart-axis",
+  "--chart-crosshair",
+  "--chart-tooltip-surface",
+  "--chart-tooltip-fg",
+] as const;
 
-/**
- * Reads design tokens off the document root, once there is a document.
- *
- * `useSyncExternalStore` rather than a `setState` in an effect: this is a *browser-only
- * value*, not state the component owns. The server snapshot is `false`, the client
- * snapshot `true`, so React handles the hydration mismatch instead of us papering over
- * it with an extra render.
- *
- * `getComputedStyle` resolves `var()` chains, so a token defined as `var(--slate-600)`
- * comes back as the literal colour. The result can carry leading whitespace, hence the
- * trim — ECharts silently ignores a value like `" #475569"`.
- */
+/** Reads the palette through the shared hook, plus the series colour for this metric. */
 function useChartPalette(metricId: ChartSeries["metricId"]): ChartPalette | null {
-  const hasDocument = useSyncExternalStore(
-    noSubscription,
-    () => true,
-    () => false,
-  );
+  const tokens = useChartTokens([...TOKENS, `--chart-${metricId}`] as const);
 
   return useMemo(() => {
-    if (!hasDocument) {
+    if (tokens === null) {
       return null;
     }
 
-    const styles = getComputedStyle(document.documentElement);
-    const token = (name: string) => styles.getPropertyValue(name).trim();
-
     return {
-      price: token("--chart-price"),
-      priceFill: token("--chart-price-fill"),
-      metric: token(`--chart-${metricId}`),
-      grid: token("--chart-grid"),
-      axis: token("--chart-axis"),
-      crosshair: token("--chart-crosshair"),
-      tooltipSurface: token("--chart-tooltip-surface"),
-      tooltipText: token("--chart-tooltip-fg"),
+      price: tokens["--chart-price"],
+      priceFill: tokens["--chart-price-fill"],
+      metric: tokens[`--chart-${metricId}`],
+      grid: tokens["--chart-grid"],
+      axis: tokens["--chart-axis"],
+      crosshair: tokens["--chart-crosshair"],
+      tooltipSurface: tokens["--chart-tooltip-surface"],
+      tooltipText: tokens["--chart-tooltip-fg"],
     };
-  }, [hasDocument, metricId]);
+  }, [tokens, metricId]);
 }
 
 function buildOption(series: ChartSeries, palette: ChartPalette): EChartsOption {

@@ -129,6 +129,19 @@
   --chart-tooltip-surface: var(--navy-900);
   --chart-tooltip-fg: var(--white);
 
+  /*
+   * ---- 2. Semantic: heatmap ramp ----
+   * A single-hue sequential scale, ordered by lightness rather than by hue. Sequential
+   * data must read as "more" and "less", which a lightness ramp conveys even in
+   * greyscale or with any form of colour blindness — a rainbow scale does not.
+   */
+  --heat-0: #eef2fb;
+  --heat-1: #cfdcf6;
+  --heat-2: #9dbaee;
+  --heat-3: #5b8ae0;
+  --heat-4: #2563eb;
+  --heat-5: #16357f;
+
   /* ---- 2. Semantic: sizing ---- */
   --chart-min-height: clamp(18rem, 40vh, 28rem);
 }

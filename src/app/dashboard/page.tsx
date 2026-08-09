@@ -6,6 +6,7 @@ import { hasValidSession } from "@/features/auth/api/session";
 import {
   CorrelationView,
   parseViewParams,
+  RangeViews,
   ViewControls,
 } from "@/features/market-correlation";
 import { APP_TIME_ZONE, PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
@@ -69,9 +70,17 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
 
       <ViewControls params={params} />
 
-      <main>
+      <main className="flex flex-col gap-12">
         <Suspense fallback={<LoadingRegion />}>
           <CorrelationView params={params} />
+        </Suspense>
+
+        {/*
+          Its own boundary: the 30-day range is 30 price requests, and making today's
+          chart wait on them would be the wrong trade.
+        */}
+        <Suspense fallback={<LoadingRegion label="Loading the last 30 days…" />}>
+          <RangeViews params={params} />
         </Suspense>
       </main>
     </div>
@@ -82,13 +91,13 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
  * Says what is being waited for rather than spinning. Its height roughly matches the
  * loaded region so the page does not jump when the data arrives.
  */
-function LoadingRegion() {
+function LoadingRegion({ label = "Loading prices and weather…" }: { label?: string }) {
   return (
     <div
       className="flex min-h-[var(--chart-min-height)] flex-col gap-4 rounded-card border border-line bg-surface p-6"
       aria-busy="true"
     >
-      <p className="text-fg-muted">Loading prices and weather…</p>
+      <p className="text-fg-muted">{label}</p>
       <div className="h-4 w-2/3 rounded-control bg-surface-subtle" />
       <div className="h-4 w-1/2 rounded-control bg-surface-subtle" />
       <div className="h-4 w-3/5 rounded-control bg-surface-subtle" />

@@ -22,6 +22,7 @@ export type { Insight } from "./utils/derive-insights";
 export type { DurationCurve, PriceHeatmap } from "./utils/derive-range-views";
 export { CorrelationChart } from "./components/correlation-chart";
 export { CorrelationView } from "./components/correlation-view";
+export { RangeViews } from "./components/range-views";
 export { ViewControls } from "./components/view-controls";
 export {
   hrefWith,
