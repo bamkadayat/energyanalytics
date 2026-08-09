@@ -8,15 +8,18 @@ const DAY_OPTIONS: ReadonlyArray<{ value: DaySelection; label: string }> = [
 ];
 
 /**
- * Day and metric selectors.
+ * The dashboard toolbar: day and metric, laid out horizontally.
  *
- * Plain links, not buttons with client state. The selection *is* the URL, so navigating
- * is the whole interaction — which means these work before any JavaScript loads, keep
- * the back button meaningful, and need no `"use client"` boundary.
+ * Compact by design. Filters in an analytics tool are used constantly and read rarely,
+ * so they belong on one dense row rather than in a block that pushes the data below the
+ * fold. Labels sit inline instead of stacked above for the same reason.
+ *
+ * Plain links, not client state. The selection *is* the URL, so these work before any
+ * JavaScript loads and the back button steps through previous views.
  */
 export function ViewControls({ params }: { params: ViewParams }) {
   return (
-    <div className="flex flex-wrap gap-x-8 gap-y-4">
+    <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
       <SegmentedLinks
         label="Day"
         options={DAY_OPTIONS.map((option) => ({
@@ -28,7 +31,7 @@ export function ViewControls({ params }: { params: ViewParams }) {
       />
 
       <SegmentedLinks
-        label="Weather metric"
+        label="Metric"
         options={WEATHER_METRIC_IDS.map((id) => ({
           key: id,
           label: WEATHER_METRICS[id].label,
@@ -55,28 +58,25 @@ function SegmentedLinks({
   options: SegmentOption[];
 }) {
   return (
-    <nav aria-label={label} className="flex flex-col gap-2">
+    <nav aria-label={label} className="flex items-center gap-3">
       <span className="font-mono text-xs uppercase tracking-wider text-fg-muted">
         {label}
       </span>
 
-      <ul className="flex flex-wrap gap-1 rounded-pill border border-line bg-surface p-1">
+      <ul className="flex flex-wrap gap-0.5 rounded-pill border border-line bg-page p-0.5">
         {options.map((option) => (
           <li key={option.key}>
             <Link
               href={option.href}
-              /*
-               * aria-current is what tells a screen reader which option is active. The
-               * visual treatment adds background and border on top, so selection is
-               * never carried by colour alone.
-               */
+              // What tells a screen reader which option is active. The visual treatment
+              // adds background and border on top, so selection is never colour alone.
               aria-current={option.selected ? "page" : undefined}
               className={
                 option.selected
-                  ? "block rounded-pill border border-line-selected bg-surface-selected px-4 py-1.5 text-sm font-medium text-on-action-secondary"
-                  : // Same border width as the selected state, in the container's own
-                    // colour, so selecting an option cannot shift the layout.
-                    "block rounded-pill border border-surface px-4 py-1.5 text-sm text-fg-secondary hover:bg-surface-subtle"
+                  ? "block rounded-pill border border-line-selected bg-surface px-3 py-1 text-sm font-medium text-fg shadow-card"
+                  : // Same border width in the container's colour, so selecting cannot
+                    // shift the layout.
+                    "block rounded-pill border border-page px-3 py-1 text-sm text-fg-secondary hover:text-fg"
               }
             >
               {option.label}

@@ -64,9 +64,9 @@ export async function RangeViews({ params }: { params: ViewParams }) {
   }
 
   return (
-    <section className="flex flex-col gap-8" aria-labelledby="range-heading">
-      <div className="flex flex-col gap-2">
-        <h2 id="range-heading" className="text-xl font-semibold text-fg">
+    <section className="flex flex-col gap-4" aria-labelledby="range-heading">
+      <div className="flex flex-col gap-1">
+        <h2 id="range-heading" className="text-lg font-medium text-fg">
           The last {RANGE_DAYS} days
         </h2>
         <p className="text-sm text-fg-muted">
@@ -84,6 +84,7 @@ export async function RangeViews({ params }: { params: ViewParams }) {
         </StatusMessage>
       ) : null}
 
+      <div className="grid gap-6 2xl:grid-cols-2">
       <ViewCard
         title="Price by hour and day"
         paramKey="heatmap"
@@ -124,6 +125,7 @@ export async function RangeViews({ params }: { params: ViewParams }) {
           </>
         }
       />
+      </div>
     </section>
   );
 }

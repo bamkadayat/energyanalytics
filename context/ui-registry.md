@@ -224,6 +224,28 @@ line styles.
 `<ul>` whose items use `border-l-2 border-line-selected pl-3 text-sm text-fg-secondary`.
 A list rather than prose: each observation is independent and should be scannable.
 
+## Dashboard shell
+
+`app/dashboard/page.tsx` — an application shell, not a document.
+
+- **sticky header** (`sticky top-0 z-30 border-b bg-surface`) with the wordmark, the
+  area/location/timezone chips, and Logout; a second sticky row holds the filters. In an
+  analytics tool the filters are used constantly, and a header that scrolls away makes
+  every change of view a scroll to the top and back
+- the caveat chips are `hidden lg:block` — they matter, but not enough to wrap the header
+  onto two lines on a phone
+- body is `max-w-content` with `gap-6`, tighter than the marketing pages: a dashboard is
+  scanned, not read
+- charts sit in a **grid**, not a column: the day chart takes 2fr against 1fr of
+  observations at `xl`, and the two range charts split at `2xl`. Stacking full-width
+  cards is what made it read like a report
+
+## KPI strip
+
+`summary-cards.tsx` — `p-3`, `text-xl tabular-nums` value, `text-[0.6875rem]` uppercase
+label, up to six across at `2xl`. Deliberately denser than a content card: a KPI strip is
+scanned at a glance, and full card padding pushes the charts below the fold.
+
 ## Chart card with view toggle
 
 `components/view-card.tsx` — wraps every chart section: title on the left, an icon
