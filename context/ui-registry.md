@@ -84,6 +84,24 @@ one fails the suite.
 
 ---
 
+## Logo mark and wordmark
+
+`src/shared/ui/logo-mark.tsx` — two wind gusts above a rising measurement line ending in
+a data point. Moving air, read as a series.
+
+- **Inline SVG on `currentColor`**, not an image file. It needs no request, scales
+  without blurring, and takes the colour of whatever it sits in — which is what removed
+  the white badge the previous PNG needed on the navy hero
+- three strokes and one dot, deliberately. Anything more disappears at 36px, the size it
+  is used at almost everywhere
+- `viewBox 0 0 24 24`, `strokeWidth 2`, round caps and joins
+- `Wordmark` sets colour once on the wrapper and both mark and text inherit, so there is
+  one `tone` switch rather than an asset per background
+- `src/app/icon.svg` is the same drawing with the navy pinned, since a favicon has no
+  inherited colour to take
+
+---
+
 ## Segmented link controls
 
 `src/features/market-correlation/components/view-controls.tsx` — day and metric
