@@ -1,69 +1,85 @@
-import Image from "next/image";
+import { Suspense } from "react";
+import {
+  CorrelationView,
+  parseViewParams,
+  ViewControls,
+} from "@/features/market-correlation";
+import { APP_TIME_ZONE, PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
 
-export default function Home() {
+type SearchParams = PageProps<"/">["searchParams"];
+
+/**
+ * Server conductor.
+ *
+ * `searchParams` is deliberately **not** awaited here. It is a request-time API, and
+ * awaiting it at the page level blocks the whole route from prerendering
+ * (`blocking-prerender-dynamic`). Instead the promise is passed down and awaited inside
+ * `<Suspense>`, so the masthead is static HTML and only the param-dependent regions
+ * stream in. See context/library-docs.md.
+ *
+ * Two boundaries rather than one: the controls need only the URL and resolve instantly,
+ * while the data region waits on two providers. Sharing a boundary would hold the
+ * controls back for no reason.
+ */
+export default function Home({ searchParams }: PageProps<"/">) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center bg-page font-sans">
-      <main className="flex w-full max-w-3xl flex-1 flex-col items-center justify-between bg-surface px-16 py-32 sm:items-start">
-        <Image
-          className="h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-display font-semibold text-fg">
-            To get started, edit the{" "}
-            <code className="rounded-control bg-surface-subtle px-1.5 py-0.5 font-mono text-[0.9em]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-fg-muted">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-link underline underline-offset-2"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-link underline underline-offset-2"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-pill bg-action-primary px-5 text-on-action-primary transition-colors hover:bg-action-primary-hover md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-pill border border-solid border-line px-5 transition-colors hover:bg-surface-subtle md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <div className="mx-auto flex w-full max-w-content flex-col gap-8 px-4 py-8 sm:px-6 sm:py-12">
+      <header className="flex flex-col gap-3">
+        <h1 className="max-w-2xl text-display font-semibold text-fg">
+          Nordic Power &amp; Weather Explorer
+        </h1>
+
+        {/*
+          These three facts are the caveats the page must never bury: which area the
+          prices cover, that Oslo is a single representative point inside it, and which
+          clock every hour is stated in. Putting them in the masthead makes the structure
+          itself carry the qualification.
+        */}
+        <p className="font-mono text-sm text-fg-muted">
+          {PRICE_AREA.label} · {WEATHER_LOCATION.label} weather · {APP_TIME_ZONE}
+        </p>
+      </header>
+
+      <Suspense fallback={<ControlsPlaceholder />}>
+        <Controls searchParams={searchParams} />
+      </Suspense>
+
+      <main>
+        <Suspense fallback={<LoadingRegion />}>
+          <DataRegion searchParams={searchParams} />
+        </Suspense>
       </main>
+    </div>
+  );
+}
+
+async function Controls({ searchParams }: { searchParams: SearchParams }) {
+  return <ViewControls params={parseViewParams(await searchParams)} />;
+}
+
+async function DataRegion({ searchParams }: { searchParams: SearchParams }) {
+  return <CorrelationView params={parseViewParams(await searchParams)} />;
+}
+
+/** Reserves the controls' height so the masthead does not jump when they resolve. */
+function ControlsPlaceholder() {
+  return <div className="h-16" aria-hidden="true" />;
+}
+
+/**
+ * Says what is being waited for rather than spinning. Its height roughly matches the
+ * loaded region so the page does not jump when the data arrives.
+ */
+function LoadingRegion() {
+  return (
+    <div
+      className="flex min-h-[var(--chart-min-height)] flex-col gap-4 rounded-card border border-line bg-surface p-6"
+      aria-busy="true"
+    >
+      <p className="text-fg-muted">Loading prices and weather…</p>
+      <div className="h-4 w-2/3 rounded-control bg-surface-subtle" />
+      <div className="h-4 w-1/2 rounded-control bg-surface-subtle" />
+      <div className="h-4 w-3/5 rounded-control bg-surface-subtle" />
     </div>
   );
 }
