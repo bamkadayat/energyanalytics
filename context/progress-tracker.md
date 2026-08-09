@@ -3,9 +3,10 @@
 Living status for **Nordic Power & Weather Explorer**. Per `AGENTS.md`, update this file
 after every feature — alongside `ui-registry.md`.
 
-**Last updated:** 2026-08-09
+**Last updated:** 2026-08-09 (end of session)
 **Current phase:** Phases 0–5 complete → Phase 6 next
-**Gates:** `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm test` ✅ 168 passed · `pnpm build` ✅
+**Gates:** `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm test` ✅ 185 passed · `pnpm build` ✅
+**Deadline:** interview Wednesday — see *Next session* below.
 
 ---
 
@@ -40,7 +41,45 @@ Plus an unplanned track, added on request partway through and not in `build-plan
 
 ---
 
+## Next session — start here
+
+1. **Restart the dev server first.** `rm -rf .next && pnpm dev`. Verification runs of
+   `pnpm build` / `next start` share `.next` with a running `pnpm dev`, which left the
+   dev server stale at the end of the last session. Use a separate dist dir for
+   verification if both need to run.
+2. **Look at the dashboard.** Still the largest open risk — the charts, the shell
+   density, the animations and the login flow have never been seen rendered.
+3. **Write the README.** Highest-leverage remaining item: it is still create-next-app
+   boilerplate, and it is the first thing a reviewer opens. Should carry the problem, an
+   architecture sketch, and the decisions with their reasoning — hour-join vs array
+   index, category vs time axis, per-day cache keys, server-derived views, the
+   solid/dashed accessibility constraint, both Cache Components traps.
+4. **Deploy to Vercel** so there is a live URL rather than a laptop.
+5. Then Phase 6: keyboard pass, 200% zoom, narrow reflow, Lighthouse and bundle numbers.
+
+---
+
 ## Completed
+
+### 2026-08-09 — Data-heavy views, dashboard shell, error handling (unplanned)
+
+Second scope expansion, driven by the interview being with a senior frontend developer:
+the goal shifted from domain depth to *handling volume well*.
+
+- **30-day range views** — heatmap (24 rows × N day columns) and price duration curve
+  with `dataZoom` and LTTB sampling. Both derived on the server: 720–1,440 hours become
+  arrays of numbers, not raw rows for the browser to bucket. Verified live at 168 / 720 /
+  1,440 priced hours.
+- **Range length dropdown** (7 / 14 / 30 / 60). Native `<select>`; capped at 60 because
+  the price API is one request per day.
+- **Per-card chart/table toggle.** Both views are rendered on the server and passed as
+  props, so switching is instant — no request, no re-render, no scroll jump — while the
+  URL still tracks each mode via `history.replaceState`.
+- **Dashboard rebuilt as an application shell** — sticky header and filter row, KPI strip
+  six across, charts in a grid rather than stacked full-width.
+- **Error and loading screens** — branded 404, route and global error boundaries, a
+  dashboard skeleton. `retry` (not `reset`) is the Next 16.3 prop; `global-error` needs
+  `globals.css` imported explicitly.
 
 ### 2026-08-09 — Landing page, auth and design pass (unplanned)
 
@@ -146,10 +185,10 @@ docs.
 
 ## Owed work
 
-- **Nothing has been verified visually.** The chart, the wind scene, the animations, the
-  card motifs and the login flow have never been seen rendered — confidence rests on
-  builds passing and unit tests. `pnpm dev` with the dashboard password would close most
-  of this quickly.
+- **Nothing has been verified visually.** The charts, the wind scene, the animations, the
+  card motifs, the new dashboard shell and the login flow have never been seen rendered —
+  confidence rests on builds passing and unit tests.
+- **README is still create-next-app boilerplate**, and no deploy exists.
 - **No stale-data state.** Nothing distinguishes "retrieved three hours ago" from fresh
   beyond the timestamp, and `cacheLife("hours")` makes that gap real. Listed in
   `ui-rules.md`'s state table but not implemented.
