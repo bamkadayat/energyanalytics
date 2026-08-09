@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Wordmark } from "@/shared/ui";
+import { HeroVisual } from "./_components/hero-visual";
 import {
   APP_TIME_ZONE,
   PRICE_AREA,
@@ -48,23 +49,25 @@ export default function Home() {
           </p>
         </div>
 
-        {/*
-          Deliberately not a stock photograph or an illustrative chart. Inventing a price
-          curve for decoration would put fabricated market data on the marketing page of
-          a tool whose entire premise is not fabricating market data. These are the real
-          parameters of what the dashboard covers.
-        */}
-        <dl className="grid gap-px overflow-hidden rounded-card border border-line-strong bg-line-strong sm:grid-cols-2">
-          <Fact term="Price area" value={PRICE_AREA.label} />
-          <Fact term="Weather point" value={`${WEATHER_LOCATION.label} (representative)`} />
-          <Fact term="Resolution" value={`Hourly · ${APP_TIME_ZONE}`} />
-          <Fact term="Price unit" value={PRICE_UNIT} />
-          <Fact
-            term="Weather metrics"
-            value={WEATHER_METRIC_IDS.map((id) => WEATHER_METRICS[id].label).join(" · ")}
-            wide
-          />
-        </dl>
+        <div className="flex flex-col gap-6">
+          {/*
+            Drop a licensed clip into public/ and pass videoSrc to swap the animation for
+            it; nothing else needs to change.
+          */}
+          <HeroVisual />
+
+            <dl className="grid gap-px overflow-hidden rounded-card border border-line-strong bg-line-strong sm:grid-cols-2">
+            <Fact term="Price area" value={PRICE_AREA.label} />
+            <Fact term="Weather point" value={`${WEATHER_LOCATION.label} (representative)`} />
+            <Fact term="Resolution" value={`Hourly · ${APP_TIME_ZONE}`} />
+            <Fact term="Price unit" value={PRICE_UNIT} />
+            <Fact
+              term="Weather metrics"
+              value={WEATHER_METRIC_IDS.map((id) => WEATHER_METRICS[id].label).join(" · ")}
+              wide
+            />
+          </dl>
+        </div>
       </main>
 
       <footer className="mx-auto w-full max-w-content px-4 pb-10 sm:px-6">

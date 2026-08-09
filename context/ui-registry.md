@@ -168,6 +168,24 @@ rather than optional.
 - Numeric cells: `text-right font-mono tabular-nums` so decimal points line up
 - Wrapped in `overflow-x-auto` so the table scrolls rather than the page
 
+## Hero visual
+
+`src/app/_components/hero-visual.tsx` — decorative, `aria-hidden`, in a
+`aspect-[4/3] rounded-card border border-line-strong` panel.
+
+Renders a looping `<video>` when `videoSrc` is passed, and otherwise an animated SVG
+wind field. **Pass a video by dropping a licensed clip into `public/` and setting
+`videoSrc`; nothing else changes.**
+
+- SVG gradients take `stopColor="var(--token)"`, so the visual follows the palette rather
+  than pinning colours past the ESLint guard
+- each layer is drawn twice end to end and shifted `-50%`, so the loop is seamless
+- speeds differ per layer (`animate-drift`, `-slow`, `-slower`) to read as depth
+- keyframes live in `globals.css`; the global `prefers-reduced-motion` rule collapses
+  them, so no per-component media query is needed
+- it depicts nothing resembling data — a decorative price curve would put fabricated
+  market figures on the marketing page of a tool premised on not fabricating them
+
 ---
 
 ## Not yet established
