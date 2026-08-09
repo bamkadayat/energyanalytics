@@ -33,7 +33,20 @@
   --slate-700: #334155;
   --slate-900: #0f172a;
 
-  /* ---- 1. Foundation: Nordic blue ---- */
+  /*
+   * ---- 1. Foundation: brand navy ----
+   * --navy-900 is the primary. It is close to black, so the interaction states move
+   * *lighter* for hover and darker only for active — darkening a near-black base would
+   * produce no visible change.
+   */
+  --navy-50: #eef0f7;
+  --navy-100: #dfe3f0;
+  --navy-200: #c3cae2;
+  --navy-800: #16204a;
+  --navy-900: #0b1128;
+  --navy-950: #06091a;
+
+  /* ---- 1. Foundation: Nordic blue (accent; links and info status) ---- */
   --nordic-50: #f0f9ff;
   --nordic-100: #e0f2fe;
   --nordic-200: #bae6fd;
@@ -46,31 +59,38 @@
   --page: var(--slate-50);
   --surface: var(--white);
   --surface-subtle: var(--slate-100);
-  --surface-selected: var(--nordic-100);
-  --surface-inverse: var(--slate-900);
+  --surface-selected: var(--navy-50);
+  --surface-inverse: var(--navy-900);
 
   /* ---- 2. Semantic: foreground ---- */
   --fg: var(--slate-900);
   --fg-secondary: var(--slate-700);
   --fg-muted: var(--slate-600);
   --fg-inverse: var(--white);
+  /* Subdued text on --surface-inverse. 11.44:1 against navy-900. */
+  --fg-inverse-muted: var(--navy-200);
+  /*
+   * Deliberately on the nordic accent rather than the navy primary: at near-black a
+   * link would be indistinguishable from body text, leaving the underline as its only
+   * affordance.
+   */
   --link: var(--nordic-700);
   --icon: var(--slate-600);
 
   /* ---- 2. Semantic: lines and focus ---- */
   --line: var(--slate-300);
   --line-strong: var(--slate-500);
-  --line-selected: var(--nordic-600);
-  --focus: var(--nordic-600);
+  --line-selected: var(--navy-900);
+  --focus: var(--navy-900);
 
   /* ---- 2. Semantic: actions ---- */
-  --action-primary: var(--nordic-700);
-  --action-primary-hover: var(--nordic-800);
-  --action-primary-active: var(--nordic-900);
+  --action-primary: var(--navy-900);
+  --action-primary-hover: var(--navy-800);
+  --action-primary-active: var(--navy-950);
   --on-action-primary: var(--white);
-  --action-secondary: var(--nordic-100);
-  --action-secondary-hover: var(--nordic-200);
-  --on-action-secondary: var(--nordic-800);
+  --action-secondary: var(--navy-100);
+  --action-secondary-hover: var(--navy-200);
+  --on-action-secondary: var(--navy-900);
   --disabled: var(--slate-200);
   --on-disabled: var(--slate-600);
 
@@ -104,7 +124,7 @@
   --chart-grid: var(--slate-200);
   --chart-axis: var(--slate-600);
   --chart-crosshair: var(--slate-700);
-  --chart-tooltip-surface: var(--slate-900);
+  --chart-tooltip-surface: var(--navy-900);
   --chart-tooltip-fg: var(--white);
 
   /* ---- 2. Semantic: sizing ---- */
@@ -139,6 +159,7 @@
   --color-fg-secondary: var(--fg-secondary);
   --color-fg-muted: var(--fg-muted);
   --color-fg-inverse: var(--fg-inverse);
+  --color-fg-inverse-muted: var(--fg-inverse-muted);
   --color-link: var(--link);
   --color-icon: var(--icon);
 

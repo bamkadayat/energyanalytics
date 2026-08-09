@@ -61,7 +61,22 @@ code. Verified specifics for this repo:
   in a `connection()`-guarded component inside a `<Suspense>` boundary, so the shell
   stays static and only the time-dependent part streams. A route structured this way
   reports as `◐ (Partial Prerender)` in the build output rather than `○ (Static)`.
+- **Middleware is called Proxy in Next 16.** The file is `proxy.ts` beside `app/`, not
+  `middleware.ts`. Its docs are explicit that it is *not* a session-management or
+  authorization layer — use it for optimistic redirects only, and verify authoritatively
+  inside the route.
+- **`instant = false` does not clear synchronous-IO errors.** It marks a segment as
+  allowed to block, but `new Date()`, `Date.now()`, `Math.random()` and
+  `crypto.randomUUID()` still fail the prerender. Only `connection()`, `use cache`, or a
+  client component fix those. Verified the hard way in the auth slice.
 - `next dev` rewrites `AGENTS.md`. Commit the regenerated block with your work.
+
+## server-only
+
+One-line package from Vercel. Importing it makes a module a **build error** if it is ever
+pulled into a client bundle. Used by `shared/config/server.ts` and the auth session
+module so a secret cannot reach the browser through an accidental import — a guarantee
+review cannot provide.
 
 ## Tailwind CSS v4
 

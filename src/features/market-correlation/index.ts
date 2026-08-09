@@ -9,6 +9,9 @@ export type { AlignedHours, AlignmentCoverage } from "./types";
 export type { SearchParamsInput, ViewParams } from "./utils/view-params";
 
 export { alignPriceAndWeather } from "./utils/align-hours";
+export { toChartSeries } from "./utils/to-chart-series";
+export type { ChartSeries } from "./utils/to-chart-series";
+export { CorrelationChart } from "./components/correlation-chart";
 export { CorrelationView } from "./components/correlation-view";
 export { ViewControls } from "./components/view-controls";
 export {
