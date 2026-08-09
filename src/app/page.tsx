@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Wordmark } from "@/shared/ui";
 import {
   APP_TIME_ZONE,
   PRICE_AREA,
@@ -18,10 +19,7 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col bg-surface-inverse text-fg-inverse">
       <header className="mx-auto flex w-full max-w-content items-center justify-between gap-4 px-4 py-6 sm:px-6">
-        <span className="font-mono text-sm font-medium tracking-tight">
-          {PRICE_AREA.code}
-          <span className="text-fg-inverse-muted"> / {WEATHER_LOCATION.label}</span>
-        </span>
+        <Wordmark tone="inverse" />
 
         {/*
           The only control on the page, so it is the only thing styled as one. A white
