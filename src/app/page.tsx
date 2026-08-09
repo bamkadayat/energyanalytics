@@ -5,6 +5,7 @@ import { ClosingCta } from "./_components/closing-cta";
 import { HeroVisual } from "./_components/hero-visual";
 import { MetricHighlights } from "./_components/metric-highlights";
 import { SessionCta, SessionCtaPlaceholder } from "./_components/session-cta";
+import { SiteFooter } from "./_components/site-footer";
 
 /**
  * Public landing page.
@@ -70,6 +71,8 @@ export default function Home() {
       <MetricHighlights />
 
       <ClosingCta />
+
+      <SiteFooter />
     </div>
   );
 }

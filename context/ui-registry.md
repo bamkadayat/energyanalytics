@@ -256,6 +256,20 @@ rather than optional.
   "Log in" and correcting it afterwards would flash the wrong word at the primary
   control on the page
 
+## Site footer
+
+`src/app/_components/site-footer.tsx` — `border-t border-line bg-page`, wordmark and
+source links on one row, small print below.
+
+- this is where the data qualifications live on the public page: VAT and grid-charge
+  exclusion, Oslo as a representative point rather than a regional average, and the
+  non-causation statement. They read as small print here, which is what they are — the
+  dashboard states them again beside the actual numbers
+- source links are attribution, and required by `ui-rules.md`
+- **no copyright year.** `new Date().getFullYear()` in a server component fails the build
+  under Cache Components with `blocking-prerender-current-time`, and a year hard-coded
+  today is wrong in January
+
 ## Closing call-to-action band
 
 `src/app/_components/closing-cta.tsx` — a navy panel inset from the page edges, closing
