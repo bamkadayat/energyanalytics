@@ -107,6 +107,13 @@ and a component per element would be the same rule copied three times.
 | `md` | `px-4 py-2 text-sm` | default |
 | `lg` | `px-7 py-3 text-base` | the hero call to action |
 
+**Width comes from content, never from a fixed size.** Where a button needs more
+presence — the hero call to action against a 4.5rem headline — add a responsive
+*minimum* (`sm:min-w-48`), not a width. A fixed width clips a longer label, and this
+button's label changes with the session ("Log in" versus "Go to dashboard"). Leave the
+minimum off below `sm`, where it would span most of the viewport and read as a
+full-width bar.
+
 **Every variant is `rounded-pill`**, and a test asserts it — buttons had previously
 drifted between `rounded-pill` and `rounded-control` because each was styled at its call
 site. Every variant also carries a `disabled:` treatment, so a disabled button never

@@ -2,7 +2,19 @@ import Link from "next/link";
 import { hasValidSession } from "@/features/auth/api/session";
 import { buttonClasses } from "@/shared/ui";
 
-const PILL = buttonClasses({ variant: "inverse", size: "lg" });
+/*
+ * A minimum width from `sm` upward, never a fixed one. The button still grows with its
+ * label — "Go to dashboard" is longer than "Log in" and must not be clipped — but it
+ * stops looking undersized against a 4.5rem headline.
+ *
+ * Left at its content width below `sm`: in a narrow column a 12rem minimum would nearly
+ * span the viewport and read as a full-width bar rather than a button.
+ */
+const PILL = buttonClasses({
+  variant: "inverse",
+  size: "lg",
+  className: "sm:min-w-48",
+});
 
 /**
  * The page's single call to action, which changes with the session.
@@ -40,7 +52,9 @@ export function HeroCtaPlaceholder() {
   return (
     <div
       aria-hidden="true"
-      className="h-[3.25rem] w-40 rounded-pill bg-surface-inverse opacity-40"
+      // Mirrors the button exactly: h-12 is py-3 plus a 1.5rem line box, and the width
+      // tracks the same sm: step, so nothing shifts when the real button arrives.
+      className="h-12 w-32 rounded-pill bg-surface-inverse opacity-40 sm:w-48"
     />
   );
 }
