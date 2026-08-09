@@ -24,18 +24,19 @@ Scaffold, `src/` layout, design tokens, enforcement.
 
 ---
 
-## Phase 1 — Dependencies and configuration
+## Phase 1 — Dependencies and configuration ✅ complete (in review)
 
-- [ ] Install `echarts`, `echarts-for-react`, `date-fns` + its timezone companion
-      (confirm the correct package for the installed major — see `library-docs.md`)
-- [ ] Install `vitest`, `@testing-library/react`, `jsdom`; add `test` and `typecheck`
+One commit per item, per the workflow in `progress-tracker.md`.
+
+- [x] Install `echarts`, `echarts-for-react`, `date-fns` + `@date-fns/tz`
+- [x] Install `vitest`, `@testing-library/react`, `jsdom`; add `test` and `typecheck`
       scripts to `package.json`
-- [ ] Enable `cacheComponents: true` in `next.config.ts`
-- [ ] `src/shared/config` — one validated module: API base URLs, `NO1` code + label, Oslo
-      lat/lon + label, `Europe/Oslo`, supported metrics with units, cache profiles
+- [x] Enable `cacheComponents: true` in `next.config.ts`
+- [x] `src/shared/config` — one module: API base URLs, `NO1` code + label, Oslo lat/lon +
+      label, `Europe/Oslo`, supported metrics with units, cache profiles
 
 **Gate:** new scripts run clean; no `Europe/Oslo` or coordinate literal exists outside
-`shared/config`.
+`shared/config`. ✅
 
 ---
 
