@@ -8,6 +8,7 @@ import {
 } from "@/shared/config";
 import { fetchJson } from "@/shared/lib/fetch-json";
 import { isoDateFor, type OsloDay } from "@/shared/lib/oslo-day";
+import { withFetchedAt, type Fetched } from "@/shared/lib/fetched";
 import type { WeatherFetchResult } from "../types";
 import { toWeatherResult } from "../utils/to-weather-result";
 
@@ -39,9 +40,11 @@ function weatherUrl(day: OsloDay): string {
  * Cached for hours: Open-Meteo republishes on a slow cadence, so a shorter lifetime
  * would spend requests without producing fresher data.
  */
-export async function getWeather(day: OsloDay): Promise<WeatherFetchResult> {
+export async function getWeather(
+  day: OsloDay,
+): Promise<Fetched<WeatherFetchResult>> {
   "use cache";
   cacheLife("hours");
 
-  return toWeatherResult(await fetchJson(weatherUrl(day)));
+  return withFetchedAt(toWeatherResult(await fetchJson(weatherUrl(day))));
 }
