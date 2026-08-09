@@ -31,7 +31,7 @@ const FEATURED: WeatherMetricId = "wind";
 
 export function MetricHighlights() {
   return (
-    <section className="bg-page py-16 sm:py-24">
+    <section className="bg-page pb-12 pt-16 sm:pb-16 sm:pt-24">
       <div className="mx-auto w-full max-w-content px-4 sm:px-6">
         <h2 className="animate-reveal mx-auto max-w-2xl text-balance text-center text-display font-semibold text-fg">
           The same 24 hours, three ways to read them

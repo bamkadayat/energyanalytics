@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Wordmark } from "@/shared/ui";
 import { PRICE_AREA } from "@/shared/config";
+import { ClosingCta } from "./_components/closing-cta";
 import { HeroVisual } from "./_components/hero-visual";
 import { MetricHighlights } from "./_components/metric-highlights";
 import { SessionCta, SessionCtaPlaceholder } from "./_components/session-cta";
@@ -8,10 +9,10 @@ import { SessionCta, SessionCtaPlaceholder } from "./_components/session-cta";
 /**
  * Public landing page.
  *
- * Everything except the two calls to action is static HTML. Both read the session, so
- * each is mounted inside `<Suspense>` — that keeps the headline, subtitle, visual and
- * the section below in the prerendered shell instead of making the whole page dynamic
- * for two buttons.
+ * Everything except the calls to action is static HTML. Each reads the session, so each
+ * is mounted inside `<Suspense>` — that keeps the headline, subtitle, visual and both
+ * sections below in the prerendered shell instead of making the whole page dynamic for
+ * three buttons.
  */
 export default function Home() {
   return (
@@ -67,6 +68,8 @@ export default function Home() {
       </div>
 
       <MetricHighlights />
+
+      <ClosingCta />
     </div>
   );
 }
