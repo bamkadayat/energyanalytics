@@ -53,3 +53,27 @@ export interface ParsedWeather {
 }
 
 export type ParseWeatherFailure = "malformed-payload" | "no-usable-hours";
+
+/**
+ * Outcome of asking Open-Meteo for one day's hourly forecast.
+ *
+ * There is no `not-published` arm: unlike day-ahead prices, a forecast for tomorrow
+ * always exists.
+ */
+export type WeatherFetchResult =
+  | {
+      status: "ok";
+      weather: HourlyWeather;
+      unavailableMetrics: WeatherMetricId[];
+      droppedHours: number;
+    }
+  | { status: "error"; reason: WeatherErrorReason };
+
+export type WeatherErrorReason =
+  | "not-found"
+  | "timeout"
+  | "network"
+  | "provider-error"
+  | "invalid-json"
+  | "malformed-payload"
+  | "no-usable-hours";
