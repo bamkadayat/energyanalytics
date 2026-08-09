@@ -38,7 +38,7 @@ export async function SessionCta({
 const PLACEHOLDER_SIZE: Record<ButtonSize, string> = {
   sm: "h-8 w-24",
   md: "h-9 w-28",
-  lg: "h-12 w-32",
+  lg: "h-11 w-32",
 };
 
 /**

@@ -45,10 +45,15 @@ const VARIANTS: Record<ButtonVariant, string> = {
     "bg-surface text-fg hover:bg-surface-inverse hover:text-fg-inverse [--btn-ring-color:var(--fg-inverse)]",
 };
 
+/*
+ * Horizontal padding grows faster than vertical across the sizes. A pill reads as
+ * confident when it is wider than it is tall; matching the two makes it drift toward a
+ * lozenge and look heavier than its role.
+ */
 const SIZES: Record<ButtonSize, string> = {
   sm: "px-3 py-1.5 text-sm",
   md: "px-4 py-2 text-sm",
-  lg: "px-7 py-3 text-base",
+  lg: "px-7 py-2.5 text-base",
 };
 
 export function buttonClasses({
