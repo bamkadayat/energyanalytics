@@ -230,10 +230,20 @@
 }
 
 /*
- * Decorative drift for the hero visual. Each layer is drawn twice end to end and shifted
- * by exactly half its width, so the loop is seamless. The prefers-reduced-motion rule in
- * the base layer collapses these to nothing.
+ * Motion for the decorative hero scene.
+ *
+ * `transform-box: view-box` makes transform-origin resolve in the SVG's own coordinate
+ * system, which is what lets each rotor spin around its hub rather than around the
+ * element's bounding box. Without it the blades wobble off-centre.
+ *
+ * The prefers-reduced-motion rule in the base layer collapses all of these.
  */
+@keyframes hero-rotor {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes hero-drift {
   from {
     transform: translateX(0);
@@ -243,17 +253,59 @@
   }
 }
 
+@keyframes hero-sail {
+  from {
+    transform: translateX(-8%);
+  }
+  to {
+    transform: translateX(108%);
+  }
+}
+
+@keyframes hero-wake {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
 @layer components {
+  .animate-rotor,
+  .animate-rotor-slow,
+  .animate-rotor-slower {
+    transform-box: view-box;
+  }
+
+  .animate-rotor {
+    animation: hero-rotor 8s linear infinite;
+  }
+
+  .animate-rotor-slow {
+    animation: hero-rotor 13s linear infinite;
+  }
+
+  .animate-rotor-slower {
+    animation: hero-rotor 19s linear infinite;
+  }
+
+  .animate-wake {
+    transform-box: view-box;
+    animation: hero-wake 7s ease-in-out infinite;
+  }
+
+  .animate-sail {
+    animation: hero-sail 64s linear infinite;
+  }
+
   .animate-drift {
     animation: hero-drift 34s linear infinite;
   }
 
   .animate-drift-slow {
     animation: hero-drift 52s linear infinite;
-  }
-
-  .animate-drift-slower {
-    animation: hero-drift 76s linear infinite;
   }
 }
 
