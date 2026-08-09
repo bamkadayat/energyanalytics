@@ -224,19 +224,32 @@ line styles.
 `<ul>` whose items use `border-l-2 border-line-selected pl-3 text-sm text-fg-secondary`.
 A list rather than prose: each observation is independent and should be scannable.
 
-## View mode toggle
+## Chart card with view toggle
 
-`components/view-mode-toggle.tsx` — switches the day's data between chart and table.
+`components/view-card.tsx` — wraps every chart section: title on the left, an icon
+chart/table toggle on the right, content, then a caption.
 
-- links, not client state: the mode is a URL parameter like day and metric, so a table
-  view is shareable and the back button works
-- same segmented-pill treatment as the other controls, with `aria-current`
-- **labels are visible, not icon-only.** An icon pair alone would leave the control
-  unlabelled for anyone who does not recognise the glyphs — and this toggle decides
-  whether the data is reachable at all for a screen-reader user
-- in chart mode the table **stays available as a disclosure below**. The canvas is opaque
-  to assistive technology, so the numbers must be reachable without changing view; the
-  toggle is a convenience, not the only route
+- **one toggle per card, not one for the page.** Each view answers a different question,
+  and someone reading the duration curve as numbers should not have their heatmap switch
+  underneath them
+- **both views are rendered on the server and passed in as props**, so switching is
+  instant: no request, no page re-render, no Suspense fallback flashing, no scroll jump.
+  Server components can be children of a client component, which is what makes this work
+- the URL still tracks each mode, but through `history.replaceState` rather than a
+  navigation — shareable and correct on a fresh load, without a round trip for data the
+  page already has
+- `<button aria-pressed>`, **not links**, because nothing navigates. A link that goes
+  nowhere lies to anyone using a keyboard or a screen reader
+- icon-only, which is **only** acceptable because each button carries an `aria-label`
+- selection carries background **and** border plus `aria-pressed`, never colour alone
+- in chart mode the day's table renders **inside the chart branch** as a disclosure, so
+  it follows the live mode rather than a stale server param. The canvas is opaque to
+  assistive technology, so the numbers must not depend on noticing the toggle
+
+Tabular forms live in `range-tables.tsx`. The heatmap's table is the same grid in text —
+day rows, hour columns, sticky headers. The duration curve's is **deciles, not 720 sorted
+rows**: the raw list would answer no question anyone asks, while ten lines answer the one
+the curve exists for.
 
 ## Hourly data table
 

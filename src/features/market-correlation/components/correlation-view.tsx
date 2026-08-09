@@ -20,6 +20,7 @@ import { SummaryCards } from "./summary-cards";
 import { HourlyTable } from "./hourly-table";
 import { InsightsList } from "./insights-list";
 import { SourceStatus } from "./source-status";
+import { ViewCard } from "./view-card";
 
 /**
  * The conductor: resolves the day, fetches both providers, joins them, and hands the
@@ -92,18 +93,35 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
         <>
           <SummaryCards aligned={aligned} summary={summary} />
 
-          {params.view === "chart" ? (
-            <figure className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
-              <CorrelationChart series={toChartSeries(aligned)} />
-              <figcaption className="text-sm text-fg-muted">
+          <ViewCard
+            title="Hour by hour"
+            paramKey="view"
+            initialMode={params.view}
+            chart={
+              <>
+                <CorrelationChart series={toChartSeries(aligned)} />
+                {/*
+                  The table stays reachable *while the chart is showing*. The canvas is
+                  opaque to assistive technology, so the numbers must not depend on
+                  noticing the toggle — it is a convenience, not the only route.
+                */}
+                <HourlyTable aligned={aligned} day={day} />
+              </>
+            }
+            table={<HourlyTable aligned={aligned} day={day} standalone />}
+            chartCaption={
+              <>
                 Spot price (solid, left axis) against {metric.label.toLowerCase()}{" "}
                 (dashed, right axis) for {formatOsloDate(day)}, by hour in Oslo time. The
                 two axes use independent scales.
-              </figcaption>
-            </figure>
-          ) : (
-            <HourlyTable aligned={aligned} day={day} standalone />
-          )}
+              </>
+            }
+            tableCaption={
+              <>
+                The same hours as numbers. {formatOsloDate(day)}, Europe/Oslo time.
+              </>
+            }
+          />
 
           <InsightsList insights={insights} />
 
@@ -116,13 +134,6 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
             {aligned.coverage.matchedHours} have both a spot price in {PRICE_UNIT} and a{" "}
             {metric.label.toLowerCase()} reading in {metric.unit}.
           </p>
-
-          {/*
-            In chart mode the table stays available as a disclosure: the canvas is opaque
-            to assistive technology, so the numbers must be reachable without switching
-            view. In table mode it is already the view.
-          */}
-          {params.view === "chart" ? <HourlyTable aligned={aligned} day={day} /> : null}
 
           <StatusMessage tone="info" title="How to read this">
             {WEATHER_LOCATION.label} weather is shown as a representative location within

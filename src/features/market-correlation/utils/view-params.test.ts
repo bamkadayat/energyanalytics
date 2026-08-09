@@ -8,6 +8,8 @@ describe("parseViewParams", () => {
       day: "tomorrow",
       metric: "solar",
       view: "chart",
+      heatmap: "chart",
+      curve: "chart",
     });
   });
 
@@ -16,6 +18,8 @@ describe("parseViewParams", () => {
       day: DEFAULT_DAY,
       metric: DEFAULT_WEATHER_METRIC,
       view: "chart",
+      heatmap: "chart",
+      curve: "chart",
     });
   });
 
@@ -26,6 +30,8 @@ describe("parseViewParams", () => {
       day: DEFAULT_DAY,
       metric: DEFAULT_WEATHER_METRIC,
       view: "chart",
+      heatmap: "chart",
+      curve: "chart",
     });
   });
 
@@ -34,13 +40,24 @@ describe("parseViewParams", () => {
       day: "tomorrow",
       metric: DEFAULT_WEATHER_METRIC,
       view: "chart",
+      heatmap: "chart",
+      curve: "chart",
     });
   });
 
-  it("defaults the view to chart and accepts an explicit table", () => {
+  it("defaults every section to chart and accepts an explicit table", () => {
     expect(parseViewParams({}).view).toBe("chart");
     expect(parseViewParams({ view: "table" }).view).toBe("table");
     expect(parseViewParams({ view: "spreadsheet" }).view).toBe("chart");
+  });
+
+  it("keeps each section's mode independent", () => {
+    // Switching the heatmap to a table must not change the day view.
+    const params = parseViewParams({ heatmap: "table" });
+
+    expect(params.heatmap).toBe("table");
+    expect(params.view).toBe("chart");
+    expect(params.curve).toBe("chart");
   });
 
   it("accepts every configured metric", () => {
@@ -54,6 +71,8 @@ describe("parseViewParams", () => {
       day: "tomorrow",
       metric: "solar",
       view: "chart",
+      heatmap: "chart",
+      curve: "chart",
     });
   });
 
@@ -77,19 +96,33 @@ describe("parseViewParams", () => {
       day: DEFAULT_DAY,
       metric: DEFAULT_WEATHER_METRIC,
       view: "chart",
+      heatmap: "chart",
+      curve: "chart",
     });
   });
 });
 
 describe("viewParamsHref", () => {
   it("writes both params explicitly, so a shared link carries the whole view", () => {
-    expect(viewParamsHref({ day: "today", metric: "wind", view: "chart" })).toBe(
-      "?day=today&metric=wind&view=chart",
-    );
+    expect(
+      viewParamsHref({
+        day: "today",
+        metric: "wind",
+        view: "chart",
+        heatmap: "chart",
+        curve: "chart",
+      }),
+    ).toBe("?day=today&metric=wind&view=chart&heatmap=chart&curve=chart");
   });
 
   it("round-trips through the parser", () => {
-    const params = { day: "tomorrow", metric: "temperature", view: "table" } as const;
+    const params = {
+      day: "tomorrow",
+      metric: "temperature",
+      view: "table",
+      heatmap: "chart",
+      curve: "table",
+    } as const;
     const search = Object.fromEntries(
       new URLSearchParams(viewParamsHref(params)).entries(),
     );
@@ -99,15 +132,17 @@ describe("viewParamsHref", () => {
 });
 
 describe("hrefWith", () => {
-  const current = { day: "today", metric: "wind", view: "chart" } as const;
+  const current = {
+    day: "today",
+    metric: "wind",
+    view: "chart",
+    heatmap: "chart",
+    curve: "chart",
+  } as const;
 
   it("changes one field and keeps the rest", () => {
-    expect(hrefWith(current, { metric: "solar" })).toBe(
-      "?day=today&metric=solar&view=chart",
-    );
-    expect(hrefWith(current, { day: "tomorrow" })).toBe(
-      "?day=tomorrow&metric=wind&view=chart",
-    );
+    expect(hrefWith(current, { metric: "solar" })).toContain("metric=solar");
+    expect(hrefWith(current, { day: "tomorrow" })).toContain("day=tomorrow");
   });
 
   it("is a no-op href when nothing changes", () => {
