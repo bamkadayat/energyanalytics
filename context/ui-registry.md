@@ -114,6 +114,21 @@ button's label changes with the session ("Log in" versus "Go to dashboard"). Lea
 minimum off below `sm`, where it would span most of the viewport and read as a
 full-width bar.
 
+**Hover and focus share one ring.** `.btn-ring` in `globals.css` draws an `outline` at
+`outline-offset: 3px`, and each variant sets `--btn-ring-color`.
+
+`outline` rather than a border or box-shadow: it sits outside the box and makes its own
+transparent gap, so nothing reflows on hover and no rule needs to know what colour the
+surrounding surface is. It is declared transparent up front so the colour transitions
+rather than snapping.
+
+The same declaration serves `:focus-visible`, which fixed a real bug — the global focus
+ring is `--focus` (near-black navy) and was **invisible** against the navy hero. Any
+variant that sets `--btn-ring-color` now gets a visible focus ring on its own surface.
+
+The `inverse` variant also inverts its fill on hover (navy fill, white text). Its ring is
+white, and a white ring around a white pill on navy would be invisible.
+
 **Every variant is `rounded-pill`**, and a test asserts it — buttons had previously
 drifted between `rounded-pill` and `rounded-control` because each was styled at its call
 site. Every variant also carries a `disabled:` treatment, so a disabled button never
@@ -223,20 +238,65 @@ rather than optional.
 - Numeric cells: `text-right font-mono tabular-nums` so decimal points line up
 - Wrapped in `overflow-x-auto` so the table scrolls rather than the page
 
-## Hero call to action
+## Session call to action
 
-`src/app/_components/hero-cta.tsx` — the landing page's single control, session-aware.
+`src/app/_components/session-cta.tsx` — used in the navbar (`size="md"`) and the hero
+(`size="lg"`).
 
 - signed out → **Log in** (`/login`); signed in → **Go to dashboard** (`/dashboard`).
   A control should say exactly what it does, and "Log in" is a lie to someone already
   logged in
-- pill: `rounded-pill bg-surface px-7 py-3 text-base font-medium text-fg`
-- reading the session is request-time, so it is mounted in `<Suspense>`; the headline,
-  subtitle and visual stay in the prerendered shell rather than the whole page going
-  dynamic for one button
-- the fallback reserves the exact footprint and shows **no label**. Rendering "Log in"
-  and correcting it afterwards would flash the wrong word at the one control that
-  matters
+- **one component for both placements**, so the navbar and the hero can never disagree
+  about whether you are signed in
+- `inverse` button variant, since both sit on `--surface-inverse`
+- reading the session is request-time, so each mount sits in `<Suspense>`; the headline,
+  subtitle and visual stay in the prerendered shell rather than the page going dynamic
+  for two buttons
+- the fallback reserves the exact footprint per size and shows **no label**. Rendering
+  "Log in" and correcting it afterwards would flash the wrong word at the primary
+  control on the page
+
+## Landing page motion
+
+Two utilities in `globals.css`, both pure CSS — the landing page needs no client
+JavaScript and stays prerendered.
+
+- `.animate-enter` — on load. Set the stagger per element with
+  `[--enter-delay:180ms]`. `animation-fill-mode: both` holds the start state through the
+  delay, so nothing flashes before it begins
+- `.animate-reveal` — on scroll, via `animation-timeline: view()`
+
+**The scroll reveal is wrapped in `@supports (animation-timeline: view())`.** This is not
+optional: the rule sets an invisible start state, so applying it where the timeline is
+unsupported would leave content permanently blank. Outside the guard the element is
+simply visible, which is what Firefox and older browsers get.
+
+**Both are switched off explicitly under `prefers-reduced-motion`.** The base-layer rule
+only shortens `animation-duration`, and a scroll-driven animation ignores duration
+entirely — its progress comes from the timeline, not from time. Relying on the global
+rule alone would leave the reveals fully active for users who asked for less motion.
+
+Current stagger: header 0 → headline 90ms → subtitle 180ms → CTA 270ms → visual 340ms.
+
+## Metric highlight cards
+
+`src/app/_components/metric-highlights.tsx` — three cards below the hero, one per weather
+metric, on a `bg-page` section.
+
+- outer cards `bg-surface-selected text-fg`; the featured card `bg-surface-inverse
+  text-fg-inverse`
+- the featured card is **taller**, and the grid uses `lg:items-center` so the outer two
+  centre against it. That is what lifts the middle card — not a shadow
+- `min-h-80` / `lg:min-h-96` (featured `lg:min-h-[26rem]`) leaves the lower area open for
+  artwork, with the link pinned by `mt-auto`
+- each card links to `/dashboard?day=today&metric=<id>` — a real filtered view, not a
+  "Read more" pointing nowhere. Signed-out visitors are redirected to sign in
+- artwork bleeds off the bottom-right corner, tinted with that metric's **chart colour**,
+  so a card and its series on the dashboard read as the same thing
+- the motifs are **instruments, not readings** — a gust, a thermometer, a sun. A stylised
+  price curve would put invented market data on the marketing page
+- the featured card overrides the focus ring (`focus-visible:outline-fg-inverse`), since
+  the global `--focus` navy is invisible on it
 
 ## Hero visual
 

@@ -48,3 +48,29 @@ describe("buttonClasses", () => {
     }
   });
 });
+
+describe("hover and focus ring", () => {
+  it("attaches the shared ring class to every variant", () => {
+    for (const variant of VARIANTS) {
+      expect(buttonClasses({ variant })).toContain("btn-ring");
+    }
+  });
+
+  it("gives every variant its own ring colour", () => {
+    // A ring is only visible against the surface the button sits on, and those differ
+    // per variant — so this cannot be a single shared value.
+    for (const variant of VARIANTS) {
+      expect(buttonClasses({ variant })).toMatch(/\[--btn-ring-color:var\(--[a-z-]+\)\]/);
+    }
+  });
+
+  it("inverts the fill on hover for the inverse variant", () => {
+    // Its ring is white; without inverting, a white ring around a white pill on the
+    // navy hero would be invisible.
+    const classes = buttonClasses({ variant: "inverse" });
+
+    expect(classes).toContain("hover:bg-surface-inverse");
+    expect(classes).toContain("hover:text-fg-inverse");
+    expect(classes).toContain("[--btn-ring-color:var(--fg-inverse)]");
+  });
+});

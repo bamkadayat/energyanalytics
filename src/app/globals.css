@@ -281,7 +281,85 @@
   }
 }
 
+/*
+ * Button ring, shared by hover and focus.
+ *
+ * `outline` rather than a border or box-shadow: it sits outside the box and creates its
+ * own transparent gap via outline-offset, so nothing reflows and no rule needs to know
+ * what colour the surrounding background is.
+ *
+ * It is declared transparent up front so the colour can transition rather than snap.
+ *
+ * The same declaration serves :focus-visible, which also fixes a real bug: the global
+ * focus ring is --focus (near-black navy) and was invisible against the navy hero. A
+ * variant that sets --btn-ring-color now gets a visible focus ring too.
+ */
+/*
+ * Entrance motion for the landing page.
+ *
+ * Pure CSS, so the page needs no client JavaScript and stays fully prerendered. Load
+ * animations run on a delay set per element; scroll reveals are driven by
+ * `animation-timeline: view()`.
+ */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @layer components {
+  /* On load. `both` holds the start state through the delay, so nothing flashes first. */
+  .animate-enter {
+    animation: rise-in 700ms cubic-bezier(0.22, 0.7, 0.2, 1) both;
+    animation-delay: var(--enter-delay, 0ms);
+  }
+
+  /*
+   * On scroll — guarded, because the hidden start state must never apply where the
+   * timeline is unsupported. Outside @supports the element is simply visible, so
+   * Firefox and older browsers get the content rather than a blank space.
+   */
+  @supports (animation-timeline: view()) {
+    .animate-reveal {
+      animation: rise-in linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 28%;
+    }
+  }
+
+  /*
+   * The base-layer reduced-motion rule shortens animation-duration, which a
+   * scroll-driven animation ignores entirely — its progress comes from the timeline, not
+   * from time. So both are switched off explicitly here.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-enter,
+    .animate-reveal {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .btn-ring {
+    outline: 2px solid transparent;
+    outline-offset: 3px;
+    transition:
+      outline-color 150ms ease,
+      background-color 150ms ease,
+      color 150ms ease;
+  }
+
+  .btn-ring:hover,
+  .btn-ring:focus-visible {
+    outline-color: var(--btn-ring-color, var(--focus));
+  }
+
   .animate-rotor,
   .animate-rotor-slow,
   .animate-rotor-slower {
