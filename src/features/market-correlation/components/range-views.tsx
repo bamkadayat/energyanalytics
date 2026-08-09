@@ -10,7 +10,7 @@ import {
   deriveDurationCurve,
   derivePriceHeatmap,
 } from "../utils/derive-range-views";
-import { hrefWith, type ViewParams } from "../utils/view-params";
+import type { ViewParams } from "../utils/view-params";
 import { DurationCurveChart } from "./duration-curve";
 import { DurationCurveTable, HeatmapTable } from "./range-tables";
 import { ViewCard } from "./view-card";
@@ -86,10 +86,11 @@ export async function RangeViews({ params }: { params: ViewParams }) {
 
       <ViewCard
         title="Price by hour and day"
-        mode={params.heatmap}
-        chartHref={hrefWith(params, { heatmap: "chart" })}
-        tableHref={hrefWith(params, { heatmap: "table" })}
-        caption={
+        paramKey="heatmap"
+        initialMode={params.heatmap}
+        chart={<PriceHeatmapChart heatmap={heatmap} />}
+        table={<HeatmapTable heatmap={heatmap} />}
+        chartCaption={
           <>
             Spot price by hour of day, one column per day, oldest first. Darker is more
             expensive; the scale is ordered by lightness so it still reads without colour.
@@ -98,40 +99,31 @@ export async function RangeViews({ params }: { params: ViewParams }) {
               : ""}
           </>
         }
-      >
-        {params.heatmap === "chart" ? (
-          <PriceHeatmapChart heatmap={heatmap} />
-        ) : (
-          <HeatmapTable heatmap={heatmap} />
-        )}
-      </ViewCard>
+        tableCaption={
+          <>The same grid as numbers, in {PRICE_UNIT}, Europe/Oslo time.</>
+        }
+      />
 
       <ViewCard
         title="Price duration curve"
-        mode={params.curve}
-        chartHref={hrefWith(params, { curve: "chart" })}
-        tableHref={hrefWith(params, { curve: "table" })}
-        caption={
-          params.curve === "chart" ? (
-            <>
-              Every hour sorted from most to least expensive. Read it as &ldquo;this share
-              of hours cost at least this much&rdquo;. Drag the slider or scroll to zoom
-              into the expensive shoulder.
-            </>
-          ) : (
-            <>
-              The same curve as deciles. 720 sorted rows would answer no question anyone
-              actually asks; these ten lines answer the one the curve exists for.
-            </>
-          )
+        paramKey="curve"
+        initialMode={params.curve}
+        chart={<DurationCurveChart curve={curve} />}
+        table={<DurationCurveTable curve={curve} />}
+        chartCaption={
+          <>
+            Every hour sorted from most to least expensive. Read it as &ldquo;this share
+            of hours cost at least this much&rdquo;. Drag the slider or scroll to zoom
+            into the expensive shoulder.
+          </>
         }
-      >
-        {params.curve === "chart" ? (
-          <DurationCurveChart curve={curve} />
-        ) : (
-          <DurationCurveTable curve={curve} />
-        )}
-      </ViewCard>
+        tableCaption={
+          <>
+            The same curve as deciles. 720 sorted rows would answer no question anyone
+            actually asks; these ten lines answer the one the curve exists for.
+          </>
+        }
+      />
     </section>
   );
 }
