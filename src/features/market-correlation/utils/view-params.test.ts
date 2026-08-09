@@ -7,6 +7,7 @@ describe("parseViewParams", () => {
     expect(parseViewParams({ day: "tomorrow", metric: "solar" })).toEqual({
       day: "tomorrow",
       metric: "solar",
+      view: "chart",
     });
   });
 
@@ -14,6 +15,7 @@ describe("parseViewParams", () => {
     expect(parseViewParams({})).toEqual({
       day: DEFAULT_DAY,
       metric: DEFAULT_WEATHER_METRIC,
+      view: "chart",
     });
   });
 
@@ -23,6 +25,7 @@ describe("parseViewParams", () => {
     expect(parseViewParams({ day: "yesterday", metric: "humidity" })).toEqual({
       day: DEFAULT_DAY,
       metric: DEFAULT_WEATHER_METRIC,
+      view: "chart",
     });
   });
 
@@ -30,7 +33,14 @@ describe("parseViewParams", () => {
     expect(parseViewParams({ day: "tomorrow", metric: "rainfall" })).toEqual({
       day: "tomorrow",
       metric: DEFAULT_WEATHER_METRIC,
+      view: "chart",
     });
+  });
+
+  it("defaults the view to chart and accepts an explicit table", () => {
+    expect(parseViewParams({}).view).toBe("chart");
+    expect(parseViewParams({ view: "table" }).view).toBe("table");
+    expect(parseViewParams({ view: "spreadsheet" }).view).toBe("chart");
   });
 
   it("accepts every configured metric", () => {
@@ -43,6 +53,7 @@ describe("parseViewParams", () => {
     expect(parseViewParams({ day: " Tomorrow ", metric: "SOLAR" })).toEqual({
       day: "tomorrow",
       metric: "solar",
+      view: "chart",
     });
   });
 
@@ -65,19 +76,20 @@ describe("parseViewParams", () => {
     expect(parseViewParams(hostile)).toEqual({
       day: DEFAULT_DAY,
       metric: DEFAULT_WEATHER_METRIC,
+      view: "chart",
     });
   });
 });
 
 describe("viewParamsHref", () => {
   it("writes both params explicitly, so a shared link carries the whole view", () => {
-    expect(viewParamsHref({ day: "today", metric: "wind" })).toBe(
-      "?day=today&metric=wind",
+    expect(viewParamsHref({ day: "today", metric: "wind", view: "chart" })).toBe(
+      "?day=today&metric=wind&view=chart",
     );
   });
 
   it("round-trips through the parser", () => {
-    const params = { day: "tomorrow", metric: "temperature" } as const;
+    const params = { day: "tomorrow", metric: "temperature", view: "table" } as const;
     const search = Object.fromEntries(
       new URLSearchParams(viewParamsHref(params)).entries(),
     );
@@ -87,11 +99,15 @@ describe("viewParamsHref", () => {
 });
 
 describe("hrefWith", () => {
-  const current = { day: "today", metric: "wind" } as const;
+  const current = { day: "today", metric: "wind", view: "chart" } as const;
 
   it("changes one field and keeps the rest", () => {
-    expect(hrefWith(current, { metric: "solar" })).toBe("?day=today&metric=solar");
-    expect(hrefWith(current, { day: "tomorrow" })).toBe("?day=tomorrow&metric=wind");
+    expect(hrefWith(current, { metric: "solar" })).toBe(
+      "?day=today&metric=solar&view=chart",
+    );
+    expect(hrefWith(current, { day: "tomorrow" })).toBe(
+      "?day=tomorrow&metric=wind&view=chart",
+    );
   });
 
   it("is a no-op href when nothing changes", () => {

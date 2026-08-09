@@ -18,9 +18,12 @@ import type { AlignedHours } from "../types";
 export function HourlyTable({
   aligned,
   day,
+  standalone = false,
 }: {
   aligned: AlignedHours;
   day: OsloDay;
+  /** When the table *is* the chosen view, drop the disclosure and show it outright. */
+  standalone?: boolean;
 }) {
   const metric = WEATHER_METRICS[aligned.metricId];
 
@@ -28,19 +31,8 @@ export function HourlyTable({
     return null;
   }
 
-  return (
-    <details className="group rounded-card border border-line bg-surface">
-      <summary className="flex cursor-pointer items-center gap-2 p-4 text-sm font-medium text-fg">
-        {/* Rotates to point down when open; aria-hidden since the summary text and the
-            element's own expanded state already convey it. */}
-        <FiChevronRight
-          aria-hidden="true"
-          className="size-4 shrink-0 transition-transform group-open:rotate-90"
-        />
-        Show all {aligned.hours.length} hours as a table
-      </summary>
-
-      <div className="overflow-x-auto border-t border-line">
+  const table = (
+    <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <caption className="px-4 py-3 text-left text-xs text-fg-muted">
             Hourly spot price and {metric.label.toLowerCase()} for{" "}
@@ -70,8 +62,28 @@ export function HourlyTable({
               </tr>
             ))}
           </tbody>
-        </table>
+      </table>
+    </div>
+  );
+
+  if (standalone) {
+    return (
+      <div className="overflow-hidden rounded-card border border-line bg-surface">
+        {table}
       </div>
+    );
+  }
+
+  return (
+    <details className="group overflow-hidden rounded-card border border-line bg-surface">
+      <summary className="flex cursor-pointer items-center gap-2 p-4 text-sm font-medium text-fg">
+        <FiChevronRight
+          aria-hidden="true"
+          className="size-4 shrink-0 transition-transform group-open:rotate-90"
+        />
+        Show all {aligned.hours.length} hours as a table
+      </summary>
+      <div className="border-t border-line">{table}</div>
     </details>
   );
 }

@@ -16,15 +16,21 @@ import {
 export interface ViewParams {
   day: DaySelection;
   metric: WeatherMetricId;
+  /** Whether the day's data is drawn as a chart or listed as a table. */
+  view: ViewMode;
 }
+
+export type ViewMode = "chart" | "table";
 
 /** Query-string keys. Named here so the parser and the link builder cannot drift. */
 export const VIEW_PARAM_KEYS = {
   day: "day",
   metric: "metric",
+  view: "view",
 } as const;
 
 const DAY_SELECTIONS: readonly DaySelection[] = ["today", "tomorrow"];
+const VIEW_MODES: readonly ViewMode[] = ["chart", "table"];
 
 /**
  * Shape Next hands to a page, once the `searchParams` promise is awaited. A key can be
@@ -43,7 +49,13 @@ export function parseViewParams(input: SearchParamsInput): ViewParams {
   return {
     day: parseDay(input[VIEW_PARAM_KEYS.day]),
     metric: parseMetric(input[VIEW_PARAM_KEYS.metric]),
+    view: parseView(input[VIEW_PARAM_KEYS.view]),
   };
+}
+
+function parseView(raw: string | string[] | undefined): ViewMode {
+  const value = normalize(raw);
+  return VIEW_MODES.find((mode) => mode === value) ?? "chart";
 }
 
 function parseDay(raw: string | string[] | undefined): DaySelection {
@@ -77,6 +89,7 @@ export function viewParamsHref(params: ViewParams): string {
   const search = new URLSearchParams({
     [VIEW_PARAM_KEYS.day]: params.day,
     [VIEW_PARAM_KEYS.metric]: params.metric,
+    [VIEW_PARAM_KEYS.view]: params.view,
   });
 
   return `?${search.toString()}`;

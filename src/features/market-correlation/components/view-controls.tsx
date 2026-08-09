@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { WEATHER_METRICS, WEATHER_METRIC_IDS, type DaySelection } from "@/shared/config";
 import { hrefWith, type ViewParams } from "../utils/view-params";
+import { ViewModeToggle } from "./view-mode-toggle";
 
 const DAY_OPTIONS: ReadonlyArray<{ value: DaySelection; label: string }> = [
   { value: "today", label: "Today" },
@@ -26,6 +27,8 @@ export function ViewControls({ params }: { params: ViewParams }) {
           selected: params.day === option.value,
         }))}
       />
+
+      <ViewModeToggle params={params} />
 
       <SegmentedLinks
         label="Weather metric"
