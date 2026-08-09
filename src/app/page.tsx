@@ -51,14 +51,6 @@ export default function Home() {
         */}
         <HeroVisual />
       </main>
-
-      <footer className="mx-auto w-full max-w-content px-4 pb-10 sm:px-6">
-        <p className="max-w-2xl font-mono text-xs text-fg-inverse-muted">
-          Prices exclude VAT, grid charges and other consumer costs. Oslo weather is a
-          representative location within {PRICE_AREA.code}, and relationships shown are
-          exploratory rather than causal.
-        </p>
-      </footer>
     </div>
   );
 }
