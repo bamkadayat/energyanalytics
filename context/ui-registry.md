@@ -256,6 +256,24 @@ rather than optional.
   "Log in" and correcting it afterwards would flash the wrong word at the primary
   control on the page
 
+## Sign-in card
+
+`src/app/login/page.tsx` + `features/auth/components/login-form.tsx`.
+
+- centred `max-w-md` card: `rounded-card border border-line bg-surface p-8 shadow-card`
+- `size-14 rounded-card bg-surface-inverse` badge holding `FiLogIn`, above a `text-3xl`
+  heading and a muted line
+- field: `rounded-control border border-line bg-surface-subtle` with `FiLock` absolutely
+  positioned and `pl-10` clearing it. The icon is `pointer-events-none`, so clicking it
+  still focuses the input
+- action is a full-width `Button size="lg"` — still `rounded-pill`, per the radius rule
+- the label is `sr-only`, not removed. The reference relies on the placeholder alone, but
+  a placeholder vanishes as soon as you type and is not a label to assistive technology
+
+**Only the controls that exist.** No email field, no "forgot password", no social
+sign-in: with a single shared password none of them could do anything, and a control that
+cannot work is worse than a missing one.
+
 ## Site footer
 
 `src/app/_components/site-footer.tsx` — `border-t border-line bg-page`, wordmark and
