@@ -301,6 +301,29 @@ rather than optional.
 sign-in: with a single shared password none of them could do anything, and a control that
 cannot work is worse than a missing one.
 
+## Error and empty screens
+
+`app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx`, `app/dashboard/loading.tsx`.
+
+- all four are branded: wordmark, tokens, the shared `Button`. A default framework error
+  page is the one screen users see when they are already frustrated
+- copy explains and offers a way on. **Errors never apologise** and are never vague about
+  what happened — the same rule as the in-page status banners
+- `error.tsx` uses the **`retry`** prop, not `reset`. `retry()` re-fetches and re-renders;
+  `reset()` only re-renders, which for a data-fetching failure shows the same error again.
+  Stable since Next 16.3
+- error screens surface `error.digest`, never `error.message`. Messages are scrubbed in
+  production builds, and printing a raw one risks leaking internals for no benefit
+- `global-error.tsx` renders its own `<html>`/`<body>` and **imports `globals.css`
+  explicitly** — Next does not give it the app's styles automatically, and importing them
+  is what avoids hard-coding colours past the token system
+- `loading.tsx` mirrors the loaded layout — header, controls, cards, chart outline — so
+  the page settles into shape instead of reflowing. One `role="status"` announcement for
+  the screen; the skeleton itself is `aria-hidden`
+
+Adding `dashboard/loading.tsx` also moved that route from fully dynamic to a partial
+prerender, since the Suspense boundary lets Next ship a shell.
+
 ## Site footer
 
 `src/app/_components/site-footer.tsx` — `border-t border-line bg-page`, wordmark and
