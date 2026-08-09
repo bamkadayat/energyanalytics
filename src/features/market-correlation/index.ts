@@ -6,7 +6,7 @@
  * insights and data table all read (context/architecture.md §2).
  */
 export type { AlignedHours, AlignmentCoverage } from "./types";
-export type { SearchParamsInput, ViewParams } from "./utils/view-params";
+export type { SearchParamsInput, ViewMode, ViewParams } from "./utils/view-params";
 
 export { alignPriceAndWeather } from "./utils/align-hours";
 export { toChartSeries } from "./utils/to-chart-series";
@@ -24,6 +24,7 @@ export { CorrelationChart } from "./components/correlation-chart";
 export { CorrelationView } from "./components/correlation-view";
 export { RangeViews } from "./components/range-views";
 export { ViewControls } from "./components/view-controls";
+export { ViewModeToggle } from "./components/view-mode-toggle";
 export {
   hrefWith,
   parseViewParams,

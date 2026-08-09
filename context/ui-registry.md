@@ -224,6 +224,20 @@ line styles.
 `<ul>` whose items use `border-l-2 border-line-selected pl-3 text-sm text-fg-secondary`.
 A list rather than prose: each observation is independent and should be scannable.
 
+## View mode toggle
+
+`components/view-mode-toggle.tsx` — switches the day's data between chart and table.
+
+- links, not client state: the mode is a URL parameter like day and metric, so a table
+  view is shareable and the back button works
+- same segmented-pill treatment as the other controls, with `aria-current`
+- **labels are visible, not icon-only.** An icon pair alone would leave the control
+  unlabelled for anyone who does not recognise the glyphs — and this toggle decides
+  whether the data is reachable at all for a screen-reader user
+- in chart mode the table **stays available as a disclosure below**. The canvas is opaque
+  to assistive technology, so the numbers must be reachable without changing view; the
+  toggle is a convenience, not the only route
+
 ## Hourly data table
 
 `components/hourly-table.tsx` — the accessible alternative to the canvas, and required

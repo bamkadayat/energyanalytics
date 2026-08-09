@@ -92,14 +92,18 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
         <>
           <SummaryCards aligned={aligned} summary={summary} />
 
-          <figure className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
-            <CorrelationChart series={toChartSeries(aligned)} />
-            <figcaption className="text-sm text-fg-muted">
-              Spot price (solid, left axis) against {metric.label.toLowerCase()} (dashed,
-              right axis) for {formatOsloDate(day)}, by hour in Oslo time. The two axes use
-              independent scales.
-            </figcaption>
-          </figure>
+          {params.view === "chart" ? (
+            <figure className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
+              <CorrelationChart series={toChartSeries(aligned)} />
+              <figcaption className="text-sm text-fg-muted">
+                Spot price (solid, left axis) against {metric.label.toLowerCase()}{" "}
+                (dashed, right axis) for {formatOsloDate(day)}, by hour in Oslo time. The
+                two axes use independent scales.
+              </figcaption>
+            </figure>
+          ) : (
+            <HourlyTable aligned={aligned} day={day} standalone />
+          )}
 
           <InsightsList insights={insights} />
 
@@ -113,7 +117,12 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
             {metric.label.toLowerCase()} reading in {metric.unit}.
           </p>
 
-          <HourlyTable aligned={aligned} day={day} />
+          {/*
+            In chart mode the table stays available as a disclosure: the canvas is opaque
+            to assistive technology, so the numbers must be reachable without switching
+            view. In table mode it is already the view.
+          */}
+          {params.view === "chart" ? <HourlyTable aligned={aligned} day={day} /> : null}
 
           <StatusMessage tone="info" title="How to read this">
             {WEATHER_LOCATION.label} weather is shown as a representative location within
