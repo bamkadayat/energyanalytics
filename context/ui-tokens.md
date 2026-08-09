@@ -162,6 +162,19 @@ qualifier and provenance notes.
 | `--chart-crosshair` | `--slate-700` | crosshair |
 | `--chart-tooltip-surface` / `--chart-tooltip-fg` | `--navy-900` / `--white` | tooltip |
 
+### Heatmap ramp
+
+`--heat-0` … `--heat-5`: `#eef2fb` · `#cfdcf6` · `#9dbaee` · `#5b8ae0` · `#2563eb` ·
+`#16357f`.
+
+A **single-hue sequential scale, ordered by lightness.** Sequential data has to read as
+"more" and "less", and a lightness ramp conveys that in greyscale and under any form of
+colour blindness. A rainbow scale looks livelier and communicates nothing ordered — the
+same reasoning that keeps the series palette honest about relying on line style.
+
+`--heat-4` is `--chart-price`, so the heatmap and the price line agree on what "high"
+looks like.
+
 Only the five series colors are bridged to utilities (`bg-chart-price`, …), for DOM
 legend swatches and table keys. The chart itself reads layer 2 via `getComputedStyle`.
 

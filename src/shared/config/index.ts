@@ -102,6 +102,15 @@ export const DEFAULT_WEATHER_METRIC: WeatherMetricId = "wind";
 /** Price unit shown throughout. Excludes VAT, grid charges, and other consumer costs. */
 export const PRICE_UNIT = "NOK/kWh" as const;
 
+/**
+ * How many days of history the range views cover.
+ *
+ * 30 days is 720 hourly points — enough for the weekly shape to be visible in the
+ * heatmap and for the duration curve to mean something, while staying one Open-Meteo
+ * request and 30 cached price requests.
+ */
+export const RANGE_DAYS = 30;
+
 export type DaySelection = "today" | "tomorrow";
 
 export const DEFAULT_DAY: DaySelection = "today";

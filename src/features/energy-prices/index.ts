@@ -22,4 +22,9 @@ export type {
 
 export { parseEnergyPrices } from "./utils/parse-prices";
 export { toPriceResult } from "./utils/to-price-result";
-export { getPrices, getPendingPrices, getSettledPrices } from "./api/get-prices";
+export {
+  getPrices,
+  getPendingPrices,
+  getPriceRange,
+  getSettledPrices,
+} from "./api/get-prices";
