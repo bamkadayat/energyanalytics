@@ -98,8 +98,12 @@ Target WCAG 2.2 AA. Beyond the token-level contrast already verified:
 - Mobile layout first, enhanced upward. Controls stay operable at 200% zoom and at narrow
   widths.
 - Page width capped with `max-w-content`; spacing from Tailwind's default scale.
-- `rounded-control` for buttons/inputs/toggles, `rounded-card` for cards/panels,
-  `rounded-pill` for chips and segmented controls. No other radii.
+- **Every button is `rounded-pill`.** Never style a button inline — import
+  `Button` or `buttonClasses` from `shared/ui`. That module is the only place button
+  styling exists, and a test pins the radius, so consistency survives new authors.
+- `rounded-control` is for **inputs**: text fields, textareas, selects. The distinction
+  is controls you press versus controls you type into.
+- `rounded-card` for cards, panels and banners. No other radii.
 - `shadow-card` for elevation, `shadow-popover` for overlays. Prefer a border to a shadow
   for flat separation.
 

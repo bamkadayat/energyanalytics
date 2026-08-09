@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Button } from "@/shared/ui";
 import { login, type LoginState } from "../api/actions";
 
 const INITIAL: LoginState = {};
@@ -41,13 +42,9 @@ export function LoginForm() {
         ) : null}
       </div>
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-control bg-action-primary px-4 py-2 font-medium text-on-action-primary hover:bg-action-primary-hover active:bg-action-primary-active disabled:bg-disabled disabled:text-on-disabled"
-      >
+      <Button type="submit" disabled={pending}>
         {pending ? "Signing in…" : "Sign in"}
-      </button>
+      </Button>
     </form>
   );
 }
