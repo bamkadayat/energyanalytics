@@ -29,16 +29,19 @@ export default function Home() {
       </header>
 
       <main className="mx-auto grid w-full max-w-content flex-1 items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:py-24">
-        <div className="flex flex-col gap-6">
-          <h1 className="max-w-3xl text-display font-semibold leading-tight">
-            What Norwegian power prices did today, hour by hour — next to the weather
-            over Oslo
+        <div className="flex flex-col gap-5">
+          <h1 className="max-w-lg text-display font-semibold leading-tight">
+            Power prices and weather, hour by hour
           </h1>
 
-          <p className="max-w-xl text-lg text-fg-inverse-muted">
-            Day-ahead spot prices for {PRICE_AREA.label} aligned with hourly wind,
-            temperature and solar readings on a shared timeline. Explore how they move
-            together, without claiming one causes the other.
+          {/*
+            One sentence. The non-causation caveat lives in the footnote below rather
+            than here — saying it twice on one screen makes it read as a disclaimer
+            instead of a design principle.
+          */}
+          <p className="max-w-md text-lg text-fg-inverse-muted">
+            Day-ahead spot prices for {PRICE_AREA.label}, aligned with Oslo wind,
+            temperature and solar on one timeline.
           </p>
         </div>
 
