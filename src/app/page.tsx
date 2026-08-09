@@ -1,13 +1,7 @@
 import Link from "next/link";
 import { Wordmark } from "@/shared/ui";
-import {
-  APP_TIME_ZONE,
-  PRICE_AREA,
-  PRICE_UNIT,
-  WEATHER_LOCATION,
-  WEATHER_METRICS,
-  WEATHER_METRIC_IDS,
-} from "@/shared/config";
+import { HeroVisual } from "./_components/hero-visual";
+import { PRICE_AREA } from "@/shared/config";
 
 /**
  * Public landing page.
@@ -49,22 +43,10 @@ export default function Home() {
         </div>
 
         {/*
-          Deliberately not a stock photograph or an illustrative chart. Inventing a price
-          curve for decoration would put fabricated market data on the marketing page of
-          a tool whose entire premise is not fabricating market data. These are the real
-          parameters of what the dashboard covers.
+          Drop a licensed clip into public/ and pass videoSrc to swap the animation for
+          it; nothing else needs to change.
         */}
-        <dl className="grid gap-px overflow-hidden rounded-card border border-line-strong bg-line-strong sm:grid-cols-2">
-          <Fact term="Price area" value={PRICE_AREA.label} />
-          <Fact term="Weather point" value={`${WEATHER_LOCATION.label} (representative)`} />
-          <Fact term="Resolution" value={`Hourly · ${APP_TIME_ZONE}`} />
-          <Fact term="Price unit" value={PRICE_UNIT} />
-          <Fact
-            term="Weather metrics"
-            value={WEATHER_METRIC_IDS.map((id) => WEATHER_METRICS[id].label).join(" · ")}
-            wide
-          />
-        </dl>
+        <HeroVisual />
       </main>
 
       <footer className="mx-auto w-full max-w-content px-4 pb-10 sm:px-6">
@@ -74,27 +56,6 @@ export default function Home() {
           exploratory rather than causal.
         </p>
       </footer>
-    </div>
-  );
-}
-
-function Fact({
-  term,
-  value,
-  wide = false,
-}: {
-  term: string;
-  value: string;
-  wide?: boolean;
-}) {
-  return (
-    <div
-      className={`flex flex-col gap-1 bg-surface-inverse p-4 ${wide ? "sm:col-span-2" : ""}`}
-    >
-      <dt className="font-mono text-xs uppercase tracking-wider text-fg-inverse-muted">
-        {term}
-      </dt>
-      <dd className="text-sm font-medium">{value}</dd>
     </div>
   );
 }

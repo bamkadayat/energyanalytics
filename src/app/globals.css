@@ -61,6 +61,8 @@
   --surface-subtle: var(--slate-100);
   --surface-selected: var(--navy-50);
   --surface-inverse: var(--navy-900);
+  /* Ground for the decorative hero visual, a step below the inverse surface. */
+  --surface-deep: var(--navy-950);
 
   /* ---- 2. Semantic: foreground ---- */
   --fg: var(--slate-900);
@@ -154,6 +156,7 @@
   --color-surface-subtle: var(--surface-subtle);
   --color-surface-selected: var(--surface-selected);
   --color-surface-inverse: var(--surface-inverse);
+  --color-navy-deep: var(--surface-deep);
 
   --color-fg: var(--fg);
   --color-fg-secondary: var(--fg-secondary);
@@ -224,6 +227,34 @@
   --text-display: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem);
   --text-display--line-height: 1.15;
   --text-display--letter-spacing: -0.02em;
+}
+
+/*
+ * Decorative drift for the hero visual. Each layer is drawn twice end to end and shifted
+ * by exactly half its width, so the loop is seamless. The prefers-reduced-motion rule in
+ * the base layer collapses these to nothing.
+ */
+@keyframes hero-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer components {
+  .animate-drift {
+    animation: hero-drift 34s linear infinite;
+  }
+
+  .animate-drift-slow {
+    animation: hero-drift 52s linear infinite;
+  }
+
+  .animate-drift-slower {
+    animation: hero-drift 76s linear infinite;
+  }
 }
 
 @layer base {
