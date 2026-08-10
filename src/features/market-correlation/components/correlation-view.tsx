@@ -93,6 +93,12 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
         <>
           <SummaryCards aligned={aligned} summary={summary} />
 
+          {/*
+            Chart and observations side by side on wide screens. The observations are a
+            reading of the chart, so putting them next to it beats making the reader
+            scroll between the two.
+          */}
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <ViewCard
             title="Hour by hour"
             paramKey="view"
@@ -123,7 +129,10 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
             }
           />
 
-          <InsightsList insights={insights} />
+          <div className="flex flex-col gap-4 rounded-card border border-line bg-surface p-4">
+            <InsightsList insights={insights} />
+          </div>
+          </div>
 
           {/*
             Kept alongside the chart, not replaced by it: ui-rules.md requires the chart

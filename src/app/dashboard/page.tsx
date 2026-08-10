@@ -42,41 +42,51 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
   const params = parseViewParams(await searchParams);
 
   return (
-    <div className="mx-auto flex w-full max-w-content flex-col gap-8 px-4 py-8 sm:px-6 sm:py-12">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex flex-col gap-3">
-          <Wordmark />
+    /*
+     * An application shell rather than a document: a sticky bar that keeps identity,
+     * filters and sign-out in reach while the data scrolls. In an analytics tool the
+     * filters are used constantly, and a header that scrolls away makes every change of
+     * view a scroll to the top and back.
+     */
+    <div className="flex min-h-screen flex-col bg-page">
+      <header className="sticky top-0 z-30 border-b border-line bg-surface">
+        <div className="mx-auto flex w-full max-w-content flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-4">
+            <Wordmark />
 
-          {/*
-            Visually hidden rather than deleted. The wordmark above already carries the
-            product name, so showing it again as a heading said the same thing twice —
-            but a page still needs an h1, or the document starts at h2 and the heading
-            outline has a hole in it.
-          */}
-          <h1 className="sr-only">
-            Dashboard — {PRICE_AREA.label} prices and {WEATHER_LOCATION.label} weather
-          </h1>
+            {/*
+              Visually hidden. The wordmark carries the product name; a page still needs
+              an h1 or the heading outline starts at h2 with a hole in it.
+            */}
+            <h1 className="sr-only">
+              Dashboard — {PRICE_AREA.label} prices and {WEATHER_LOCATION.label} weather
+            </h1>
 
-          {/*
-            These three facts are the caveats the page must never bury: which area the
-            prices cover, that Oslo is a single representative point inside it, and which
-            clock every hour is stated in.
-          */}
-          <p className="font-mono text-sm text-fg-muted">
-            {PRICE_AREA.label} · {WEATHER_LOCATION.label} weather · {APP_TIME_ZONE}
-          </p>
+            {/*
+              The three caveats this page must never bury: which area the prices cover,
+              that Oslo is one representative point inside it, and which clock every hour
+              is stated in. As header chips they stay on screen rather than scrolling away.
+            */}
+            <p className="hidden font-mono text-xs text-fg-muted lg:block">
+              {PRICE_AREA.label} · {WEATHER_LOCATION.label} weather · {APP_TIME_ZONE}
+            </p>
+          </div>
+
+          <form action={logout}>
+            <Button type="submit" variant="outline" size="sm">
+              Logout
+            </Button>
+          </form>
         </div>
 
-        <form action={logout}>
-          <Button type="submit" variant="outline" size="sm">
-            Logout
-          </Button>
-        </form>
+        <div className="border-t border-line bg-surface">
+          <div className="mx-auto w-full max-w-content px-4 py-2.5 sm:px-6">
+            <ViewControls params={params} />
+          </div>
+        </div>
       </header>
 
-      <ViewControls params={params} />
-
-      <main className="flex flex-col gap-12">
+      <main className="mx-auto flex w-full max-w-content flex-1 flex-col gap-6 px-4 py-6 sm:px-6">
         <Suspense fallback={<LoadingRegion />}>
           <CorrelationView params={params} />
         </Suspense>

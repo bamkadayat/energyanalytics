@@ -10,6 +10,7 @@ describe("parseViewParams", () => {
       view: "chart",
       heatmap: "chart",
       curve: "chart",
+      range: 30,
     });
   });
 
@@ -20,6 +21,7 @@ describe("parseViewParams", () => {
       view: "chart",
       heatmap: "chart",
       curve: "chart",
+      range: 30,
     });
   });
 
@@ -32,6 +34,7 @@ describe("parseViewParams", () => {
       view: "chart",
       heatmap: "chart",
       curve: "chart",
+      range: 30,
     });
   });
 
@@ -42,6 +45,7 @@ describe("parseViewParams", () => {
       view: "chart",
       heatmap: "chart",
       curve: "chart",
+      range: 30,
     });
   });
 
@@ -49,6 +53,16 @@ describe("parseViewParams", () => {
     expect(parseViewParams({}).view).toBe("chart");
     expect(parseViewParams({ view: "table" }).view).toBe("table");
     expect(parseViewParams({ view: "spreadsheet" }).view).toBe("chart");
+  });
+
+  it("accepts only the offered range lengths", () => {
+    // A hand-typed ?range=1000 would fire a thousand price requests; unknown values fall
+    // back like every other parameter.
+    expect(parseViewParams({ range: "7" }).range).toBe(7);
+    expect(parseViewParams({ range: "60" }).range).toBe(60);
+    expect(parseViewParams({ range: "1000" }).range).toBe(30);
+    expect(parseViewParams({ range: "abc" }).range).toBe(30);
+    expect(parseViewParams({}).range).toBe(30);
   });
 
   it("keeps each section's mode independent", () => {
@@ -73,6 +87,7 @@ describe("parseViewParams", () => {
       view: "chart",
       heatmap: "chart",
       curve: "chart",
+      range: 30,
     });
   });
 
@@ -98,6 +113,7 @@ describe("parseViewParams", () => {
       view: "chart",
       heatmap: "chart",
       curve: "chart",
+      range: 30,
     });
   });
 });
@@ -111,8 +127,9 @@ describe("viewParamsHref", () => {
         view: "chart",
         heatmap: "chart",
         curve: "chart",
+        range: 30,
       }),
-    ).toBe("?day=today&metric=wind&view=chart&heatmap=chart&curve=chart");
+    ).toBe("?day=today&metric=wind&view=chart&heatmap=chart&curve=chart&range=30");
   });
 
   it("round-trips through the parser", () => {
@@ -122,6 +139,7 @@ describe("viewParamsHref", () => {
       view: "table",
       heatmap: "chart",
       curve: "table",
+      range: 14,
     } as const;
     const search = Object.fromEntries(
       new URLSearchParams(viewParamsHref(params)).entries(),
@@ -138,6 +156,7 @@ describe("hrefWith", () => {
     view: "chart",
     heatmap: "chart",
     curve: "chart",
+    range: 30,
   } as const;
 
   it("changes one field and keeps the rest", () => {

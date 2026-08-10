@@ -22,7 +22,7 @@ export function SummaryCards({
   const metric = WEATHER_METRICS[aligned.metricId];
 
   return (
-    <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
       <Card
         term={summary.currentHour ? `Price at ${formatOsloTime(summary.currentHour.at)}` : "Price now"}
         value={formatPrice(summary.currentHour?.nokPerKwh)}
@@ -90,16 +90,21 @@ function Card({
   const missing = value === MISSING_VALUE;
 
   return (
-    <div className="flex flex-col gap-1 rounded-card border border-line bg-surface p-4">
-      <dt className="font-mono text-xs uppercase tracking-wider text-fg-muted">{term}</dt>
+    // Denser than a content card: a KPI strip is scanned, not read.
+    <div className="flex flex-col gap-1 rounded-card border border-line bg-surface p-3">
+      <dt className="truncate font-mono text-[0.6875rem] uppercase tracking-wider text-fg-muted">
+        {term}
+      </dt>
 
       <dd className="flex items-baseline gap-1.5">
-        <span className="font-mono text-2xl font-semibold text-fg">{value}</span>
+        <span className="font-mono text-xl font-semibold tabular-nums text-fg">
+          {value}
+        </span>
         {/* The unit is hidden when there is no value, so "— NOK/kWh" never appears. */}
         {missing ? null : <span className="text-sm text-fg-muted">{unit}</span>}
       </dd>
 
-      {note ? <p className="text-xs text-fg-muted">{note}</p> : null}
+      {note ? <p className="truncate text-xs text-fg-muted">{note}</p> : null}
     </div>
   );
 }

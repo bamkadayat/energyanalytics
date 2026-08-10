@@ -224,6 +224,44 @@ line styles.
 `<ul>` whose items use `border-l-2 border-line-selected pl-3 text-sm text-fg-secondary`.
 A list rather than prose: each observation is independent and should be scannable.
 
+## Dashboard shell
+
+`app/dashboard/page.tsx` — an application shell, not a document.
+
+- **sticky header** (`sticky top-0 z-30 border-b bg-surface`) with the wordmark, the
+  area/location/timezone chips, and Logout; a second sticky row holds the filters. In an
+  analytics tool the filters are used constantly, and a header that scrolls away makes
+  every change of view a scroll to the top and back
+- the caveat chips are `hidden lg:block` — they matter, but not enough to wrap the header
+  onto two lines on a phone
+- body is `max-w-content` with `gap-6`, tighter than the marketing pages: a dashboard is
+  scanned, not read
+- charts sit in a **grid**, not a column: the day chart takes 2fr against 1fr of
+  observations at `xl`, and the two range charts split at `2xl`. Stacking full-width
+  cards is what made it read like a report
+
+## KPI strip
+
+`summary-cards.tsx` — `p-3`, `text-xl tabular-nums` value, `text-[0.6875rem]` uppercase
+label, up to six across at `2xl`. Deliberately denser than a content card: a KPI strip is
+scanned at a glance, and full card padding pushes the charts below the fold.
+
+## Range dropdown
+
+`components/range-select.tsx` — how many days the range views cover (7 / 14 / 30 / 60).
+
+- a **native `<select>`**, styled with tokens, not a custom listbox. A bespoke dropdown
+  means re-implementing roving focus, type-ahead, `aria-activedescendant` and the mobile
+  picker; getting one of those wrong is worse than the stock control looking less bespoke
+- unlike the chart/table toggles this one **does navigate** — a different range is
+  different data, which only the server can fetch. `router.replace(..., { scroll: false })`
+  keeps the position, and `useTransition` keeps the old numbers on screen while the new
+  ones load rather than collapsing the section into a skeleton
+- an unknown value falls back to 30, like every other parameter. `?range=1000` would
+  otherwise fire a thousand price requests
+- capped at 60 days: the price API is one request per day, so a 90-day option would fire
+  90 parallel requests at one host on a cold cache
+
 ## Chart card with view toggle
 
 `components/view-card.tsx` — wraps every chart section: title on the left, an icon
@@ -300,6 +338,29 @@ rather than optional.
 **Only the controls that exist.** No email field, no "forgot password", no social
 sign-in: with a single shared password none of them could do anything, and a control that
 cannot work is worse than a missing one.
+
+## Error and empty screens
+
+`app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx`, `app/dashboard/loading.tsx`.
+
+- all four are branded: wordmark, tokens, the shared `Button`. A default framework error
+  page is the one screen users see when they are already frustrated
+- copy explains and offers a way on. **Errors never apologise** and are never vague about
+  what happened — the same rule as the in-page status banners
+- `error.tsx` uses the **`retry`** prop, not `reset`. `retry()` re-fetches and re-renders;
+  `reset()` only re-renders, which for a data-fetching failure shows the same error again.
+  Stable since Next 16.3
+- error screens surface `error.digest`, never `error.message`. Messages are scrubbed in
+  production builds, and printing a raw one risks leaking internals for no benefit
+- `global-error.tsx` renders its own `<html>`/`<body>` and **imports `globals.css`
+  explicitly** — Next does not give it the app's styles automatically, and importing them
+  is what avoids hard-coding colours past the token system
+- `loading.tsx` mirrors the loaded layout — header, controls, cards, chart outline — so
+  the page settles into shape instead of reflowing. One `role="status"` announcement for
+  the screen; the skeleton itself is `aria-hidden`
+
+Adding `dashboard/loading.tsx` also moved that route from fully dynamic to a partial
+prerender, since the Suspense boundary lets Next ship a shell.
 
 ## Site footer
 

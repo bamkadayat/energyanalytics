@@ -1,4 +1,7 @@
 import {
+  RANGE_DAYS,
+  RANGE_DAY_OPTIONS,
+  type RangeDays,
   DEFAULT_DAY,
   DEFAULT_WEATHER_METRIC,
   WEATHER_METRIC_IDS,
@@ -23,6 +26,8 @@ export interface ViewParams {
   view: ViewMode;
   heatmap: ViewMode;
   curve: ViewMode;
+  /** How many days the range views cover. */
+  range: RangeDays;
 }
 
 export type ViewMode = "chart" | "table";
@@ -34,6 +39,7 @@ export const VIEW_PARAM_KEYS = {
   view: "view",
   heatmap: "heatmap",
   curve: "curve",
+  range: "range",
 } as const;
 
 const DAY_SELECTIONS: readonly DaySelection[] = ["today", "tomorrow"];
@@ -59,7 +65,13 @@ export function parseViewParams(input: SearchParamsInput): ViewParams {
     view: parseView(input[VIEW_PARAM_KEYS.view]),
     heatmap: parseView(input[VIEW_PARAM_KEYS.heatmap]),
     curve: parseView(input[VIEW_PARAM_KEYS.curve]),
+    range: parseRange(input[VIEW_PARAM_KEYS.range]),
   };
+}
+
+function parseRange(raw: string | string[] | undefined): RangeDays {
+  const value = Number(normalize(raw));
+  return RANGE_DAY_OPTIONS.find((days) => days === value) ?? RANGE_DAYS;
 }
 
 function parseView(raw: string | string[] | undefined): ViewMode {
@@ -101,6 +113,7 @@ export function viewParamsHref(params: ViewParams): string {
     [VIEW_PARAM_KEYS.view]: params.view,
     [VIEW_PARAM_KEYS.heatmap]: params.heatmap,
     [VIEW_PARAM_KEYS.curve]: params.curve,
+    [VIEW_PARAM_KEYS.range]: String(params.range),
   });
 
   return `?${search.toString()}`;

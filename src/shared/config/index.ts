@@ -111,6 +111,17 @@ export const PRICE_UNIT = "NOK/kWh" as const;
  */
 export const RANGE_DAYS = 30;
 
+/**
+ * Selectable range lengths, in days.
+ *
+ * Capped at 60 deliberately. The price API is one request per day, so a 90-day option
+ * would fire 90 parallel requests at one host on a cold cache — a rate-limit risk for a
+ * view nobody asked for. 60 days is still 1,440 hourly points.
+ */
+export const RANGE_DAY_OPTIONS = [7, 14, 30, 60] as const;
+
+export type RangeDays = (typeof RANGE_DAY_OPTIONS)[number];
+
 export type DaySelection = "today" | "tomorrow";
 
 export const DEFAULT_DAY: DaySelection = "today";

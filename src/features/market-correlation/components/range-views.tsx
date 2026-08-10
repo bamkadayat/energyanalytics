@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import { getPriceRange } from "@/features/energy-prices";
 import { getWeatherRange } from "@/features/weather-forecast";
-import { PRICE_AREA, PRICE_UNIT, RANGE_DAYS } from "@/shared/config";
+import { PRICE_AREA, PRICE_UNIT } from "@/shared/config";
 import { formatPrice } from "@/shared/lib/format-number";
 import { osloDaysBack } from "@/shared/lib/oslo-day";
 import { StatusMessage } from "@/shared/ui";
@@ -12,6 +12,7 @@ import {
 } from "../utils/derive-range-views";
 import type { ViewParams } from "../utils/view-params";
 import { DurationCurveChart } from "./duration-curve";
+import { RangeSelect } from "./range-select";
 import { DurationCurveTable, HeatmapTable } from "./range-tables";
 import { ViewCard } from "./view-card";
 import { PriceHeatmapChart } from "./price-heatmap";
@@ -30,7 +31,7 @@ import { PriceHeatmapChart } from "./price-heatmap";
 export async function RangeViews({ params }: { params: ViewParams }) {
   await connection();
 
-  const days = osloDaysBack(new Date(), RANGE_DAYS);
+  const days = osloDaysBack(new Date(), params.range);
 
   const [priceResults, weather] = await Promise.all([
     getPriceRange(days),
@@ -58,32 +59,37 @@ export async function RangeViews({ params }: { params: ViewParams }) {
   if (curve.hours === 0) {
     return (
       <StatusMessage tone="neutral" title="No range data available">
-        Prices for the last {RANGE_DAYS} days could not be loaded.
+        Prices for the last {params.range} days could not be loaded.
       </StatusMessage>
     );
   }
 
   return (
-    <section className="flex flex-col gap-8" aria-labelledby="range-heading">
-      <div className="flex flex-col gap-2">
-        <h2 id="range-heading" className="text-xl font-semibold text-fg">
-          The last {RANGE_DAYS} days
-        </h2>
-        <p className="text-sm text-fg-muted">
-          {curve.hours.toLocaleString("en")} priced hours across {daysLoaded} days in{" "}
-          {PRICE_AREA.label}. Median {formatPrice(curve.median)} {PRICE_UNIT}, with the
-          most expensive tenth of hours at or above {formatPrice(curve.p10)} and the
-          cheapest tenth at or below {formatPrice(curve.p90)}.
-        </p>
+    <section className="flex flex-col gap-4" aria-labelledby="range-heading">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 id="range-heading" className="text-lg font-medium text-fg">
+            The last {params.range} days
+          </h2>
+          <p className="text-sm text-fg-muted">
+            {curve.hours.toLocaleString("en")} priced hours across {daysLoaded} days in{" "}
+            {PRICE_AREA.label}. Median {formatPrice(curve.median)} {PRICE_UNIT}, with the
+            most expensive tenth of hours at or above {formatPrice(curve.p10)} and the
+            cheapest tenth at or below {formatPrice(curve.p90)}.
+          </p>
+        </div>
+
+        <RangeSelect params={params} />
       </div>
 
-      {daysLoaded < RANGE_DAYS ? (
+      {daysLoaded < params.range ? (
         <StatusMessage tone="warning" title="Some days are missing from the range">
-          {RANGE_DAYS - daysLoaded} of {RANGE_DAYS} days could not be loaded. The views
-          below cover the rest.
+          {params.range - daysLoaded} of {params.range} days could not be loaded. The
+          views below cover the rest.
         </StatusMessage>
       ) : null}
 
+      <div className="grid gap-6 2xl:grid-cols-2">
       <ViewCard
         title="Price by hour and day"
         paramKey="heatmap"
@@ -124,6 +130,7 @@ export async function RangeViews({ params }: { params: ViewParams }) {
           </>
         }
       />
+      </div>
     </section>
   );
 }
