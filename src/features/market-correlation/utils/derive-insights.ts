@@ -6,10 +6,22 @@ import {
   formatPrice,
 } from "@/shared/lib/format-number";
 import type { AlignedHours } from "../types";
-import { deriveEveningComparison, type DaySummary } from "./derive-summary";
+import {
+  deriveEveningComparison,
+  EVENING_FROM,
+  EVENING_UNTIL,
+  type DaySummary,
+} from "./derive-summary";
 
 export interface Insight {
   id: string;
+  /**
+   * The hour or window this is about, as an Oslo wall-clock label — rendered as a chip
+   * beside the sentence rather than buried inside it. Splitting it out is what makes the
+   * list scannable: the eye runs down a column of times, not through four sentences that
+   * each begin differently. Null when an observation is about the day as a whole.
+   */
+  hour: string | null;
   text: string;
 }
 
@@ -34,46 +46,76 @@ export function deriveInsights(
 ): Insight[] {
   const insights: Insight[] = [];
   const metric = WEATHER_METRICS[aligned.metricId];
+  const average = summary.averageNokPerKwh;
 
   if (summary.cheapestHour !== null) {
     insights.push({
       id: "cheapest",
-      text: `Cheapest hour is ${formatOsloTime(summary.cheapestHour.at)} at ${formatPrice(
+      hour: formatOsloTime(summary.cheapestHour.at),
+      text: `Cheapest hour at ${formatPrice(summary.cheapestHour.value)} ${PRICE_UNIT}${against(
         summary.cheapestHour.value,
-      )} ${PRICE_UNIT}.`,
+        average,
+      )}.`,
     });
   }
 
   if (summary.priciestHour !== null) {
     insights.push({
       id: "priciest",
-      text: `Most expensive hour is ${formatOsloTime(
-        summary.priciestHour.at,
-      )} at ${formatPrice(summary.priciestHour.value)} ${PRICE_UNIT}.`,
+      hour: formatOsloTime(summary.priciestHour.at),
+      text: `Priciest hour at ${formatPrice(summary.priciestHour.value)} ${PRICE_UNIT}${against(
+        summary.priciestHour.value,
+        average,
+      )}.`,
     });
   }
 
   const evening = deriveEveningComparison(aligned, summary);
   if (evening !== null) {
-    const direction = evening.difference >= 0 ? "above" : "below";
     insights.push({
       id: "evening",
-      text: `Evening hours (17:00–21:00) average ${formatPrice(
+      /*
+       * A range rather than a single hour, and bare hours rather than two full clock
+       * times: "17:00–21:00" in a chip this size wraps, and both ends are on the hour
+       * anyway. EVENING_UNTIL is exclusive, so the label stops an hour short of it.
+       */
+      hour: `${pad(EVENING_FROM)}–${pad(EVENING_UNTIL - 1)}`,
+      text: `Evening hours average ${formatPrice(
         evening.eveningAverage,
-      )} ${PRICE_UNIT}, ${formatPercentDifference(
-        evening.difference,
-      )} ${direction} the daily average.`,
+      )} ${PRICE_UNIT}${against(evening.eveningAverage, evening.dayAverage)}.`,
     });
   }
 
   if (summary.metricPeakHour !== null) {
     insights.push({
       id: "metric-peak",
-      text: `${metric.label} peaks at ${formatOsloTime(
-        summary.metricPeakHour.at,
-      )} at ${formatMetricValue(summary.metricPeakHour.value)} ${metric.unit}.`,
+      hour: formatOsloTime(summary.metricPeakHour.at),
+      text: `${metric.label} peaks at ${formatMetricValue(
+        summary.metricPeakHour.value,
+      )} ${metric.unit}.`,
     });
   }
 
   return insights;
+}
+
+/**
+ * The trailing ", 68 % below the daily average" clause — or nothing at all.
+ *
+ * Returned empty rather than hedged when there is no average to compare against, so the
+ * sentence simply ends after the figure instead of trailing off into a caveat.
+ */
+function against(value: number, average: number | null): string {
+  if (average === null || average === 0) {
+    return "";
+  }
+
+  const difference = (value - average) / average;
+  const direction = difference >= 0 ? "above" : "below";
+
+  return `, ${formatPercentDifference(difference)} ${direction} the daily average`;
+}
+
+function pad(hour: number): string {
+  return String(hour).padStart(2, "0");
 }
