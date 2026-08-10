@@ -16,6 +16,10 @@ import { useChartTokens } from "./use-chart-tokens";
  *
  * The chart is never the only way to read the data. The text summary above it carries
  * the same numbers, per `ui-rules.md`.
+ *
+ * **Drawn on ink.** The card puts this on --surface-inverse, so the chrome tokens are the
+ * inverse set. The series colours are not: they clear 3:1 on both grounds, and using one
+ * palette for both is what keeps "the wind line" the same colour wherever it appears.
  */
 export function CorrelationChart({ series }: { series: ChartSeries }) {
   const palette = useChartPalette(series.metricId);
@@ -52,11 +56,13 @@ interface ChartPalette {
 const TOKENS = [
   "--chart-price",
   "--chart-price-fill",
-  "--chart-grid",
-  "--chart-axis",
-  "--chart-crosshair",
-  "--chart-tooltip-surface",
-  "--chart-tooltip-fg",
+  "--chart-grid-inverse",
+  "--chart-axis-inverse",
+  "--chart-crosshair-inverse",
+  // Inverted against the panel: a navy tooltip on a navy chart would be a shape with
+  // text in it. On ink the tooltip is the paper.
+  "--surface",
+  "--fg",
 ] as const;
 
 /** Reads the palette through the shared hook, plus the series colour for this metric. */
@@ -72,11 +78,11 @@ function useChartPalette(metricId: ChartSeries["metricId"]): ChartPalette | null
       price: tokens["--chart-price"],
       priceFill: tokens["--chart-price-fill"],
       metric: tokens[`--chart-${metricId}`],
-      grid: tokens["--chart-grid"],
-      axis: tokens["--chart-axis"],
-      crosshair: tokens["--chart-crosshair"],
-      tooltipSurface: tokens["--chart-tooltip-surface"],
-      tooltipText: tokens["--chart-tooltip-fg"],
+      grid: tokens["--chart-grid-inverse"],
+      axis: tokens["--chart-axis-inverse"],
+      crosshair: tokens["--chart-crosshair-inverse"],
+      tooltipSurface: tokens["--surface"],
+      tooltipText: tokens["--fg"],
     };
   }, [tokens, metricId]);
 }
@@ -90,19 +96,14 @@ function buildOption(series: ChartSeries, palette: ChartPalette): EChartsOption 
     // Nonessential motion is off, which also satisfies prefers-reduced-motion without a
     // media query.
     animation: false,
-    grid: { top: 48, right: 16, bottom: 32, left: 16, containLabel: true },
+    grid: { top: 20, right: 16, bottom: 24, left: 16, containLabel: true },
 
-    legend: {
-      top: 0,
-      left: 0,
-      textStyle: { color: palette.axis },
-      // Icons mirror the line styles, so the legend teaches the solid/dashed distinction
-      // rather than leaving colour to carry it.
-      data: [
-        { name: series.priceUnit, icon: "roundRect" },
-        { name: metricSeriesName, icon: "rect" },
-      ],
-    },
+    /*
+     * Off. The card header carries the key now, in the DOM — where it is selectable,
+     * readable by a screen reader, and cannot be clipped by the canvas. Keeping both
+     * would print the same two series names twice, inches apart.
+     */
+    legend: { show: false },
 
     tooltip: {
       trigger: "axis",
