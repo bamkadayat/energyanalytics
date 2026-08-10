@@ -120,6 +120,16 @@ export const RANGE_DAYS = 30;
  */
 export const RANGE_DAY_OPTIONS = [7, 14, 30, 60] as const;
 
+/**
+ * Span of the hour-by-hour table at `/dashboard/hours` — about 2,200 rows.
+ *
+ * Ninety days rather than the range views' 60 because this view exists to be *large*:
+ * sorting, filtering and scrolling only become interesting past a few thousand rows.
+ * Open-Meteo serves the whole span in one request; prices are one request per day, all
+ * cached, so the cost is paid once per day and shared with the range views below 60.
+ */
+export const HOURS_TABLE_DAYS = 90;
+
 export type RangeDays = (typeof RANGE_DAY_OPTIONS)[number];
 
 /**

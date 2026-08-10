@@ -150,29 +150,19 @@
   --chart-tooltip-surface: var(--navy-900);
   --chart-tooltip-fg: var(--white);
 
-  /*
-   * The same chart drawn on ink. Only the chrome changes — the four series colours were
-   * tuned for 3:1 against white and clear it against --surface-inverse too (price 3.6:1,
-   * wind 3.4:1, temperature 3.6:1, solar 3.8:1), so the palette itself carries over and
-   * the two grounds cannot drift into different-looking data.
-   */
-  --chart-grid-inverse: var(--navy-800);
-  --chart-axis-inverse: var(--navy-200);
-  --chart-crosshair-inverse: var(--navy-500);
 
   /*
    * ---- 2. Semantic: price emphasis ----
-   * The day's two extremes and the hour you are currently in, for the KPI strip and the
-   * cards that call them out. Aliases of the status palette rather than new hues: on a
-   * price dashboard "cheapest" *is* the good outcome, so the mapping is the meaning.
-   * Every use is paired with a text label, so the colour reinforces and never carries.
+   * Two tones for the hour strip: every hour, and the one you are in.
+   *
+   * There were six. The cheapest and priciest hours had their own green and red, which
+   * put the two loudest colours on the page inside a sparkline the width of a paragraph
+   * and said nothing the bars did not — the cheapest hour is the shortest bar by
+   * construction, and both are stated as text in the cards beside it. What height cannot
+   * show is where you are, so that is the only hour that earns a fill.
    */
   --price-bar: var(--navy-100);
   --price-now: var(--navy-900);
-  --price-low: var(--success-line);
-  --price-low-surface: var(--success-surface);
-  --price-high: var(--error-line);
-  --price-high-surface: var(--error-surface);
 
   /*
    * ---- 2. Semantic: heatmap ramp ----
@@ -206,6 +196,13 @@
    */
   --chart-min-height: clamp(18rem, 40vh, 28rem);
   --chart-heatmap-height: clamp(20rem, 55vh, 30rem);
+  /*
+   * The scroll window of the virtualized hours table. Taller than a chart and tied to the
+   * viewport, because the point of that view is the size of the dataset: on a laptop it
+   * fills most of the screen, on a phone it stops short of swallowing the page, and it
+   * never grows past what one screen can usefully show.
+   */
+  --table-height: clamp(24rem, 68vh, 56rem);
 }
 
 /*
@@ -282,10 +279,6 @@
 
   --color-price-bar: var(--price-bar);
   --color-price-now: var(--price-now);
-  --color-price-low: var(--price-low);
-  --color-price-low-surface: var(--price-low-surface);
-  --color-price-high: var(--price-high);
-  --color-price-high-surface: var(--price-high-surface);
 
   /* Typography. Geist is wired up as a CSS variable in layout.tsx. */
   --font-sans: var(--font-geist-sans);

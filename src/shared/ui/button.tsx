@@ -11,7 +11,12 @@
  * three times, which is the problem this file exists to solve.
  */
 
-export type ButtonVariant = "primary" | "secondary" | "outline" | "inverse";
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "inverse"
+  | "ghost-inverse";
 export type ButtonSize = "sm" | "md" | "lg";
 
 /**
@@ -43,6 +48,18 @@ const VARIANTS: Record<ButtonVariant, string> = {
    */
   inverse:
     "bg-surface text-fg hover:bg-surface-inverse hover:text-fg-inverse [--btn-ring-color:var(--fg-inverse)]",
+  /*
+   * The secondary action on `--surface-inverse`, beside an `inverse` button. Two filled
+   * pills side by side weigh the same, so neither reads as the primary one; this carries
+   * an outline instead. `--line-inverse-strong` rather than `--line-inverse` because a
+   * control's boundary has to clear 3:1, which the hairline token does not.
+   *
+   * An inset ring rather than a `border`, unlike the `outline` variant: this one sits
+   * *beside* a filled pill, and a border would make it 2px taller than its neighbour.
+   * A ring paints inside the box and costs no layout.
+   */
+  "ghost-inverse":
+    "inset-ring inset-ring-line-inverse-strong text-fg-inverse hover:inset-ring-fg-inverse [--btn-ring-color:var(--fg-inverse)]",
 };
 
 /*
