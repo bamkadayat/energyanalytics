@@ -21,13 +21,9 @@ import { formatOsloTime } from "@/shared/lib/format-oslo";
 import { SpotlightCard } from "./spotlight-card";
 
 /**
- * The three weather metrics, each with a real mini-chart from the example day.
- *
- * Same fixed day as the hero, fetched once and aligned three ways — two requests for the
- * whole section, and no clock, so it still prerenders.
- *
- * Each card links to the dashboard already filtered to that metric: a real view, not a
- * "Read more" pointing nowhere.
+ * The three weather metrics, each with a real mini-chart from the hero's fixed day —
+ * two requests for the section, no clock, still prerendered. Each card links to the
+ * dashboard filtered to that metric: a real view, not a "Read more" pointing nowhere.
  */
 
 /**
@@ -57,11 +53,7 @@ export async function MetricHighlights() {
             The same 24 hours, three ways to read them
           </h2>
 
-          {/*
-            Answers the hero's "How the data is joined" button, which links here. Stating
-            the join is the honest version of a marketing claim — it is the part of the
-            product that is actually hard.
-          */}
+          {/* Answers the hero's "How the data is joined" button, which links here. */}
           <p className="text-pretty text-fg-secondary">
             One weather reading beside the price curve, matched hour for hour rather than
             by position. A missing reading stays missing.
@@ -182,14 +174,9 @@ function readingCount(stats: MetricPreviewStats): string {
 /**
  * Mini chart with depth: the metric in front, the price behind as a dashed ghost.
  *
- * This **inverts the dashboard's solid/dashed convention**, deliberately. There the two
- * series are peers, and line style is what separates them. Here the metric is the subject
- * and the price is context, so a ghost reads as a reference rather than as a second
- * metric. The dashboard's rule is untouched, and nothing on this card depends on telling
- * the two apart to be understood — the heading, the unit chip and the stat line all name
- * the metric.
- *
- * A gap is still a real break in the line.
+ * This inverts the dashboard's solid/dashed convention deliberately — there the series
+ * are peers, here the price is context. Nothing on the card depends on telling them
+ * apart: the heading, chip and stat line all name the metric. A gap is still a gap.
  */
 function CardChart({ chart, id }: { chart: PreviewChart; id: WeatherMetricId }) {
   const accent = `var(--chart-${id})`;
@@ -224,10 +211,7 @@ function CardChart({ chart, id }: { chart: PreviewChart; id: WeatherMetricId }) 
       {chart.metricLine ? (
         <>
           {/* Area under the metric, then a wide soft stroke as its glow. */}
-          <path
-            d={`${chart.metricLine} L${chart.width},${chart.height} L0,${chart.height} Z`}
-            fill={`url(#card-fill-${id})`}
-          />
+          <path d={chart.metricArea} fill={`url(#card-fill-${id})`} />
           <path
             d={chart.metricLine}
             fill="none"

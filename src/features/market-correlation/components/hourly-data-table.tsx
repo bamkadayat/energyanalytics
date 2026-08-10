@@ -1,9 +1,5 @@
 "use client";
-/*
- * React Compiler cannot safely memoize the functions `useReactTable` returns, so this
- * file opts out of auto-memoization. TanStack's documented answer, and it must sit in
- * the file prologue beside "use client" to be recognised.
- */
+/* The compiler cannot memoize `useReactTable`; the directive must sit in the prologue. */
 "use no memo";
 
 import {
@@ -29,27 +25,16 @@ export interface HourRow {
 
 const columnHelper = createColumnHelper<HourRow>();
 
-/**
- * How many rows show before the reader asks for more.
- *
- * Chosen so the table lands at roughly the chart's height: switching Chart/Table should
- * change what the card shows, not how much room it takes on the page.
- */
+/** Enough to land at roughly the chart's height, so Chart/Table does not resize the card. */
 const INITIAL_ROWS = 8;
 const ROWS_PER_STEP = 8;
 
 /**
- * The hourly table, made sortable with TanStack Table.
+ * The hourly table, sortable via TanStack. Headless, so the markup and classes stay ours
+ * and no second token system arrives with it.
  *
- * Headless: TanStack owns sorting state and row order, the markup and every class stay
- * ours. That is why it earned its place over a component library — no second token
- * system, and the semantics built earlier survive intact (hours as row headers, the
- * caption explaining that an em dash means *no reading*, tabular numerals).
- *
- * Sorting matters here because the question is rarely "what happened at 14:00" but "when
- * was it cheapest" — and re-sorting is instant on data already in the browser.
- *
- * Nulls always sort last regardless of direction: a missing hour is not cheap.
+ * Sorting earns its place: the question is rarely "what happened at 14:00" but "when was
+ * it cheapest". Nulls sort last either way — a missing hour is not a cheap one.
  */
 export function HourlyDataTable({
   rows,
@@ -85,12 +70,7 @@ export function HourlyDataTable({
     [metric.label, metric.unit],
   );
 
-  /*
-   * The rule fires on the library statically, so the file's "use no memo" directive does
-   * not clear it — the directive tells the compiler to skip this file, the disable tells
-   * the linter the skip was deliberate. Scoped to this line so the rule keeps working
-   * everywhere else.
-   */
+  /* The lint rule fires statically, so the directive above does not clear it. */
   // eslint-disable-next-line react-hooks/incompatible-library -- opted out via "use no memo"
   const table = useReactTable({
     data: rows,
@@ -103,11 +83,7 @@ export function HourlyDataTable({
     sortDescFirst: true,
   });
 
-  /*
-   * Sort over every hour, then cut. Sorting only the visible slice would answer "the
-   * cheapest of the eight you happen to be looking at", which is not the question the
-   * column heading offers to answer.
-   */
+  // Sort over every hour, then cut — not "the cheapest of the eight you can see".
   const sortedRows = table.getRowModel().rows;
   const shownRows = sortedRows.slice(0, visibleRows);
   const remaining = sortedRows.length - shownRows.length;
@@ -195,10 +171,8 @@ export function HourlyDataTable({
       </div>
 
       {/*
-        A count and one control, rather than page numbers. Twenty-four hours is not a
-        data set anyone pages through — the reader wants the first few, or all of them.
-        `aria-live` announces the new total, because pressing a button and having rows
-        appear silently below the viewport is invisible to a screen reader.
+        A count and one control: 24 hours is not something anyone pages through.
+        `aria-live`, because rows appearing below the fold are silent otherwise.
       */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p aria-live="polite" className="font-mono text-xs text-fg-muted">

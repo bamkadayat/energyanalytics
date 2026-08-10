@@ -1,21 +1,13 @@
 import type { AlignedHours } from "../types";
 
 /**
- * The whole day as one bar per hour, under the current price.
+ * The whole day as one bar per hour: what the current price is cheap *relative to*.
  *
- * It answers "is this hour cheap?" in the only way a single number cannot — by showing
- * what it is cheap *relative to*.
+ * One mark, not three. Colouring the cheapest and priciest bars said nothing the heights
+ * did not — the cheapest hour is the shortest bar by construction. Height cannot show
+ * *where you are*, so that is the hour with a fill.
  *
- * **One mark, not three.** The strip used to fill the cheapest bar green and the priciest
- * red, which put the two loudest colours on the page inside a sparkline the width of a
- * paragraph — and told the reader nothing the bars did not: the cheapest hour is the
- * shortest bar and the priciest is the tallest, by construction. Both are also stated as
- * text in the cards beside it. What height cannot show is *where you are*, so that is the
- * one hour that gets a fill.
- *
- * `aria-hidden`, deliberately. Twenty-four bars announced one by one is noise, and every
- * figure it shows is already in the cards above it and the hourly table below. This is
- * the chart-is-never-the-only-way rule from ui-rules.md applied to a sparkline.
+ * `aria-hidden`: every figure here is in the cards above and the table below.
  */
 export function PriceStrip({
   aligned,
@@ -31,11 +23,7 @@ export function PriceStrip({
     return null;
   }
 
-  /*
-   * Scaled from zero rather than from the day's minimum. A price floor of "the cheapest
-   * hour" would redraw a flat day as a dramatic one — the bars must be readable as
-   * amounts, not as ranks.
-   */
+  // From zero, not from the day's minimum: a floor redraws a flat day as a dramatic one.
   const max = Math.max(...present);
 
   return (

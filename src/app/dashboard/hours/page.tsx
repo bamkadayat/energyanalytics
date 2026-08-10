@@ -20,12 +20,8 @@ export const metadata: Metadata = {
 export const instant = false;
 
 /**
- * The whole range as one table.
- *
- * The shell is composed here rather than in a `layout.tsx` shared with `/dashboard`,
- * because the rail is search-param aware — it marks the selected metric and shows the
- * loaded range — and layouts do not receive `searchParams`. Hoisting it would mean
- * either a rail that goes stale or a client component reading the URL to fix it.
+ * The whole range as one table. The shell is repeated here rather than hoisted into a
+ * `layout.tsx`: the rail is search-param aware, and layouts do not receive them.
  */
 export default async function HoursPage({ searchParams }: PageProps<"/dashboard/hours">) {
   if (!(await hasValidSession())) {

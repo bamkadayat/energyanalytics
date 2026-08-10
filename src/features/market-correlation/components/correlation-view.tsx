@@ -21,13 +21,11 @@ import { SourceStatus } from "./source-status";
 import { ViewCard } from "./view-card";
 
 /**
- * The conductor: resolves the day, fetches both providers, joins them, and hands the
- * result to presentation.
+ * The conductor: resolves the day, fetches both providers, joins them, hands off.
  *
- * `await connection()` first. Reading the clock is request-time work, and without this
- * the build fails with `blocking-prerender-current-time` — `<Suspense>` alone does not
- * satisfy it. Everything below the call runs per request while the page shell stays
- * static (see context/library-docs.md).
+ * `await connection()` first — reading the clock is request-time work, and without it the
+ * build fails with `blocking-prerender-current-time`. `<Suspense>` alone does not satisfy
+ * it (see context/library-docs.md).
  */
 export async function CorrelationView({ params }: { params: ViewParams }) {
   await connection();
@@ -78,11 +76,7 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
 
   return (
     <div className="flex min-w-0 flex-col gap-6">
-      {/*
-        No day switch and no date heading here: both live in the page header now. This
-        section used to open with a second copy of the day control and a title that
-        repeated the card's own — chrome for chrome.
-      */}
+      {/* No day switch or date heading: both live in the page header now. */}
       <SourceStatus
         prices={prices}
         weather={weather}
@@ -94,11 +88,7 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
         <>
           <SummaryCards aligned={aligned} summary={summary} />
 
-          {/*
-            Chart and observations side by side on wide screens. The observations are a
-            reading of the chart, so putting them next to it beats making the reader
-            scroll between the two.
-          */}
+          {/* The observations are a reading of the chart, so they sit with it. */}
           {/*
             Columns stay equal height, and the chart *grows into* the taller of the two
             rather than the card padding the difference with empty white. `items-start`
@@ -147,12 +137,9 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
             stretched to the taller one's.
           */}
           {/*
-            Stacked full width until `xl`, side by side from there. Two cards this dense
-            need a wide page to sit next to each other and still hold a sentence, which
-            `md` and `lg` do not have once the rail is subtracted.
-
-            `items-start` so the shorter card keeps its own height instead of being
-            stretched to the taller one's and padding the difference with white.
+            Stacked until `xl`, side by side from there — `md` and `lg` are not wide
+            enough once the rail is subtracted. `items-start` so the shorter card is not
+            stretched to its neighbour and padded with white.
           */}
           <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
             <div className="rounded-card border border-line bg-surface p-4">

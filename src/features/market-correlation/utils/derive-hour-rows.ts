@@ -5,13 +5,11 @@ import { WEATHER_METRIC_IDS } from "@/shared/config";
 const MS_PER_HOUR = 3_600_000;
 
 /**
- * One hour, with the price and all three weather readings side by side.
+ * One hour: the price and all three weather readings.
  *
- * Deliberately flat and primitive-only. These rows cross the server/client boundary in
- * their thousands, so every field is something the RSC payload can carry cheaply: the
- * hour is epoch milliseconds rather than a `Date`, and the only string is the label the
- * table filters and sorts on. Formatting per row on the client would be a few thousand
- * `Intl` calls before a single row is visible.
+ * Flat and primitive-only, because these cross the RSC boundary in their thousands — the
+ * hour is epoch milliseconds, and the one string is the label the table filters on.
+ * Formatting client-side would be thousands of `Intl` calls before the first paint.
  */
 export interface HourRecord {
   /** Hour start as epoch milliseconds — sortable as a number, cheap to serialise. */
@@ -27,17 +25,12 @@ export interface HourRecord {
 /**
  * Joins a long span of prices and weather into one row per hour.
  *
- * The wide sibling of `alignPriceAndWeather`, which pairs prices with *one* metric for a
- * chart. A table has room for all three, and the two functions share the rule that
- * matters: **the join key is a normalised hour derived from the timestamp, never an array
- * index.** The providers cover different spans and a DST day has 23 or 25 hours, so index
- * pairing would silently attach 03:00 weather to 02:00 prices.
+ * The wide sibling of `alignPriceAndWeather`, sharing the rule that matters: **the join
+ * key is a normalised hour, never an array index** — the providers cover different spans
+ * and a DST day has 23 or 25 hours. The union of both, ascending, so a one-sided hour
+ * stays visible.
  *
- * The union of both sources, ascending. An hour only one provider supplied is a real gap,
- * and dropping it would hide missing data behind a shorter table.
- *
- * Pure — no clock, no network, no React. `formatHour` is injected so the label is
- * produced with the app's Oslo formatter without this file importing it.
+ * Pure. `formatHour` is injected rather than imported.
  */
 export function deriveHourRows(
   prices: readonly EnergyPrice[],

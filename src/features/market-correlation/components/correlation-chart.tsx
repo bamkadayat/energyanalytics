@@ -7,23 +7,12 @@ import type { ChartSeries } from "../utils/to-chart-series";
 import { useChartTokens } from "./use-chart-tokens";
 
 /**
- * The one place in this app that needs the DOM.
+ * The one place in this app that needs the DOM: canvas cannot read `var(--token)`, so
+ * colours are resolved after mount. Never the only way to read the data — the summary
+ * above carries the same numbers, per `ui-rules.md`.
  *
- * ECharts draws to a canvas, and canvas cannot read `var(--token)`. Colours are
- * therefore resolved from the stylesheet after mount with `getComputedStyle`, which is
- * also why this cannot be a server component: the values do not exist until a document
- * does.
- *
- * The chart is never the only way to read the data. The text summary above it carries
- * the same numbers, per `ui-rules.md`.
- *
- * **Drawn on paper**, like every other card on the dashboard. It sat on ink for a while,
- * which made one panel a different ground from everything around it, and put the grid at
- * `--chart-grid-inverse` on `--surface-inverse` — 1.19:1, a gridline nobody could see.
- * The light chrome tokens are the tuned ones: grid `--slate-200`, axis `--slate-600`.
- *
- * The series colours are unchanged either way. They clear 3:1 on both grounds, and one
- * palette everywhere is what keeps "the wind line" the same colour wherever it appears.
+ * Drawn on paper like every other card. On ink the grid was `--chart-grid-inverse` on
+ * `--surface-inverse`: 1.19:1, invisible. The series colours are the same either way.
  */
 export function CorrelationChart({ series }: { series: ChartSeries }) {
   const palette = useChartPalette(series.metricId);
@@ -105,11 +94,7 @@ function buildOption(series: ChartSeries, palette: ChartPalette): EChartsOption 
     // left one was clipped by the edge of the panel.
     grid: { top: 36, right: 16, bottom: 24, left: 16, containLabel: true },
 
-    /*
-     * Off. The card header carries the key now, in the DOM — where it is selectable,
-     * readable by a screen reader, and cannot be clipped by the canvas. Keeping both
-     * would print the same two series names twice, inches apart.
-     */
+    /* Off: the card header carries the key, in the DOM where it cannot be clipped. */
     legend: { show: false },
 
     tooltip: {
@@ -126,9 +111,8 @@ function buildOption(series: ChartSeries, palette: ChartPalette): EChartsOption 
     },
 
     /*
-     * A category axis over pre-formatted Oslo labels, not a time axis. A time axis
-     * formats ticks in the viewer's own timezone, which would silently relabel Norwegian
-     * market hours for anyone reading from another country.
+     * Category axis over pre-formatted Oslo labels. A time axis formats ticks in the
+     * *viewer's* zone, relabelling Norwegian market hours for anyone abroad.
      */
     xAxis: {
       type: "category",
@@ -139,11 +123,7 @@ function buildOption(series: ChartSeries, palette: ChartPalette): EChartsOption 
       axisTick: { show: false },
     },
 
-    /*
-     * Two independent scales. Each axis is named with its unit and tinted to match its
-     * series, so the pairing is unambiguous — dual axes must never imply the two lines
-     * are directly comparable.
-     */
+    /* Two independent scales, each named and tinted — never imply comparability. */
     yAxis: [
       {
         type: "value",

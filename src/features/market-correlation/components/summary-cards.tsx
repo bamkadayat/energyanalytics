@@ -11,16 +11,11 @@ import type { DaySummary } from "../utils/derive-summary";
 import { PriceStrip } from "./price-strip";
 
 /**
- * The headline numbers, all derived from the same aligned dataset the chart and table
- * use. There is no second derivation path, so a card cannot disagree with the graph
- * beside it.
+ * The headline numbers, from the same derivation the chart and table read — so a card
+ * cannot disagree with the graph beside it. Every card states its unit.
  *
- * Every card states its unit. A figure without one is how "8" ends up meaning m/s to the
- * writer and °C to the reader.
- *
- * The current price gets a card of its own, several times the size of the rest. Six equal
- * cards made the reader decide what mattered; one number is what someone opening this
- * page came for, and the four beside it are the context for reading it.
+ * The current price gets a card of its own: it is what someone opening this page came
+ * for, and the four beside it are the context for reading it.
  */
 export function SummaryCards({
   aligned,
@@ -35,11 +30,7 @@ export function SummaryCards({
     <div className="grid gap-3 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1.85fr)]">
       <PriceNowCard aligned={aligned} summary={summary} />
 
-      {/*
-        Two by two rather than four in a row, at every width. A single row would stretch
-        each card to the tall card's height and leave two thirds of it empty — the grid
-        is sized by what the cards hold, not by what sits next to them.
-      */}
+      {/* Two by two: a single row would stretch each to the tall card's height. */}
       <dl className="grid gap-3 sm:grid-cols-2">
         <Card
           term="Cheapest hour"
@@ -128,11 +119,8 @@ function PriceNowCard({
 /**
  * "−47 % against today's average of 1,065 NOK/kWh".
  *
- * The pill carries the sign explicitly rather than relying on colour: a red 47 % could
- * mean either direction, and this is the one figure on the page a reader is most likely
- * to act on. Since the sign is doing the work, the pill is **neutral** — a green or red
- * fill here was the third place on the screen saying "cheap" or "dear" in colour, and
- * spending the palette on chrome is what leaves nothing left for the chart.
+ * The pill carries its own sign: a red 47 % could mean either direction. Since the sign
+ * does the work, the fill is neutral — colour is for the chart, not for chrome.
  */
 function ComparisonLine({ summary }: { summary: DaySummary }) {
   const average = summary.averageNokPerKwh;
@@ -173,12 +161,8 @@ function indexOf(aligned: AlignedHours, at: Date | undefined): number {
 }
 
 /**
- * Four identical cards.
- *
- * The cheapest and priciest cards used to carry a coloured left edge, which made two of
- * the four look like a different component and spent the loudest colours on the page on
- * something the words "Cheapest hour" and "Priciest hour" already say. A KPI strip reads
- * as a strip when its cards match.
+ * Four identical cards. Two used to carry a coloured left edge, which made them look like
+ * a different component to say what their own labels already said.
  */
 function Card({
   term,

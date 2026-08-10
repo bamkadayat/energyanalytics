@@ -25,22 +25,14 @@ export const metadata: Metadata = {
 };
 
 /**
- * Protected routes are not prerendered.
- *
- * `instant = false` opts this route out of the static shell so the session can be
- * verified before anything renders. Prerendering a shell of a page the visitor may not
- * be allowed to see would be the wrong default here, and it is the reason `searchParams`
- * can be awaited at the top of this component while the public pages must not.
+ * Protected routes are not prerendered. `instant = false` verifies the session before
+ * anything renders — and is why `searchParams` may be awaited here, unlike public pages.
  */
 export const instant = false;
 
 /**
- * The dashboard.
- *
- * Proxy already redirects visitors without a session cookie, but that check only looks
- * for the cookie's *presence* — Next's docs are explicit that Proxy is not an
- * authorization layer. This is the check that actually verifies the signature and
- * expiry, so a forged or expired cookie gets no data.
+ * The dashboard. Proxy only checks the cookie's *presence* and is not an authorization
+ * layer, so this is where the signature and expiry are actually verified.
  */
 export default async function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
   if (!(await hasValidSession())) {
@@ -50,20 +42,12 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
   const params = parseViewParams(await searchParams);
 
   return (
-    /*
-     * Rail plus a full-width work area — the layout that reads as an application rather
-     * than a page. The rail carries the filters, so the header can stay thin and the
-     * charts get the whole width instead of a centred column.
-     */
+    /* Rail plus a full-width work area: an application, not a centred page. */
     <div className="flex min-h-screen bg-page">
       <DashboardSidebar params={params} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/*
-          A command bar, not a title bar: it carries the one filter that reaches every
-          view on the page, and says which day that filter resolved to. The title it used
-          to hold is redundant with the rail beside it.
-        */}
+        {/* A command bar, not a title bar — the rail beside it carries the name. */}
         <header className="sticky top-0 z-30 border-b border-line bg-surface">
           <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
             <MobileNav params={params} />
@@ -82,13 +66,8 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
             <ScopeLine />
 
             {/*
-              One cluster, allowed to shrink. Two `shrink-0` boxes plus a long date ran
-              the header past the right edge of a phone — `min-w-0` is what lets the date
-              give way, and the chip itself shortens below `sm`.
-
-              The note carries the standing qualifications, one control rather than a
-              banner at the foot of the page; in the header it sits above every view it
-              qualifies. The date has its own boundary because resolving it reads the
+              One cluster with `min-w-0`, so the date gives way rather than running the
+              header off a phone. The date has its own boundary: resolving it reads the
               clock.
             */}
             <div className="ml-auto flex min-w-0 items-center gap-1 sm:gap-3">

@@ -14,22 +14,16 @@ import {
 } from "./derive-summary";
 
 /**
- * How many observations the list shows.
- *
- * Three. A fourth is one more than anyone reads before moving on, and the one that falls
- * off first — the weather peak — is already stated as its own KPI card above the chart.
- * It still appears when a price observation is missing, which is exactly when there is
- * room for it.
+ * Three. The one that falls off first — the weather peak — is already its own KPI card,
+ * and it still appears when a price observation is missing.
  */
 const MAX_INSIGHTS = 3;
 
 export interface Insight {
   id: string;
   /**
-   * The hour or window this is about, as an Oslo wall-clock label — rendered as a chip
-   * beside the sentence rather than buried inside it. Splitting it out is what makes the
-   * list scannable: the eye runs down a column of times, not through four sentences that
-   * each begin differently. Null when an observation is about the day as a whole.
+   * Oslo wall clock, rendered as a chip beside the sentence so the eye can run down a
+   * column of times. Null when the observation is about the day as a whole.
    */
   hour: string | null;
   text: string;
@@ -38,19 +32,13 @@ export interface Insight {
 /**
  * Factual observations read straight off the displayed data.
  *
- * Every sentence is a **restatement**, never an inference. "The cheapest hour is 03:00"
- * is something the reader could verify from the table; "prices are low because it is
- * windy" is a market claim this app has no basis for and must never make. There is no
- * model here and no LLM — just the numbers, said out loud.
+ * Every sentence is a **restatement**, never an inference: "the cheapest hour is 03:00"
+ * is verifiable from the table, "prices are low because it is windy" is a market claim
+ * this app cannot make. No model, no LLM — hence no causal vocabulary anywhere, which a
+ * test enforces.
  *
- * That constraint is also why the wording avoids "because", "driven by" and "due to"
- * entirely, and why the evening observation says the evening *is* higher rather than
- * that anything made it so.
- *
- * An observation is omitted rather than hedged when its inputs are missing: a list of
- * three true statements is better than four where one says "unknown".
- *
- * At most `MAX_INSIGHTS`, and the order they are pushed in is the priority order.
+ * Missing inputs omit an observation rather than hedge it. At most `MAX_INSIGHTS`, in
+ * the order they are pushed.
  */
 export function deriveInsights(
   aligned: AlignedHours,
@@ -86,11 +74,7 @@ export function deriveInsights(
   if (evening !== null) {
     insights.push({
       id: "evening",
-      /*
-       * A range rather than a single hour, and bare hours rather than two full clock
-       * times: "17:00–21:00" in a chip this size wraps, and both ends are on the hour
-       * anyway. EVENING_UNTIL is exclusive, so the label stops an hour short of it.
-       */
+      /* Bare hours: "17:00–21:00" wraps in a chip this size. UNTIL is exclusive. */
       hour: `${pad(EVENING_FROM)}–${pad(EVENING_UNTIL - 1)}`,
       text: `Evening hours average ${formatPrice(
         evening.eveningAverage,
@@ -111,12 +95,7 @@ export function deriveInsights(
   return insights.slice(0, MAX_INSIGHTS);
 }
 
-/**
- * The trailing ", 68 % below the daily average" clause — or nothing at all.
- *
- * Returned empty rather than hedged when there is no average to compare against, so the
- * sentence simply ends after the figure instead of trailing off into a caveat.
- */
+/** The ", 68 % below the daily average" clause, or nothing when there is no average. */
 function against(value: number, average: number | null): string {
   if (average === null || average === 0) {
     return "";
