@@ -6,6 +6,7 @@ import {
   toPreviewChart,
 } from "@/features/market-correlation";
 import {
+  APP_LOCALE,
   PREVIEW_DAY,
   PREVIEW_HOUR_INDEX,
   PRICE_UNIT,
@@ -77,7 +78,10 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
         </ul>
 
         <p className="font-mono text-[0.6875rem] uppercase tracking-wider text-fg-inverse-muted">
-          Example day · {PREVIEW_DAY.day}.{PREVIEW_DAY.month}.{PREVIEW_DAY.year}
+          Example day{" "}
+          <span lang={APP_LOCALE}>
+            · {PREVIEW_DAY.day}.{PREVIEW_DAY.month}.{PREVIEW_DAY.year}
+          </span>
         </p>
       </header>
 
@@ -119,7 +123,19 @@ function Stat({ term, value, unit }: { term: string; value: string; unit: string
         {term}
       </dt>
       <dd className="flex items-baseline gap-1.5">
-        <span className="font-mono text-xl font-semibold tabular-nums">{value}</span>
+        {/*
+          `lang` on the figure itself. The document is English but every number is
+          formatted `nb-NO`, where a comma is the decimal separator — an English screen
+          reader voices "1,024" as *one thousand and twenty-four* when the value is
+          1.024 NOK/kWh. Marking the run (WCAG 2.2 §3.1.2) makes it read as the number it
+          is. It goes on the number alone: the unit beside it is English.
+        */}
+        <span
+          lang={APP_LOCALE}
+          className="font-mono text-xl font-semibold tabular-nums"
+        >
+          {value}
+        </span>
         {unit ? (
           <span className="text-xs text-fg-inverse-muted">{unit}</span>
         ) : null}

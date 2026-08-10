@@ -936,29 +936,23 @@ metric, on a `bg-page` section.
   dark surface needs this; the bento cards already carried it, these were missed
 - the SVG is `aria-hidden` — the stat strip above it carries the same values as text
 
-## Hero visual
+## Hero visual (removed)
 
-`src/app/_components/hero-visual.tsx` — decorative, `aria-hidden`, in a
-`aspect-[4/3] rounded-card border border-line-strong` panel.
+`src/app/_components/hero-visual.tsx` — an inline offshore wind scene, decorative and
+`aria-hidden`, with a `videoSrc` hook for swapping in a licensed clip.
 
-Renders a looping `<video>` when `videoSrc` is passed, and otherwise an inline offshore
-wind scene: three turbines at different depths with rotating blades and vortex wakes, a
-perspective sea grid, drifting wind ticks and a service vessel crossing the horizon.
-**Pass a video by dropping a licensed clip into `public/` and setting `videoSrc`;
-nothing else changes.**
+**Deleted 2026-08-10.** It had been unreferenced since `HeroPreview` replaced it in the
+colour-restraint pass — 237 lines of animated SVG that nothing rendered, still documented
+here as though it were live. It is recoverable from git history if the hero ever wants a
+decorative treatment again; what it was worth keeping for is recorded below.
 
-- SVG gradients and fills take `var(--token)`, so the visual follows the palette rather
-  than pinning colours past the ESLint guard
-- depth is carried by three consistent signals: size, position relative to the horizon,
-  and rotation speed. Nearer turbines are larger, lower and faster
+- depth was carried by three consistent signals: size, position relative to the horizon,
+  and rotation speed. Nearer turbines larger, lower and faster
 - rotors need `transform-box: view-box` on the animated group so `transform-origin`
   resolves in SVG user units — without it the blades orbit the bounding box and wobble
-- keyframes live in `globals.css`; the global `prefers-reduced-motion` rule collapses
-  them, so no per-component media query is needed
-- it depicts nothing resembling data — a decorative price curve would put fabricated
-  market figures on the marketing page of a tool premised on not fabricating them
-
----
+- it depicted nothing resembling data. A decorative price curve would have put fabricated
+  market figures on the marketing page of a tool premised on not fabricating them — the
+  same reasoning that later removed the login card's curve
 
 ## Not yet established
 

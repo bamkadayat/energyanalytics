@@ -62,6 +62,30 @@ Plus an unplanned track, added on request partway through and not in `build-plan
 
 ## Completed
 
+### 2026-08-10 — Landing page accessibility pass
+
+A static audit of the served markup — heading order, landmarks, link text, `aria-hidden`
+coverage, `lang`. Heading order is clean (h1 → h2 → h3s → h2 → h3s), there are no
+icon-only or empty links, and the arrow SVGs flagged as unhidden turned out to sit inside
+`aria-hidden` parents, so they were already correct.
+
+- **Every `nb-NO` figure now carries `lang`** (WCAG 2.2 §3.1.2). The document is English
+  while every number is Norwegian-formatted, so an English screen reader voiced `1,024` as
+  *one thousand and twenty-four* when the value is 1.024 NOK/kWh. The metric card's stat
+  line had to be rebuilt from parts to do this: the words between the figures — "peak",
+  "of", "hours" — stay English, so a single `lang` on the paragraph would have been wrong
+  in the other direction.
+- **The two content sections are named** with `aria-labelledby`. A `<section>` is only a
+  navigable `region` once it has an accessible name; unnamed it is generic and landmark
+  navigation skips it. The hero is deliberately left unnamed — a region wrapping the `h1`
+  immediately inside `main` is redundant and adds noise.
+- **Fixed a count I had formatted in the wrong locale.** "How it's built" said `1,440`
+  hours, an English thousands comma on a page where `0,564` means nought-point-five-six-
+  four. `formatCount` groups with a space for exactly this reason; the copy now matches.
+- **Deleted `hero-visual.tsx`** — 237 lines unreferenced since `HeroPreview` replaced it,
+  and still documented in `ui-registry.md` as though it were live. The entry is marked
+  removed and keeps the three things worth knowing from it.
+
 ### 2026-08-10 — Landing page audit
 
 Reviewed against `project-overview.md` and the UI docs. The page could not be seen
@@ -96,7 +120,7 @@ Then four additions, chosen from that list:
   knowing the feature existed. Unset renders nothing.
 - **Open Graph, with a generated image.** `metadataBase` resolves from `SITE_URL` or
   Vercel's production URL; `opengraph-image.tsx` draws the example day's real prices as
-  1,200×630 bars. Verified by fetching the route — 61 KB PNG, correct dimensions.
+  1200×630 bars. Verified by fetching the route — 61 KB PNG, correct dimensions.
   `robots` is `noindex` at the layout and re-enabled only on `/`, since the dashboard and
   login have nothing to offer a crawler.
 - **"How it's built"** — four decisions that can be checked against the repository,
@@ -121,8 +145,8 @@ Also corrected: the login card's registry entry still described a decorative pri
 removed in the polish pass, and the heading and submit button said "Login" where every CTA
 leading there now says "Log in".
 
-Still open — see *Owed work*: `hero-visual.tsx` is unreferenced, and `<html lang="en">`
-sits over `nb-NO`-formatted numbers.
+Both items left open here — the dead `hero-visual.tsx` and the `lang` mismatch — were
+taken in the accessibility pass above.
 
 Then, from the **first screenshot of the hero anyone has taken**:
 
@@ -405,10 +429,6 @@ docs.
 - **No stale-data state.** Nothing distinguishes "retrieved three hours ago" from fresh
   beyond the timestamp, and `cacheLife("hours")` makes that gap real. Listed in
   `ui-rules.md`'s state table but not implemented.
-- **`_components/hero-visual.tsx` is dead code** — 237 lines, unreferenced since
-  `HeroPreview` replaced it in the colour-restraint pass. `ui-registry.md` still documents
-  it as live, including its `videoSrc` hook. Delete it, or mark the registry entry
-  superseded and say why it is being kept.
 - **`DEMO_PASSWORD_HINT` must be set on the deployment**, or the login page discloses
   nothing and a cold reviewer is stuck again. It is in `.env.example` and `.env.local`;
   Vercel needs it added separately.
@@ -418,11 +438,10 @@ docs.
   exemption — Satori has no stylesheet for `var()` to resolve against. They will not
   follow `globals.css`; re-check them when a colour moves.
 - **No `robots.ts` / `sitemap.ts`.** Per-page `robots` metadata covers indexing for now.
-- **`<html lang="en">` over `nb-NO` numbers.** Every figure is formatted with
-  `APP_LOCALE = "nb-NO"` — `1,024` means one-point-oh-two-four — but the document language
-  is English, so a screen reader applies English number rules and says "one thousand
-  twenty-four". Correct fix is `lang="nb-NO"` on the numeric spans (WCAG 3.1.2), which
-  touches the dashboard as well as the landing page.
+- **`<html lang="en">` over `nb-NO` numbers — the dashboard half.** The landing page's
+  figures are now marked with `lang` (WCAG 2.2 §3.1.2); the dashboard's are not. Same
+  problem, same fix, larger surface: the KPI cards, chart tooltips, hours table and
+  observations all render Norwegian-formatted numbers inside an English document.
 - All of Phase 6.
 
 ---

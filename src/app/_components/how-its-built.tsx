@@ -32,7 +32,13 @@ const DECISIONS = [
   },
   {
     title: "Derived on the server",
-    body: "Up to 1,440 hours arrive as arrays of numbers. The client never parses a timestamp or buckets a range.",
+    /*
+      "1 440", not "1,440". Every figure on this page is `nb-NO`, where a comma is the
+      *decimal* separator — "0,564" a few sections up means nought-point-five-six-four. An
+      English thousands comma here would read as 1.44 to anyone taking the page at its
+      word. This is the space-grouped form `formatCount` emits for exactly that reason.
+    */
+    body: "Up to 1 440 hours arrive as arrays of numbers. The client never parses a timestamp or buckets a range.",
   },
   {
     title: "Readable without the chart",
@@ -42,10 +48,21 @@ const DECISIONS = [
 
 export function HowItsBuilt() {
   return (
-    <section className="border-y border-line bg-surface py-16 sm:py-24">
+    /*
+      `aria-labelledby` pointing at the heading. A `<section>` only becomes a navigable
+      `region` once it has an accessible name — unnamed it is generic, and a screen-reader
+      user moving by landmark skips straight past it.
+    */
+    <section
+      aria-labelledby="how-its-built-heading"
+      className="border-y border-line bg-surface py-16 sm:py-24"
+    >
       <div className="mx-auto w-full max-w-content px-4 sm:px-6">
         <div className="flex max-w-2xl flex-col gap-4">
-          <h2 className="text-balance text-display font-semibold text-fg">
+          <h2
+            id="how-its-built-heading"
+            className="text-balance text-display font-semibold text-fg"
+          >
             How it&rsquo;s built
           </h2>
 
