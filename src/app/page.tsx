@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { buttonClasses, Wordmark } from "@/shared/ui";
-import { PRICE_AREA, PRICE_UNIT } from "@/shared/config";
+import { PRICE_AREA } from "@/shared/config";
 import Link from "next/link";
 import { ClosingCta } from "./_components/closing-cta";
 import { HeroPreview } from "./_components/hero-preview";
@@ -30,11 +30,6 @@ export default function Home() {
 
         <main className="mx-auto grid w-full max-w-content items-center gap-12 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:py-16">
           <div className="flex min-w-0 flex-col items-start gap-6">
-            {/* States the contract up front: which market, what resolution, what unit. */}
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-fg-inverse-muted">
-              Day-ahead · Hourly · {PRICE_UNIT}
-            </p>
-
             {/*
               The last line is muted so the headline has a shape rather than a wall of
               equal weight — the emphasis lands on what the product is, and "hour by
