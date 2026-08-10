@@ -53,7 +53,8 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
 
   return (
     <div className="overflow-hidden rounded-bento border border-line-inverse bg-navy-deep text-fg-inverse">
-      <header className="flex flex-wrap items-center justify-between gap-3 p-3">
+      {/* Just the metric switch now — the dated "Example day" line has been removed. */}
+      <header className="flex flex-wrap items-center gap-3 p-3">
         <ul className="flex gap-1 rounded-pill bg-surface-inverse p-1">
           {WEATHER_METRIC_IDS.map((id) => (
             <li key={id}>
@@ -77,19 +78,6 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
           ))}
         </ul>
 
-        {/*
-          The hour moved up here, into the line that already sets the scene. It had a
-          whole stat column of its own while the crosshair chip states it a second time
-          four inches below — the same figure twice, one of them in the card's largest
-          type.
-        */}
-        <p className="font-mono text-[0.6875rem] uppercase tracking-wider text-fg-inverse-muted">
-          Example day{" "}
-          <span lang={APP_LOCALE}>
-            · {PREVIEW_DAY.day}.{PREVIEW_DAY.month}.{PREVIEW_DAY.year}
-            {chart.highlight ? ` · ${chart.highlight.hourLabel}:00` : ""}
-          </span>
-        </p>
       </header>
 
       {/*

@@ -951,9 +951,12 @@ photograph of the region the data describes.
 - **the legend's one unique fact moved rather than died.** Only it said which colour was
   which line, so that became a short rule on the stat labels, which already existed. The
   row went; the mapping did not
-- **the hour moved into the "Example day" line**, which was already setting the scene, so
-  the figure appears once in small type instead of twice with one of them the largest text
-  on the card
+- **no dated "Example day" line.** It went in a later pass, taking the date and the hour
+  with it, so the header is the metric switch alone. Two consequences to know before
+  trusting the card to explain itself: the two figures no longer state *when* they are
+  from, and the hour now exists only inside the `aria-hidden` SVG as the crosshair chip,
+  so a screen reader does not get it at all. The day is still fixed (`PREVIEW_DAY`) and
+  the values are still real — the card just no longer says which day
 - the SVG is `aria-hidden` — the two remaining figures are its text alternative, which is
   why they are the part that cannot be trimmed away
 
