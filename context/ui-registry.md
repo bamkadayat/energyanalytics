@@ -333,7 +333,28 @@ rather than optional.
   "Login" and correcting it afterwards would flash the wrong word at the primary
   control on the page
 
-## Sign-in card
+## Login card
+
+`app/login/page.tsx` + `features/auth/components/login-form.tsx` — a dark `bento` panel on
+the light page, with the back link outside it.
+
+- the band across the top is the **real price curve** for the example day, masked to fade
+  downward so it reads as texture. Real data rather than a drawn squiggle: it is already
+  cached and free, and a product about not inventing numbers should not decorate its own
+  login screen with invented ones
+- wordmark, then a mono eyebrow naming the area and location, then the heading
+- copy states there are no accounts, rather than leaving the absence of email and
+  "forgot password" unexplained
+- the field is a bordered row owning its focus ring via `focus-within`; the input's own
+  outline is suppressed so two rings do not nest
+- **Show/Hide is a real toggle**: `aria-pressed` says which way it is set, the visible
+  word says what pressing it does. Those are different questions and both get an answer
+- source links sit inside the card behind a divider
+
+**Only the controls that exist** — no email field, no "forgot password", no social login.
+With one shared password none of them could do anything.
+
+## Sign-in card (superseded)
 
 `src/app/login/page.tsx` + `features/auth/components/login-form.tsx`.
 

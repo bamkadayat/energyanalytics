@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useId, useState } from "react";
 import { FiLock } from "react-icons/fi";
 import { Button } from "@/shared/ui";
 import { login, type LoginState } from "../api/actions";
@@ -9,56 +9,71 @@ const INITIAL: LoginState = {};
 
 export function LoginForm() {
   const [state, formAction, pending] = useActionState(login, INITIAL);
+  const [visible, setVisible] = useState(false);
+  const fieldId = useId();
+  const errorId = `${fieldId}-error`;
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form action={formAction} className="flex flex-col gap-5">
       <div className="flex flex-col gap-2">
-        {/*
-          Visually hidden rather than removed. The reference puts the label in the
-          placeholder, but a placeholder disappears the moment you type and is not a
-          label at all to assistive technology.
-        */}
-        <label htmlFor="password" className="sr-only">
+        <label
+          htmlFor={fieldId}
+          className="font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-fg-inverse-muted"
+        >
           Dashboard password
         </label>
 
-        <div className="relative">
-          <FiLock
-            aria-hidden="true"
-            className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-fg-muted"
-          />
+        <div className="flex items-center gap-2 rounded-control border border-line-inverse bg-surface-inverse px-3 py-2 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-fg-inverse">
+          <FiLock aria-hidden="true" className="size-4 shrink-0 text-fg-inverse-muted" />
 
           <input
-            id="password"
+            id={fieldId}
             name="password"
-            type="password"
-            placeholder="Dashboard password"
+            type={visible ? "text" : "password"}
             required
             autoComplete="current-password"
             autoFocus
-            // Points assistive technology at the message below when it appears, instead
-            // of leaving the field merely red.
             aria-invalid={state.error ? true : undefined}
-            aria-describedby={state.error ? "password-error" : undefined}
-            // pl-10 clears the icon; the icon is pointer-events-none so clicking it
-            // still focuses the field.
-            className="w-full rounded-control border border-line bg-surface-subtle py-2.5 pl-10 pr-3 text-fg placeholder:text-fg-muted"
+            aria-describedby={state.error ? errorId : undefined}
+            // The field owns the focus ring via focus-within on its wrapper, so the
+            // input's own outline would draw a second ring inside the first.
+            className="min-w-0 flex-1 bg-transparent text-fg-inverse outline-none placeholder:text-fg-inverse-muted"
           />
+
+          {/*
+            A real toggle, not an icon that guesses. `aria-pressed` states which way it is
+            set, and the visible word says what pressing it does — the two are different
+            questions and both get an answer.
+          */}
+          <button
+            type="button"
+            onClick={() => setVisible((current) => !current)}
+            aria-pressed={visible}
+            aria-controls={fieldId}
+            className="shrink-0 rounded-control border border-line-inverse px-2 py-1 font-mono text-[0.6875rem] uppercase tracking-wider text-fg-inverse-muted hover:text-fg-inverse"
+          >
+            {visible ? "Hide" : "Show"}
+          </button>
         </div>
 
         {state.error ? (
           /*
-           * role="alert" is warranted here: the message appears in response to a
-           * deliberate action and a screen-reader user would otherwise have no idea the
-           * submission failed.
+           * role="alert" is warranted: the message appears in response to a deliberate
+           * action, and a screen-reader user would otherwise have no idea it failed.
            */
-          <p id="password-error" role="alert" className="text-sm text-error-fg">
+          <p id={errorId} role="alert" className="text-sm text-error-surface">
             {state.error}
           </p>
         ) : null}
       </div>
 
-      <Button type="submit" size="lg" disabled={pending} className="w-full">
+      <Button
+        type="submit"
+        size="lg"
+        variant="inverse"
+        disabled={pending}
+        className="w-full"
+      >
         {pending ? "Logging in…" : "Login"}
       </Button>
     </form>
