@@ -1,16 +1,18 @@
 import { LogoMark } from "./logo-mark";
 
 /**
- * The mark plus the product name.
- *
- * Both take their colour from the wrapper, so there is a single `tone` switch rather
- * than a separate asset per background. The mark is inline SVG using `currentColor`,
- * which is what removed the white badge the old PNG needed.
- *
- * The mark is `aria-hidden`: the product name sits right beside it, and announcing both
- * would make a screen reader say the name twice.
+ * The mark plus the product name. Both inherit colour from the wrapper, so one `tone`
+ * switch replaces an asset per background. The mark is `aria-hidden` — the name is beside
+ * it, and announcing both says it twice.
  */
-export function Wordmark({ tone = "default" }: { tone?: "default" | "inverse" }) {
+export function Wordmark({
+  tone = "default",
+  short = false,
+}: {
+  tone?: "default" | "inverse";
+  /** Drops "Nordic" from the visible name; in the 240px rail the full one wraps. */
+  short?: boolean;
+}) {
   return (
     <span
       className={`flex items-center gap-3 ${
@@ -20,7 +22,15 @@ export function Wordmark({ tone = "default" }: { tone?: "default" | "inverse" })
       <LogoMark className="size-9 shrink-0" />
 
       <span className="text-base font-semibold tracking-tight sm:text-lg">
-        Nordic Power &amp; Weather
+        {short ? (
+          <>
+            {/* Short to the eye, whole to a screen reader — one product, one name. */}
+            <span aria-hidden="true">Power &amp; Weather</span>
+            <span className="sr-only">Nordic Power &amp; Weather</span>
+          </>
+        ) : (
+          "Nordic Power & Weather"
+        )}
       </span>
     </span>
   );

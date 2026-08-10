@@ -8,17 +8,10 @@ import {
 } from "@/shared/config";
 
 /**
- * The rail's filter list, shared by the desktop sidebar and the mobile drawer.
+ * The rail's filter list, shared by the desktop sidebar and the mobile drawer, so the two
+ * cannot drift. No hooks, so it renders in a server component and a client one alike.
  *
- * Extracted so the two cannot drift: a phone showing a different set of filters from the
- * desktop is the kind of divergence that only surfaces in a demo.
- *
- * No hooks, so it renders as a server component inside the sidebar and as part of the
- * client drawer without needing two versions.
- *
- * The day is **not** here. It used to be, alongside a copy in the chart toolbar, which
- * meant two controls for one piece of state and two places to look when the wrong day was
- * showing. It now lives in the header, once.
+ * The day is not here — it lives in the header, once.
  */
 export interface RailContentProps {
   params: ViewParams;
@@ -41,11 +34,7 @@ export function RailContent({ params, active = "day" }: RailContentProps) {
       </Group>
 
       <Group label="Views">
-        {/*
-          Anchors carry `/dashboard` in front of the hash, not just `#day-view`. From
-          `/dashboard/hours` a bare hash would look for an element on the page you are
-          already on and do nothing.
-        */}
+        {/* Absolute hrefs: from `/dashboard/hours` a bare `#day-view` would do nothing. */}
         <RailLink href={`/dashboard${hrefWith(params, {})}#day-view`} label="Hour by hour" />
         {/* The badge is live data — the range currently loaded — not decoration. */}
         <RailLink
@@ -53,10 +42,7 @@ export function RailContent({ params, active = "day" }: RailContentProps) {
           label="Range views"
           badge={`${params.range}d`}
         />
-        {/*
-          A route, not an anchor: the only entry in the rail that leaves the page. Its
-          badge is the span it loads, so the two range entries read on the same scale.
-        */}
+        {/* A route, not an anchor — the only entry that leaves the page. */}
         <RailLink
           href="/dashboard/hours"
           label="All hours"
@@ -71,7 +57,8 @@ export function RailContent({ params, active = "day" }: RailContentProps) {
 function Group({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <p className="px-3 pb-2 font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-fg-inverse-muted">
+      {/* Bigger and bolder than the unit chips, or it reads as one more small label. */}
+      <p className="px-3 pb-2 font-mono text-xs font-bold uppercase tracking-[0.18em] text-fg-inverse">
         {label}
       </p>
       <ul className="flex flex-col gap-0.5">{children}</ul>
@@ -80,12 +67,8 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
 }
 
 /**
- * A metric, carrying the colour it is drawn in.
- *
- * The swatch replaced a generic icon: a thermometer beside "Temperature" repeats the
- * word, where the swatch says something the label cannot — which line in the chart is
- * this one. Selection is still fill plus weight, never the swatch, which is present on
- * every row.
+ * A metric, carrying the colour it is drawn in. The swatch says what the label cannot —
+ * which line in the chart this is. Selection is fill plus weight, never the swatch.
  */
 function MetricLink({
   href,
@@ -105,11 +88,8 @@ function MetricLink({
         scroll={false}
         aria-current={selected ? "page" : undefined}
         /*
-         * Selected and hover must not look alike. The active fill is only 1.19:1 against
-         * the rail, so on its own it barely registers — and it was also the hover fill,
-         * which left an unselected row under the cursor looking like the selected one.
-         * Selection now adds an inset ring in `--line-inverse-strong` (3.3:1 against the
-         * rail), and hover is the fill alone.
+         * The active fill is 1.19:1 against the rail and was also the hover fill, so the
+         * two states looked alike. Selection adds a 3.3:1 inset ring; hover is the fill.
          */
         className={
           selected
