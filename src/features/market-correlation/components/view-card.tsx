@@ -101,9 +101,16 @@ export function ViewCard({
            * The chart fills whatever height the card ends up with — in a grid row beside
            * a taller column, the alternative is a short chart above a block of empty
            * white. The minimum keeps it readable when the card is the tall one.
+           *
+           * The inner box is absolutely positioned, and that is load-bearing rather than
+           * decorative. ECharts draws into an element sized `height: 100%`, and a
+           * percentage height resolves against the parent's *height*, not its
+           * `min-height` — so in any layout where the card is not stretched by a grid
+           * row, the chart resolves to zero and collapses to a sliver of overlapping
+           * axis labels. `inset-0` gives it a definite box in both cases.
            */
-          <div className="flex-1" style={{ minHeight: chartMinHeight }}>
-            {chart}
+          <div className="relative flex-1" style={{ minHeight: chartMinHeight }}>
+            <div className="absolute inset-0">{chart}</div>
           </div>
         ) : (
           table

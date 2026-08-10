@@ -425,6 +425,11 @@ left, a chart/table toggle on the right, content, then a caption.
 - the caption under the body is **optional** (`chartCaption?`). The day chart's axes are
   already named with their units on the canvas and keyed by the legend in the header, so
   a sentence repeating them was a third statement of the same thing
+- the chart slot is `relative flex-1` with a `min-height`, and the chart itself sits in an
+  `absolute inset-0` box. That is load-bearing: ECharts fills `height: 100%`, and a
+  percentage height resolves against the parent's *height*, never its `min-height` — so in
+  any layout where the card is not stretched by a grid row, the chart resolved to zero and
+  collapsed to a sliver of overlapping axis labels
 - **chart and table share one ground** (paper). The chart sat on ink for a while, on the
   argument that thin coloured lines separate better against dark — they do, but it made a
   single panel a different surface from every card around it, and swapping a card's
