@@ -5,22 +5,11 @@ import { FiMaximize2, FiMinimize2 } from "react-icons/fi";
 import type { ViewMode } from "../utils/view-params";
 
 /**
- * A chart section with its own chart/table toggle in the header.
+ * A chart section with its own chart/table toggle.
  *
- * **Both views are rendered on the server and handed in as props**, so switching is
- * instant — no request, no re-render of the page, no Suspense fallback flashing, no
- * scroll jump. Server components can be passed as children of a client component, which
- * is what makes this possible: the table's markup is already here by the time you click.
- *
- * The URL still tracks the mode, but through `history.replaceState` rather than a
- * navigation. That keeps the view shareable and the server render correct on a fresh
- * load, without paying a round trip for a control whose data is already on the page.
- *
- * These are `<button aria-pressed>`, not links, because nothing navigates. A link that
- * does not go anywhere lies to anyone using a keyboard or a screen reader.
- *
- * One toggle per card, not one for the page: each view answers a different question, and
- * reading the duration curve as numbers should not switch the heatmap underneath you.
+ * Both views arrive as server-rendered props, so switching costs no request. The URL
+ * tracks the mode via `replaceState` — shareable, no round trip. Buttons, not links:
+ * nothing navigates. One toggle per card, since each answers a different question.
  */
 export function ViewCard({
   title,
@@ -28,7 +17,6 @@ export function ViewCard({
   initialMode,
   legend,
   chart,
-  chartMinHeight = "var(--chart-min-height)",
   table,
   chartCaption,
   tableCaption,
@@ -40,8 +28,6 @@ export function ViewCard({
   /** Series key, shown beside the title while the chart is up. */
   legend?: ReactNode;
   chart: ReactNode;
-  /** Floor for the chart slot. The heatmap needs a taller one: it has 24 rows to fit. */
-  chartMinHeight?: string;
   table: ReactNode;
   /** Optional: the day chart's axes are already named by the legend and the axis titles. */
   chartCaption?: ReactNode;
@@ -51,11 +37,8 @@ export function ViewCard({
   const [expanded, setExpanded] = useState(false);
   const caption = mode === "chart" ? chartCaption : (tableCaption ?? chartCaption);
 
-  /*
-   * Escape closes it, and the page behind it stops scrolling while it is open — without
-   * that, a wheel over the expanded card scrolls the dashboard underneath and the reader
-   * comes back to a different place than they left.
-   */
+  // Escape closes it; the page behind is locked so a wheel does not move the dashboard
+  // underneath the expanded card.
   useEffect(() => {
     if (!expanded) {
       return;
@@ -78,12 +61,8 @@ export function ViewCard({
     };
   }, [expanded]);
 
-  /*
-   * ECharts sizes its canvas once and then listens for *window* resizes. Expanding the
-   * card changes the container without changing the window, so the chart would keep its
-   * old dimensions inside a much larger box. Telling it after the browser has laid the
-   * new size out is what makes the redraw match the frame.
-   */
+  // ECharts only listens for *window* resizes, and this changes the container. Fire one
+  // after layout, or the chart keeps its old size inside the bigger box.
   function toggleExpanded() {
     setExpanded((current) => !current);
     requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
@@ -136,11 +115,7 @@ export function ViewCard({
           />
         </div>
 
-          {/*
-            Full screen earns its place on the wide views: the heatmap is 24 rows across
-            30 day columns, and its table is the same grid in numbers — both are wider
-            than a card in a two-column grid can show without scrolling everything.
-          */}
+          {/* The range views are wider than a card in a two-column grid can show. */}
           <button
             type="button"
             onClick={toggleExpanded}
@@ -158,12 +133,8 @@ export function ViewCard({
       </header>
 
       {/*
-        Chart and table share one ground.
-        The chart used to sit on ink, on the argument that thin coloured lines separate
-        better against dark. They do — but it made a single panel a different surface
-        from every card around it, and switching a card's own background when you press
-        Chart/Table reads as navigating rather than as toggling one view of one thing.
-        The series clear 3:1 on paper too, so nothing was traded for the consistency.
+        Chart and table share one ground. The chart sat on ink for a while, which made one
+        panel a different surface from every card around it. The series clear 3:1 on paper.
       */}
       {/* Expanded, the body is what scrolls — the page behind it is locked. */}
       <div
@@ -175,18 +146,12 @@ export function ViewCard({
       >
         {mode === "chart" ? (
           /*
-           * The chart fills whatever height the card ends up with — in a grid row beside
-           * a taller column, the alternative is a short chart above a block of empty
-           * white. The minimum keeps it readable when the card is the tall one.
-           *
-           * The inner box is absolutely positioned, and that is load-bearing rather than
-           * decorative. ECharts draws into an element sized `height: 100%`, and a
-           * percentage height resolves against the parent's *height*, not its
-           * `min-height` — so in any layout where the card is not stretched by a grid
-           * row, the chart resolves to zero and collapses to a sliver of overlapping
-           * axis labels. `inset-0` gives it a definite box in both cases.
+           * The chart fills the card, so a stretched row is not padded with white.
+           * `inset-0` is load-bearing: ECharts fills `height: 100%`, and a percentage
+           * height resolves against the parent's *height*, never its `min-height` — so
+           * an unstretched card collapsed the chart to a sliver.
            */
-          <div className="relative flex-1" style={{ minHeight: chartMinHeight }}>
+          <div className="relative min-h-[var(--chart-min-height)] flex-1">
             <div className="absolute inset-0">{chart}</div>
           </div>
         ) : (

@@ -3,14 +3,9 @@ import { Skeleton, SkeletonRegion } from "@/shared/ui";
 /**
  * Loading shapes for the three regions that stream.
  *
- * Each one mirrors the layout it stands in for — same grid, same card count, same
- * proportions — so the page settles into shape instead of reflowing when the data lands.
- * A skeleton that does not predict its own replacement is just a grey rectangle, and it
- * costs a layout shift on arrival.
- *
- * They live beside the components they shadow rather than in `shared/ui`, because their
- * whole job is to know this layout. `shared/ui` owns the block and the region wrapper;
- * the arrangement is domain knowledge.
+ * Each mirrors the layout it replaces — same grid, same card count — so nothing reflows
+ * on arrival. They sit here rather than in `shared/ui` because knowing this layout is
+ * their whole job; `shared/ui` owns only the block and the region wrapper.
  */
 
 /** Header row of a card: a title, and the control that sits opposite it. */
@@ -31,12 +26,7 @@ function Card({ children }: { children: React.ReactNode }) {
   );
 }
 
-/**
- * The day view: the KPI row, then the chart beside the observations column.
- *
- * The proportions are the real ones — `1.15fr / 1.85fr` for the KPIs, `2fr / 1fr` below —
- * so the two columns do not jump sideways when the numbers arrive.
- */
+/** The day view. Real proportions and breakpoints, so nothing jumps on arrival. */
 export function DayViewSkeleton() {
   return (
     <SkeletonRegion
@@ -96,13 +86,7 @@ export function DayViewSkeleton() {
   );
 }
 
-/**
- * The range section: heading, summary line, the preset row, then the two range cards.
- *
- * This is the slower of the two waits — one price request per day — so it is the skeleton
- * most likely to be seen, and the one that most needs to look like a page rather than a
- * placeholder.
- */
+/** The range section. The slower wait — one price request per day — so the most seen. */
 export function RangeViewsSkeleton() {
   return (
     <SkeletonRegion
@@ -126,7 +110,7 @@ export function RangeViewsSkeleton() {
       <div className="grid gap-6 2xl:grid-cols-2">
         <Card>
           <CardHeader />
-          <Skeleton className="min-h-[var(--chart-heatmap-height)] flex-1" />
+          <Skeleton className="min-h-[var(--chart-min-height)] flex-1" />
         </Card>
 
         <Card>
@@ -139,12 +123,8 @@ export function RangeViewsSkeleton() {
 }
 
 /**
- * The hours table: the controls, the header row, and rows to the height of the real
- * scroll window.
- *
- * Ninety days is ninety cached price requests, so on a cold cache this is the screen a
- * first visitor actually sits in front of. The row count is fixed rather than computed
- * from `--table-height`: it only has to fill the box, and CSS clips the overflow.
+ * The hours table. Ninety cached price requests on a cold cache, so this is the screen a
+ * first visitor sits in front of. Fixed row count — it only has to fill the box.
  */
 export function HoursTableSkeleton() {
   return (

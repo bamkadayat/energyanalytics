@@ -62,6 +62,71 @@ Plus an unplanned track, added on request partway through and not in `build-plan
 
 ## Completed
 
+### 2026-08-10 — Landing page audit
+
+Reviewed against `project-overview.md` and the UI docs. The page could not be seen
+rendered — no browser extension this session either — so verification ran against the
+**served HTML and the compiled stylesheet** from the dev server.
+
+- **Every utility class on the served page was checked against the compiled CSS.** This is
+  the failure this token system is most exposed to: Tailwind's default palette is cleared,
+  so a class naming a token that does not exist emits nothing and fails *silently*. All
+  163 classes resolve. The ESLint guard catches hex values, not misspelled token names —
+  this check covers the other half.
+- **Fixed: the hero preview's three metric pills had an invisible focus ring.** They sit
+  on `--surface-inverse` while the global `:focus-visible` outline is `--focus`
+  (`--navy-900`) — the *same colour*, so the ring was 1:1 against its own background.
+  Three keyboard-reachable links with no visible focus indicator (WCAG 2.2 §2.4.11).
+  `ui-rules.md` names this exact trap; the bento cards observed it and these were missed.
+- **Fixed: a dead token reference.** One highlight dot filled with
+  `var(--navy-deep, var(--surface-deep))`. `--navy-deep` is declared only as
+  `--color-navy-deep` inside `@theme inline`, which does not emit custom properties, so
+  the fallback was always what painted. Now matches its sibling dot.
+- Content checked against the domain rules: prices labelled `NOK/kWh` with the VAT/grid
+  exclusion, Oslo named as representative within NO1, non-causal wording, both sources
+  attributed. All hold. Real data throughout — 24 of 24 hours joined on the example day.
+
+Open, not acted on — see *Owed work*: `hero-visual.tsx` is unreferenced, the landing page
+has no Open Graph metadata, and `<html lang="en">` sits over `nb-NO`-formatted numbers.
+
+Then, from the **first screenshot of the hero anyone has taken**:
+
+- **The plot had no horizontal inset.** Hour 0 mapped to `x=0`, so the midnight tick's own
+  glyph was half outside the viewBox — it read as "0", not "00" — and both curves ran into
+  the panel edge. `toPreviewChart` now insets by `PAD_X` and exposes `plotLeft`/`plotRight`
+  so consumers stop closing paths against the raw viewBox width. It also returns
+  `metricArea`, which was previously assembled in `metric-highlights.tsx` from
+  `chart.width`; left alone that would have put a wedge under the right-hand end.
+- **The price area was the largest and least meaningful shape on the card** — a flat white
+  wash over the full height, which desaturates to grey on navy. It now lands on
+  transparent at 78% and hugs its curve.
+- **The metric line was flat** while the bento cards below already had a glow treatment.
+  The hero — the more prominent chart — now uses the same gradient area and soft wide
+  stroke, so the selected metric leads and the two sections read as one system.
+- Added three `opacity 0.08` gridlines, and named the highlighted hour in a pill on the
+  crosshair. The stat strip describes that hour; nothing on the chart used to say so.
+- **Hero band is `min-h-[70svh]`** with content centred. `svh` over `vh` so mobile browser
+  chrome cannot make it overflow, and `min-h` over `h` so it still reflows at 200% zoom.
+
+### 2026-08-10 — The heatmap became a boxplot
+
+`derivePriceHeatmap`, `price-heatmap.tsx`, `HeatmapTable` and the `--heat-*` ramp are all
+gone, replaced by `deriveHourSpread` and `hour-spread.tsx`: one box per hour of the day,
+`[min, Q1, median, Q3, max]`, drawn with ECharts' boxplot.
+
+- **Why.** Colour intensity on a fixed scale cannot survive outliers, and this market
+  produces near-zero hours regularly. The grid was two shades of blue everywhere except
+  the extremes. Position has no such ceiling.
+- **What it gains.** The spread. Medians give the daily shape; box heights say how much to
+  trust it. The table carries the day count behind each box, since three days and thirty
+  draw the same box.
+- **What it loses**, stated in the caption and the registry: which *day* an extreme fell
+  on. That is the duration curve's question and the hours table's.
+- Quartiles are **nearest-rank, not interpolated** — these are observed prices, and a
+  quartile averaged between two real hours is a price that never happened.
+- `--chart-heatmap-height` went too; both range cards now share `--chart-min-height`, and
+  `ViewCard` lost the per-card override that existed only for the heatmap.
+
 ### 2026-08-10 — Skeletons that predict their own replacement
 
 - `shared/ui/skeleton.tsx` (`Skeleton`, `SkeletonRegion`) plus three composed shapes:
@@ -285,7 +350,19 @@ docs.
 - **No stale-data state.** Nothing distinguishes "retrieved three hours ago" from fresh
   beyond the timestamp, and `cacheLife("hours")` makes that gap real. Listed in
   `ui-rules.md`'s state table but not implemented.
-- **No OG image** for link previews.
+- **No OG image** for link previews — and no Open Graph metadata at all. `layout.tsx` sets
+  only `title` and `description`; there is no `metadataBase`, `openGraph` or `twitter`
+  block anywhere in `src/`. The landing page is the shareable entry point, so it is the
+  one page where this is visible.
+- **`_components/hero-visual.tsx` is dead code** — 237 lines, unreferenced since
+  `HeroPreview` replaced it in the colour-restraint pass. `ui-registry.md` still documents
+  it as live, including its `videoSrc` hook. Delete it, or mark the registry entry
+  superseded and say why it is being kept.
+- **`<html lang="en">` over `nb-NO` numbers.** Every figure is formatted with
+  `APP_LOCALE = "nb-NO"` — `1,024` means one-point-oh-two-four — but the document language
+  is English, so a screen reader applies English number rules and says "one thousand
+  twenty-four". Correct fix is `lang="nb-NO"` on the numeric spans (WCAG 3.1.2), which
+  touches the dashboard as well as the landing page.
 - All of Phase 6.
 
 ---

@@ -16,14 +16,13 @@ export { summariseMetric, toPreviewChart } from "./utils/to-preview-chart";
 export type { MetricPreviewStats, PreviewChart } from "./utils/to-preview-chart";
 export { deriveDaySummary, deriveEveningComparison } from "./utils/derive-summary";
 export { deriveInsights } from "./utils/derive-insights";
-export {
-  deriveDurationCurve,
-  derivePriceHeatmap,
-} from "./utils/derive-range-views";
+export { deriveDurationCurve } from "./utils/derive-range-views";
+export { deriveHourSpread } from "./utils/derive-hour-spread";
+export type { HourSpread } from "./utils/derive-hour-spread";
 export type { ChartSeries } from "./utils/to-chart-series";
 export type { DaySummary, EveningComparison, HourValue } from "./utils/derive-summary";
 export type { Insight } from "./utils/derive-insights";
-export type { DurationCurve, PriceHeatmap } from "./utils/derive-range-views";
+export type { DurationCurve } from "./utils/derive-range-views";
 export { CorrelationChart } from "./components/correlation-chart";
 export { CorrelationView } from "./components/correlation-view";
 export { HoursView } from "./components/hours-view";

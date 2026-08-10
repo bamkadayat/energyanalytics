@@ -7,27 +7,21 @@ import { formatOsloDateShort } from "@/shared/lib/format-oslo";
 import { osloDaysBack } from "@/shared/lib/oslo-day";
 import { StatusMessage } from "@/shared/ui";
 import { alignPriceAndWeather } from "../utils/align-hours";
-import {
-  deriveDurationCurve,
-  derivePriceHeatmap,
-} from "../utils/derive-range-views";
+import { deriveHourSpread } from "../utils/derive-hour-spread";
+import { deriveDurationCurve } from "../utils/derive-range-views";
 import { hrefWith, type ViewParams } from "../utils/view-params";
 import { DurationCurveChart } from "./duration-curve";
 import { ChartToolbar } from "./chart-toolbar";
-import { DurationCurveTable, HeatmapTable } from "./range-tables";
+import { DurationCurveTable, HourSpreadTable } from "./range-tables";
 import { ViewCard } from "./view-card";
-import { PriceHeatmapChart } from "./price-heatmap";
+import { HourSpreadChart } from "./hour-spread";
 
 /**
  * The range-scale views: 30 days of hourly prices, ~720 points.
  *
- * Everything expensive happens here, on the server. The two providers are fetched
- * concurrently — one request for the whole weather span, 30 individually cached requests
- * for prices — then joined and reduced to exactly what each chart draws. The browser
- * receives derived arrays, not raw rows, and does no sorting or bucketing.
- *
- * Streams independently of the single-day view above it, so a slow 30-day fetch never
- * delays today's chart.
+ * All the work is on the server — both providers fetched concurrently, joined, and
+ * reduced to exactly what each chart draws. Streams independently of the day view, so a
+ * slow 30-day fetch never delays today's chart.
  */
 export async function RangeViews({ params }: { params: ViewParams }) {
   await connection();
@@ -54,7 +48,7 @@ export async function RangeViews({ params }: { params: ViewParams }) {
     params.metric,
   );
 
-  const heatmap = derivePriceHeatmap(aligned);
+  const spread = deriveHourSpread(aligned);
   const curve = deriveDurationCurve(aligned);
 
   if (curve.hours === 0) {
@@ -72,12 +66,9 @@ export async function RangeViews({ params }: { params: ViewParams }) {
           <h2 id="range-heading" className="text-lg font-semibold text-fg">
             The last {params.range} days
           </h2>
-          {/*
-            Three sentences, one fact each. It was one sentence carrying the count, the
-            median and both tails, with "at or above" and "at or below" a few words
-            apart — which is a lot to hold while working out which end is which.
-          */}
-          <p className="text-sm text-fg-muted">
+          {/* Three sentences, one fact each. One carrying all four was a lot to hold. */}
+          {/* A reading measure. The cards keep the full width; a chart uses the room. */}
+          <p className="max-w-[700px] text-sm text-fg-muted">
             {formatCount(curve.hours)} priced hours across {daysLoaded} days in{" "}
             {PRICE_AREA.label}. Half the hours cost more than{" "}
             {formatPrice(curve.median)} {PRICE_UNIT} and half cost less. The dearest tenth
@@ -109,32 +100,32 @@ export async function RangeViews({ params }: { params: ViewParams }) {
 
       <div className="grid gap-6 2xl:grid-cols-2">
       <ViewCard
-        title="Price by hour and day"
+        title="What each hour costs"
         paramKey="heatmap"
         initialMode={params.heatmap}
-        chart={<PriceHeatmapChart heatmap={heatmap} />}
-        chartMinHeight="var(--chart-heatmap-height)"
-        table={<HeatmapTable heatmap={heatmap} />}
+        chart={<HourSpreadChart spread={spread} />}
+        table={<HourSpreadTable spread={spread} />}
         chartCaption={
           <>
-            Spot price by hour of day, one column per day, oldest first. Darker is more
-            expensive; the scale is ordered by lightness so it still reads without colour.
-            {heatmap.collapsedHours > 0
-              ? ` ${heatmap.collapsedHours} hour(s) share a cell where the clock went back.`
+            Every hour of the day across the range, as a box: the line is the median, the
+            box is the middle half of the prices, and the whiskers are the cheapest and
+            dearest that hour ever was. Tall boxes are the hours worth planning around —
+            the ones where the price actually moves.
+            {spread.emptyHours > 0
+              ? ` ${spread.emptyHours} hour(s) of the day had no price anywhere in the range.`
               : ""}
           </>
         }
         tableCaption={
-          <>The same grid as numbers, in {PRICE_UNIT}, Europe/Oslo time.</>
+          <>
+            The same five numbers per hour, in {PRICE_UNIT}, with the day count behind
+            each one.
+          </>
         }
       />
 
       <ViewCard
-        /*
-         * Named for what it shows, not for what the technique is called. "Price duration
-         * curve" is precise to an energy analyst and opaque to everyone else; the domain
-         * term is in the caption, where it can be looked up rather than decoded.
-         */
+        /* Named for what it shows. The domain term is in the caption, to look up. */
         title="Hours sorted by price"
         paramKey="curve"
         initialMode={params.curve}

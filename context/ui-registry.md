@@ -185,6 +185,21 @@ tried first — it leaves a ragged bottom edge and a chart no bigger than its mi
 - `deriveDurationCurve` returns **`expensiveTenth` / `cheapestTenth`**, not `p10` / `p90`.
   The array is sorted *descending*, so the value at 10 % is the dear end — the percentile
   names read as the exact opposite of what they hold
+- **`grid.top` is 36 on every chart.** An axis name sits *above* its axis, outside the
+  grid, so anything under about 32 clips it against the top of the card — it happened on
+  the hourly chart, then again on both range charts
+- the first card is **"What each hour costs"** — a boxplot, one box per hour of the day.
+  It replaced a heatmap of the same data: a heatmap encodes price as colour intensity on
+  a fixed scale, and this market's regular near-zero hours stretched that scale until
+  every ordinary hour sat in the same two shades of blue. A boxplot encodes the numbers as
+  *position*, which has no such ceiling, and adds what the grid could not show — the
+  spread. Two hours can share a median and be nothing alike
+- the trade is stated rather than hidden: the heatmap could say *which day* an extreme
+  fell on and the boxplot cannot. That question belongs to the duration curve and the
+  table
+- its tooltip **names each figure** (median, middle half, range) instead of listing five
+  bare numbers, and the table adds the **day count** behind each box — a box drawn from
+  three days and one drawn from thirty look identical on a canvas
 - the curve card is titled **"Hours sorted by price"**. "Price duration curve" is precise
   to an energy analyst and opaque to everyone else; the domain term sits in the caption,
   where it can be looked up rather than decoded
@@ -751,6 +766,17 @@ metric, on a `bg-page` section.
 - the featured card overrides the focus ring (`focus-visible:outline-fg-inverse`), since
   the global `--focus` navy is invisible on it
 
+## Landing hero band
+
+`src/app/page.tsx` — the navy band holding the headline, the CTAs and the preview card.
+
+- **`min-h-[70svh]` with `content-center`.** `svh`, not `vh`: `vh` resolves against the
+  *largest* viewport, so on mobile the hero would stand taller than the screen until the
+  browser chrome retracted
+- **`min-h`, never `h`.** The section still grows past 70% when the content needs it. At
+  200% zoom, or on a short landscape phone, a fixed height clips the headline and the CTAs
+  instead of reflowing — the same rule as `--chart-min-height`, for the same reason
+
 ## Hero preview card
 
 `src/app/_components/hero-preview.tsx` — the dashboard preview beside the headline.
@@ -772,6 +798,26 @@ metric, on a `bg-page` section.
 - **the previewed metric is `DEFAULT_WEATHER_METRIC`**, not a hand-picked one. Previewing
   a different metric made the hero, the featured card below and the dashboard itself open
   on three different things
+- **the plot is inset horizontally** (`plotLeft` / `plotRight` from `toPreviewChart`).
+  Hour 0 used to map to `x=0`, which put the midnight tick's own glyph half outside the
+  viewBox — "00" rendered as "0" — and ran both curves into the panel edge. Anything
+  drawing its own geometry over this chart uses those bounds, not `0` and `width`
+- **the metric leads, the price grounds it.** The metric carries a gradient area plus a
+  wide soft stroke as its glow — the same treatment as the bento cards below, which the
+  hero lacked despite being the more prominent chart. Price stays the white line it is in
+  the legend
+- **the price fill lands on transparent at 78%, not at the baseline.** A flat white wash
+  over the full height desaturates to grey on navy and became the largest, least
+  meaningful shape on the card
+- **three gridlines at `opacity 0.08`**, so the curves read against levels rather than
+  floating. Decorative under SC 1.4.11 and deliberately far below the line tokens
+- **the highlighted hour is named on the chart**, in a pill at the top of the crosshair,
+  with a haloed dot on each series. The stat strip above describes that hour; without the
+  label the connection between the three figures and that position had to be inferred
+- the metric pills **override the focus ring** (`focus-visible:outline-fg-inverse`). They
+  sit on `--surface-inverse`, and the global `--focus` is `--navy-900` — the same colour,
+  so the default ring was invisible against its own background. Any focusable placed on a
+  dark surface needs this; the bento cards already carried it, these were missed
 - the SVG is `aria-hidden` — the stat strip above it carries the same values as text
 
 ## Hero visual

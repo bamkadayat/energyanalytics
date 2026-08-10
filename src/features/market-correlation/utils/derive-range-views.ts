@@ -1,90 +1,10 @@
-import { osloDayOf, osloHourOf } from "@/shared/lib/oslo-day";
 import type { AlignedHours } from "../types";
 
 /**
- * Two range-scale views, both derived on the **server** from one aligned dataset.
- *
- * The point of doing it here rather than in the chart components is payload and main
- * thread: 720 hours become ~720 numbers and a handful of scalars, instead of shipping
- * raw rows and sorting or bucketing them in the browser on every render.
- *
- * Both functions are pure and take the data they need — no clock, no network.
+ * The duration curve, derived on the **server**: 720 hours become 720 numbers, not raw
+ * rows for the browser to sort on every render. Pure — no clock, no network. Its sibling
+ * is `derive-hour-spread.ts`.
  */
-
-export interface PriceHeatmap {
-  /** Column labels, one per day, oldest first. */
-  dayLabels: string[];
-  /** Row labels, `00`–`23`. */
-  hourLabels: string[];
-  /**
-   * `[dayIndex, hourIndex, price]` triples — the shape ECharts' heatmap consumes.
-   * Hours with no price are omitted rather than sent as null, which keeps the payload
-   * proportional to the data that exists.
-   */
-  cells: Array<[number, number, number]>;
-  min: number;
-  max: number;
-  /**
-   * Hours lost to a DST fall-back, where the wall clock reads the same hour twice and
-   * the grid has only one cell for it. Reported rather than hidden — one cell per year
-   * shows a single value where two exist.
-   */
-  collapsedHours: number;
-}
-
-const HOUR_LABELS = Array.from({ length: 24 }, (_, hour) =>
-  String(hour).padStart(2, "0"),
-);
-
-export function derivePriceHeatmap(aligned: AlignedHours): PriceHeatmap {
-  const dayKeys: string[] = [];
-  const dayIndexByKey = new Map<string, number>();
-  const cells: Array<[number, number, number]> = [];
-  const seen = new Set<string>();
-
-  let min = Number.POSITIVE_INFINITY;
-  let max = Number.NEGATIVE_INFINITY;
-  let collapsedHours = 0;
-
-  for (const [index, hour] of aligned.hours.entries()) {
-    const price = aligned.nokPerKwh[index];
-    if (price === null || price === undefined) {
-      continue;
-    }
-
-    const day = osloDayOf(hour);
-    const key = `${day.year}-${day.month}-${day.day}`;
-
-    let dayIndex = dayIndexByKey.get(key);
-    if (dayIndex === undefined) {
-      dayIndex = dayKeys.length;
-      dayIndexByKey.set(key, dayIndex);
-      dayKeys.push(`${day.day}/${day.month}`);
-    }
-
-    const hourIndex = osloHourOf(hour);
-    const cellKey = `${dayIndex}:${hourIndex}`;
-    if (seen.has(cellKey)) {
-      // The repeated 02:00 of a fall-back day. The grid has one cell for it.
-      collapsedHours += 1;
-      continue;
-    }
-    seen.add(cellKey);
-
-    cells.push([dayIndex, hourIndex, price]);
-    min = Math.min(min, price);
-    max = Math.max(max, price);
-  }
-
-  return {
-    dayLabels: dayKeys,
-    hourLabels: HOUR_LABELS,
-    cells,
-    min: Number.isFinite(min) ? min : 0,
-    max: Number.isFinite(max) ? max : 0,
-    collapsedHours,
-  };
-}
 
 export interface DurationCurve {
   /** Every priced hour, sorted high to low. */
