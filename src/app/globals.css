@@ -298,7 +298,9 @@
    * a marketing headline is the page's single focal point, whereas the dashboard's h1
    * competes with live data and should not shout.
    */
-  --text-hero: clamp(2.5rem, 1.6rem + 4.4vw, 4.5rem);
+  /* Stepped down from clamp(2.5rem, 1.6rem + 4.4vw, 4.5rem): 72px was crowding the
+     preview card beside it, and the headline reads as confidently at 60. */
+  --text-hero: clamp(2.25rem, 1.5rem + 3.6vw, 3.75rem);
   --text-hero--line-height: 1.02;
   --text-hero--letter-spacing: -0.03em;
 }
