@@ -961,7 +961,18 @@ photograph of the region the data describes.
   sit on `--surface-inverse`, and the global `--focus` is `--navy-900` — the same colour,
   so the default ring was invisible against its own background. Any focusable placed on a
   dark surface needs this; the bento cards already carried it, these were missed
-- the SVG is `aria-hidden` — the stat strip above it carries the same values as text
+- **trimmed to the minimum that still explains itself.** The card said several things
+  three times: the hour had a stat column *and* the crosshair chip; the two series were
+  named by the pills, by the stat labels, and again by a footer legend. Gone are the hour
+  column and the whole footer — legend and the "Real market data" label with it
+- **the legend's one unique fact moved rather than died.** Only it said which colour was
+  which line, so that became a short rule on the stat labels, which already existed. The
+  row went; the mapping did not
+- **the hour moved into the "Example day" line**, which was already setting the scene, so
+  the figure appears once in small type instead of twice with one of them the largest text
+  on the card
+- the SVG is `aria-hidden` — the two remaining figures are its text alternative, which is
+  why they are the part that cannot be trimmed away
 
 ## Hero visual (removed)
 
