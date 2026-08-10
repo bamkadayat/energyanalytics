@@ -6,15 +6,12 @@ import {
   toPreviewChart,
 } from "@/features/market-correlation";
 import {
-  APP_LOCALE,
   PREVIEW_DAY,
   PREVIEW_HOUR_INDEX,
-  PRICE_UNIT,
   WEATHER_METRICS,
   WEATHER_METRIC_IDS,
   type WeatherMetricId,
 } from "@/shared/config";
-import { formatMetricValue, formatPrice } from "@/shared/lib/format-number";
 import { formatOsloTime } from "@/shared/lib/format-oslo";
 
 const SWATCHES: Record<WeatherMetricId, string> = {
@@ -49,11 +46,11 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
 
   const hourLabels = aligned.hours.map((hour) => formatOsloTime(hour).slice(0, 2));
   const chart = toPreviewChart(aligned, hourLabels, PREVIEW_HOUR_INDEX);
-  const active = WEATHER_METRICS[metric];
 
   return (
     <div className="overflow-hidden rounded-bento border border-line-inverse bg-navy-deep text-fg-inverse">
-      <header className="flex flex-wrap items-center justify-between gap-3 p-3">
+      {/* Just the metric switch now — the dated "Example day" line has been removed. */}
+      <header className="flex flex-wrap items-center gap-3 p-3">
         <ul className="flex gap-1 rounded-pill bg-surface-inverse p-1">
           {WEATHER_METRIC_IDS.map((id) => (
             <li key={id}>
@@ -76,41 +73,7 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
             </li>
           ))}
         </ul>
-
-        {/*
-          The hour moved up here, into the line that already sets the scene. It had a
-          whole stat column of its own while the crosshair chip states it a second time
-          four inches below — the same figure twice, one of them in the card's largest
-          type.
-        */}
-        <p className="font-mono text-[0.6875rem] uppercase tracking-wider text-fg-inverse-muted">
-          Example day{" "}
-          <span lang={APP_LOCALE}>
-            · {PREVIEW_DAY.day}.{PREVIEW_DAY.month}.{PREVIEW_DAY.year}
-            {chart.highlight ? ` · ${chart.highlight.hourLabel}:00` : ""}
-          </span>
-        </p>
       </header>
-
-      {/*
-        Two figures, not three. These are also the chart's text alternative — the SVG is
-        `aria-hidden` — so they are the one part of the card that cannot be trimmed to
-        nothing.
-      */}
-      <dl className="grid grid-cols-2 border-y border-line-inverse">
-        <Stat
-          term="Spot price"
-          value={formatPrice(chart.highlight?.price)}
-          unit={PRICE_UNIT}
-          swatch="bg-fg-inverse"
-        />
-        <Stat
-          term={active.label}
-          value={formatMetricValue(chart.highlight?.metricValue)}
-          unit={active.unit}
-          swatch={SWATCHES[metric]}
-        />
-      </dl>
 
       <PreviewSvg chart={chart} metric={metric} />
     </div>
@@ -118,55 +81,16 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
 }
 
 /**
- * A figure, with the line key folded into its label.
+ * The chart itself, `aria-hidden`.
  *
- * The card used to carry a footer legend naming both series a third time — after the
- * metric pills and after these labels. Deleting it outright would have lost the one thing
- * it alone said: which colour is which line. So that moved here, onto labels that already
- * existed, and the row went.
- */
-function Stat({
-  term,
-  value,
-  unit,
-  swatch,
-}: {
-  term: string;
-  value: string;
-  unit: string;
-  swatch: string;
-}) {
-  return (
-    <div className="flex min-w-0 flex-col gap-1 border-r border-line-inverse px-4 py-3 last:border-r-0">
-      <dt className="flex items-center gap-2 truncate font-mono text-[0.6875rem] uppercase tracking-wider text-fg-inverse-muted">
-        <span aria-hidden="true" className={`h-0.5 w-3 shrink-0 ${swatch}`} />
-        {term}
-      </dt>
-      <dd className="flex items-baseline gap-1.5">
-        {/*
-          `lang` on the figure itself. The document is English but every number is
-          formatted `nb-NO`, where a comma is the decimal separator — an English screen
-          reader voices "1,024" as *one thousand and twenty-four* when the value is
-          1.024 NOK/kWh. Marking the run (WCAG 2.2 §3.1.2) makes it read as the number it
-          is. It goes on the number alone: the unit beside it is English.
-        */}
-        <span
-          lang={APP_LOCALE}
-          className="font-mono text-xl font-semibold tabular-nums"
-        >
-          {value}
-        </span>
-        {unit ? (
-          <span className="text-xs text-fg-inverse-muted">{unit}</span>
-        ) : null}
-      </dd>
-    </div>
-  );
-}
-
-/**
- * The chart itself. Decorative — the numbers beside it carry the same values as text —
- * so it is `aria-hidden` rather than duplicating them for a screen reader.
+ * It used to be hidden because a stat strip above carried the same values as text. That
+ * strip is gone, so this is now hidden on the simpler ground that it is **decorative**:
+ * a marketing illustration of a shape, with no figure a reader is expected to take from
+ * it. That is a legitimate reason to hide it and it needs no alternative — but it does
+ * mean the card no longer states any value, in any form.
+ *
+ * The dashboard's chart is a different matter entirely: there the table and the text
+ * summary are required alternatives, not optional. Do not carry this reasoning across.
  */
 function PreviewSvg({
   chart,

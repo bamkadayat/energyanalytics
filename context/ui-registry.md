@@ -167,9 +167,10 @@ a data point. Moving air, read as a series.
 - **`short` drops "Nordic" from the *visible* name only** — the full name stays in an
   `sr-only` span, because an abbreviation that is only ever spoken as the abbreviation is
   how a product ends up with two names. Used by the dashboard rail, where the full name
-  wraps at 240px, and by the **landing navbar**, where the shorter lockup sits better
-  against the "Log in" link opposite it. The footer keeps the full name, which is where a
-  visitor looks for what the product is actually called
+  wraps at 240px, and by the landing **navbar and footer**, where the shorter lockup reads
+  better. That leaves the full name visible nowhere on the landing page — it survives in
+  the `sr-only` spans, the `<title>`, and the login card, which is exactly the trade
+  `short` exists to make
 - `src/app/icon.svg` is the same drawing with the navy pinned, since a favicon has no
   inherited colour to take
 
@@ -812,11 +813,19 @@ Current stagger: header 0 → headline 90ms → subtitle 180ms → CTA 270ms →
 - stats end in a **reading count** (`24 of 24 hours`, or `1 hour without a reading`),
   which is the thing the card could not say before
 - the arrow button **fills with the accent on hover** rather than nudging sideways
-- **the middle card is raised** (`lg:-translate-y-6`) and carries the depth. This used to
-  emphasise the *default metric* with depth alone, on the grounds that lifting it made the
-  row's top edge look misaligned — true, because the default is the **first** of the
-  three. Only the centre card can be lifted without that happening: the two beside it are
-  symmetrical about it, so it reads as a pedestal
+- **the middle card is bigger, not moved** — `lg:p-8` and a taller chart, with the grid on
+  `lg:items-center` so the outer two centre against it. A `translate` was tried first and
+  is the wrong tool: it shifts a card of the same size, so the row reads as one card
+  knocked out of line rather than one card given more room
+- **its extra height goes into the chart** (`lg:h-36` against `h-24`), not into empty space
+  at the bottom. Growing the padding alone would have made it bigger and emptier
+- this used to emphasise the *default metric* with depth alone, on the grounds that lifting
+  it looked misaligned — true, because the default is the **first** of the three. Only the
+  centre card can be grown without the row going lopsided
+- **the flanking cards step back** with `.bento-quiet`: the same construction, a lighter
+  fill. Lighter rather than darker, because these sit on `--page` and weight comes from
+  contrast against a *light* ground — 16.34:1 for the featured ink against 13.61:1 for the
+  quiet one. Values and their contrast checks live in `ui-tokens.md`
 - **the emphasis moved rather than doubling.** A shadowed first card and a raised second
   would be two competing focal points, so `featured` is now positional. The
   "this is what the dashboard opens on" signal lives in the hero preview alone, which
@@ -936,18 +945,18 @@ photograph of the region the data describes.
   sit on `--surface-inverse`, and the global `--focus` is `--navy-900` — the same colour,
   so the default ring was invisible against its own background. Any focusable placed on a
   dark surface needs this; the bento cards already carried it, these were missed
-- **trimmed to the minimum that still explains itself.** The card said several things
-  three times: the hour had a stat column *and* the crosshair chip; the two series were
-  named by the pills, by the stat labels, and again by a footer legend. Gone are the hour
-  column and the whole footer — legend and the "Real market data" label with it
-- **the legend's one unique fact moved rather than died.** Only it said which colour was
-  which line, so that became a short rule on the stat labels, which already existed. The
-  row went; the mapping did not
-- **the hour moved into the "Example day" line**, which was already setting the scene, so
-  the figure appears once in small type instead of twice with one of them the largest text
-  on the card
-- the SVG is `aria-hidden` — the two remaining figures are its text alternative, which is
-  why they are the part that cannot be trimmed away
+- **stripped to the metric switch and the chart.** It has lost, in order: a footer legend
+  and "Real market data" label, a dedicated hour column, the dated "Example day" line, and
+  finally the two-figure stat strip. Nothing on the card now states a value
+- **the SVG's `aria-hidden` now rests on a different argument.** It was hidden because the
+  stat strip carried the same values as text; with that gone, it is hidden because it is
+  **decorative** — a shape, with no figure a reader is expected to take from it. That is a
+  legitimate reason and needs no alternative, but it is a weaker claim than the card used
+  to make, and it only holds while the card promises nothing numeric
+- **do not carry that reasoning to the dashboard.** There the table and the text summary
+  are required alternatives to the chart, not optional ones
+- the day is still fixed (`PREVIEW_DAY`) and the geometry still comes from real prices —
+  the card simply no longer says so in words
 
 ## Hero visual (removed)
 
