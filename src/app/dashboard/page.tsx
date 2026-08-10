@@ -7,9 +7,9 @@ import {
   CorrelationView,
   parseViewParams,
   RangeViews,
-  ViewControls,
 } from "@/features/market-correlation";
 import { APP_TIME_ZONE, PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
+import { MobileNav } from "./_components/mobile-nav";
 import { DashboardSidebar } from "./_components/sidebar";
 import { Button } from "@/shared/ui";
 
@@ -53,7 +53,9 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 border-b border-line bg-surface">
-          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
+            <MobileNav params={params} />
+
             <div className="flex min-w-0 flex-col gap-0.5">
               {/*
                 Visually hidden. The rail carries the product name; a page still needs an
@@ -76,16 +78,11 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
             </div>
 
             {/* The rail owns Logout from lg up; this is the fallback below it. */}
-            <form action={logout} className="lg:hidden">
+            <form action={logout} className="ml-auto lg:hidden">
               <Button type="submit" variant="outline" size="sm">
                 Logout
               </Button>
             </form>
-          </div>
-
-          {/* Below lg the rail is hidden, so the filters live here instead. */}
-          <div className="border-t border-line px-4 py-2.5 sm:px-6 lg:hidden">
-            <ViewControls params={params} />
           </div>
         </header>
 

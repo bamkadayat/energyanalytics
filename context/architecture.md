@@ -65,6 +65,13 @@ Three rules follow from the table, and they are the ones that actually get viola
    free to be refactored.
 3. **Features never import from `app/`.** Route concerns flow downward as props only.
 
+A feature may expose a second entry, `client.ts`, carrying only what is safe in a browser
+bundle — pure functions and types with no server dependencies. `index.ts` re-exports
+server components and, through them, `use cache` fetchers; importing it from a client
+component pulls those into the client build and **fails the build**. The second entry
+exists so client code has somewhere legitimate to import from instead of deep-importing
+internals.
+
 Keep barrels deliberate — export the domain types, the fetch entry point, and the
 components the page mounts. Do not re-export every internal util; an exhaustive barrel is
 the same as no boundary at all, and it invites cycles.

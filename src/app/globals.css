@@ -142,8 +142,14 @@
   --heat-4: #2563eb;
   --heat-5: #16357f;
 
-  /* ---- 2. Semantic: sizing ---- */
+  /*
+   * ---- 2. Semantic: sizing ----
+   * Fluid, so charts stay usable at 200% zoom and on a phone without media queries.
+   * The heatmap gets its own, taller value: it has 24 rows to fit, where a line chart
+   * only has to stay legible.
+   */
   --chart-min-height: clamp(18rem, 40vh, 28rem);
+  --chart-heatmap-height: clamp(20rem, 55vh, 30rem);
 }
 
 /*
