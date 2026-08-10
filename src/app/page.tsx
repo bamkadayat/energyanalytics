@@ -6,7 +6,6 @@ import { Wordmark } from "@/shared/ui";
 import { DEFAULT_WEATHER_METRIC, PRICE_AREA } from "@/shared/config";
 import Link from "next/link";
 import { HeroPreview } from "./_components/hero-preview";
-import { HowItsBuilt } from "./_components/how-its-built";
 import { MetricHighlights } from "./_components/metric-highlights";
 import { SessionCta, SessionCtaPlaceholder } from "./_components/session-cta";
 import { SiteFooter } from "./_components/site-footer";
@@ -160,15 +159,12 @@ export default function Home() {
           </section>
         </div>
 
-        <MetricHighlights />
-
         {/*
-          After the cards, not before: the reader should have seen what the thing does
-          before being told how it holds together. It is also the last section — the
-          closing CTA band that used to follow it is gone, so the page ends on the
-          engineering rather than on a second ask.
+          The last section. The closing CTA band and the "How it's built" strip both used
+          to follow it, so the page now ends on the three metrics and the footer's
+          qualifications.
         */}
-        <HowItsBuilt />
+        <MetricHighlights />
       </main>
 
       <SiteFooter />
