@@ -1,8 +1,5 @@
 "use client";
-/*
- * Same reason as `hourly-data-table.tsx`: React Compiler cannot safely memoize what
- * `useReactTable` returns, and the directive has to sit in the file prologue.
- */
+/* As in `hourly-data-table.tsx`: the compiler cannot memoize `useReactTable`. */
 "use no memo";
 
 import {
@@ -36,12 +33,8 @@ const ROW_HEIGHT = 40;
 const OVERSCAN = 12;
 
 /**
- * Height assumed for the *first* render only.
- *
- * The real height is `--table-height`, a viewport-relative clamp, so it depends on the
- * device and is not knowable on the server. The virtualizer measures the container on
- * mount and corrects itself; this number only decides how many rows the server-rendered
- * markup contains, so a mid-range laptop is the right guess.
+ * First-render guess only. The real height is `--table-height`, a viewport clamp the
+ * server cannot know; the virtualizer measures and corrects on mount.
  */
 const SCROLLER_HEIGHT = 640;
 
@@ -52,41 +45,25 @@ const columnHelper = createColumnHelper<HourRecord>();
 /**
  * Reads a numeric column, turning a gap into `undefined`.
  *
- * The rows carry `null` for a missing reading, but TanStack's `sortUndefined` recognises
- * **only** `undefined` — it compares `value === undefined` and nothing else. Declared
- * against `null` it silently did nothing, and the gap fell through to the default
- * comparator, where `null` behaves as zero: a missing temperature sorted between -8 °C
- * and 4 °C, and a missing price sorted above a negative one. This footer says
- * "— means no reading, not zero"; handing TanStack the value it actually looks for is
- * what makes that true of the sort as well as the cell.
- *
- * `sortUndefined: "last"` returns before the descending inversion is applied, so gaps
- * stay at the end whichever way the column is pointed — which is what a reader means by
- * "show me the coldest hours" either way.
+ * TanStack's `sortUndefined` recognises **only** `undefined`; a `null` falls through to
+ * the default comparator, where it behaves as zero — a missing temperature sorting
+ * between -8 °C and 4 °C. `"last"` applies before the descending inversion, so gaps stay
+ * at the end whichever way the column points.
  */
 function present(value: number | null): number | undefined {
   return value ?? undefined;
 }
 
 /**
- * Every hour of the selected span, as one scrollable table.
+ * A few thousand hours as one scrollable table.
  *
- * The dashboard's other table shows 24 rows and can render all of them. This one is the
- * same data at range scale — a few thousand hours — where three things stop being free:
+ * - **Rendering:** only the visible window is mounted (`useVirtualizer`), ~25 rows.
+ * - **Sorting and filtering:** run over the whole set, not the page — sorting a page
+ *   would answer "the cheapest of the hundred you are looking at".
+ * - **Semantics:** virtualized rows are absent and misstate their position, so
+ *   `aria-rowcount` and `aria-rowindex` put both back.
  *
- * 1. **Rendering.** Only the visible window exists in the DOM, via `useVirtualizer`.
- *    Roughly 25 rows are mounted at any scroll position instead of 2,000, so the browser
- *    lays out a screenful rather than a document.
- * 2. **Sorting and filtering.** Both run over the *whole* set in TanStack's row models,
- *    then the virtualizer draws whatever survives. Sorting a page would answer "the
- *    cheapest of the hundred you happen to be looking at".
- * 3. **Semantics.** Virtualization normally costs a screen-reader user the table: the
- *    rows are not there, and the ones that are lie about their position. `aria-rowcount`
- *    on the table and `aria-rowindex` on every row restore both — the row that reads as
- *    1 of 2,184 really is the first, whatever the DOM currently holds.
- *
- * The virtualized layout needs `display: grid` on the table elements, which drops their
- * implicit roles in several browsers, so each one carries its role explicitly.
+ * The grid-display layout drops the implicit table roles, so each is written explicitly.
  */
 export function HoursTable({ rows }: { rows: HourRecord[] }) {
   const [sorting, setSorting] = useState<SortingState>([{ id: "at", desc: true }]);
@@ -137,11 +114,7 @@ export function HoursTable({ rows }: { rows: HourRecord[] }) {
     [],
   );
 
-  /*
-   * Applied before TanStack sees the rows rather than as another column filter: "hours
-   * that have a price" is a property of the row, not of a column's value, and doing it
-   * here keeps it out of the filter state the columns own.
-   */
+  // Not a column filter: "has a price" is a property of the row, not of one column.
   const data = useMemo(
     () => (pricedOnly ? rows.filter((row) => row.price !== null) : rows),
     [rows, pricedOnly],
@@ -173,12 +146,8 @@ export function HoursTable({ rows }: { rows: HourRecord[] }) {
     getScrollElement: () => scroller.current,
     estimateSize: () => ROW_HEIGHT,
     overscan: OVERSCAN,
-    /*
-     * The size to assume before the container has been measured. The virtualizer sizes
-     * the scroll element with `offsetHeight`, which is 0 until the browser has laid the
-     * page out — without a rect to fall back on, the first render decides the viewport
-     * is zero pixels tall and draws nothing.
-     */
+    // Assumed until measured: `offsetHeight` is 0 before layout, and without a fallback
+    // rect the first render decides the viewport is empty and draws nothing.
     initialRect: { width: 900, height: SCROLLER_HEIGHT },
   });
 
@@ -241,11 +210,7 @@ export function HoursTable({ rows }: { rows: HourRecord[] }) {
         </label>
       </div>
 
-      {/*
-        The scroll container is focusable, because with the rows virtualized the keyboard
-        has nothing inside to tab to — without `tabIndex` there would be no way to scroll
-        the table without a pointer.
-      */}
+      {/* Focusable: virtualized rows leave the keyboard nothing inside to tab to. */}
       <div
         ref={scroller}
         tabIndex={0}
@@ -304,11 +269,7 @@ export function HoursTable({ rows }: { rows: HourRecord[] }) {
             ))}
           </thead>
 
-          {/*
-            The tbody is as tall as every row on the page would be, and each drawn row is
-            positioned into it. That is what keeps the scrollbar honest: it describes the
-            whole page, not the handful of rows currently mounted.
-          */}
+          {/* Full-height tbody, rows positioned into it — so the scrollbar stays honest. */}
           <tbody
             role="rowgroup"
             className="relative grid"

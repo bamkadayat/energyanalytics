@@ -1,16 +1,9 @@
 /**
- * A placeholder block, in the shape of the thing that has not arrived yet.
+ * A placeholder block, in the shape of what has not arrived yet.
  *
- * One primitive so every skeleton on the site is the same grey, the same radius and the
- * same pulse. Skeletons had been written where they were used, which is how three bars
- * of unequal width ended up standing in for a chart.
- *
- * **Always `aria-hidden`.** A skeleton is the shape of an answer, not an answer, and a
- * screen reader announcing a dozen empty boxes is worse than silence. The region that
- * holds them owns the single `role="status"` announcement — see `SkeletonRegion`.
- *
- * The pulse is off under `prefers-reduced-motion`: a loading state is exactly the moment
- * someone sensitive to motion is already waiting and looking at the screen.
+ * One primitive, so every skeleton shares a grey, a radius and a pulse. Always
+ * `aria-hidden` — the region owns the one announcement (`SkeletonRegion`). The pulse
+ * stops under `prefers-reduced-motion`.
  */
 export function Skeleton({ className = "" }: { className?: string }) {
   return (
@@ -22,11 +15,8 @@ export function Skeleton({ className = "" }: { className?: string }) {
 }
 
 /**
- * Wraps a set of `Skeleton`s with the one announcement they share.
- *
- * `aria-busy` marks the region as in-flight; the label is the only thing read out, and it
- * says what is being waited for rather than "loading" in the abstract — the two waits on
- * the dashboard are minutes apart in cost, and knowing which one you are in is the point.
+ * Wraps a set of `Skeleton`s with the one announcement they share. The label names what
+ * is being waited for: the dashboard's two waits differ by an order of magnitude.
  */
 export function SkeletonRegion({
   label,

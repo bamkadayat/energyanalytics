@@ -1,76 +1,86 @@
 import { PRICE_UNIT } from "@/shared/config";
 import { formatPrice, MISSING_VALUE } from "@/shared/lib/format-number";
-import type { DurationCurve, PriceHeatmap } from "../utils/derive-range-views";
+import type { HourSpread } from "../utils/derive-hour-spread";
+import type { DurationCurve } from "../utils/derive-range-views";
 
 /**
  * Tabular forms of the two range views.
  *
- * The heatmap's table is the same grid in text — day rows, hour columns — because that
- * *is* the data. The duration curve's is not: 720 sorted rows would be unreadable and
- * would answer no question anyone actually asks. Deciles answer the question the curve
- * exists for — "how many hours cost at least this much" — in ten lines.
+ * The spread's is the boxplot's five numbers per hour, plus the day count behind them —
+ * three days and thirty draw the same box. The curve's is *not* its data: 720 sorted rows
+ * answer no question anyone asks, so deciles answer the one the curve exists for.
  */
 
-export function HeatmapTable({ heatmap }: { heatmap: PriceHeatmap }) {
-  // Rebuild the sparse triples into a lookup so each cell is O(1) rather than a scan.
-  const byCell = new Map<string, number>();
-  for (const [day, hour, price] of heatmap.cells) {
-    byCell.set(`${day}:${hour}`, price);
-  }
-
+export function HourSpreadTable({ spread }: { spread: HourSpread }) {
   return (
     <div className="max-h-[26rem] overflow-auto rounded-control border border-line">
-      <table className="w-full border-collapse text-xs">
+      <table className="w-full border-collapse text-sm">
         <caption className="sr-only">
-          Spot price in {PRICE_UNIT} by day and hour of day, in Europe/Oslo time.
+          Spot price in {PRICE_UNIT} by hour of day across the range, in Europe/Oslo time.
+          The middle half is the range the two central quartiles cover.
         </caption>
 
         <thead>
-          <tr>
-            {/* Sticky so the hour headings stay visible while scrolling 30 rows. */}
+          <tr className="border-b border-line text-left">
+            {/* Sticky, because 24 rows outrun the box the table sits in. */}
             <th
               scope="col"
-              className="sticky left-0 top-0 z-20 bg-surface px-2 py-2 text-left font-medium text-fg-muted"
+              className="sticky top-0 z-10 bg-surface px-3 py-2 font-medium text-fg-muted"
             >
-              Day
+              Hour
             </th>
-            {heatmap.hourLabels.map((hour) => (
+            {["Median", "Middle half", "Lowest", "Highest", "Days"].map((heading) => (
               <th
-                key={hour}
+                key={heading}
                 scope="col"
-                className="sticky top-0 z-10 bg-surface px-2 py-2 text-right font-mono font-medium text-fg-muted"
+                className="sticky top-0 z-10 bg-surface px-3 py-2 text-right font-medium text-fg-muted"
               >
-                {hour}
+                {heading}
               </th>
             ))}
           </tr>
         </thead>
 
         <tbody>
-          {heatmap.dayLabels.map((day, dayIndex) => (
-            <tr key={day} className="border-t border-line">
-              <th
-                scope="row"
-                className="sticky left-0 bg-surface px-2 py-1.5 text-left font-mono font-normal text-fg-secondary"
-              >
-                {day}
-              </th>
-              {heatmap.hourLabels.map((_, hourIndex) => {
-                const price = byCell.get(`${dayIndex}:${hourIndex}`);
-                return (
-                  <td
-                    key={hourIndex}
-                    className="px-2 py-1.5 text-right font-mono tabular-nums text-fg"
-                  >
-                    {price === undefined ? MISSING_VALUE : formatPrice(price)}
+          {spread.hourLabels.map((hour, index) => {
+            const box = spread.boxes[index];
+
+            return (
+              <tr key={hour} className="border-b border-line last:border-0">
+                <th
+                  scope="row"
+                  className="px-3 py-1.5 text-left font-mono font-normal text-fg-secondary"
+                >
+                  {hour}:00
+                </th>
+
+                {box === null ? (
+                  <td className="px-3 py-1.5 text-right text-fg-muted" colSpan={5}>
+                    {MISSING_VALUE} no priced hour at this time in the range
                   </td>
-                );
-              })}
-            </tr>
-          ))}
+                ) : (
+                  <>
+                    <Cell>{formatPrice(box[2])}</Cell>
+                    <Cell>
+                      {formatPrice(box[1])}–{formatPrice(box[3])}
+                    </Cell>
+                    <Cell>{formatPrice(box[0])}</Cell>
+                    <Cell>{formatPrice(box[4])}</Cell>
+                    <Cell>{spread.counts[index]}</Cell>
+                  </>
+                )}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
+  );
+}
+
+function Cell({ children }: { children: React.ReactNode }) {
+  return (
+    <td className="px-3 py-1.5 text-right font-mono tabular-nums text-fg">{children}</td>
   );
 }
 

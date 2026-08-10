@@ -2,17 +2,12 @@ import { DayViewSkeleton, RangeViewsSkeleton } from "@/features/market-correlati
 import { Skeleton } from "@/shared/ui";
 
 /**
- * Shown while the dashboard segment loads on navigation.
+ * Shown while the dashboard segment loads — a dynamic route behind a session check, so
+ * the gap is real.
  *
- * The route is dynamic and behind a session check, so there is a real gap between the
- * click and the first byte. Without this, navigating from the landing page leaves the
- * previous screen frozen with nothing to say anything is happening.
- *
- * **It mirrors the shell, not a page.** This file used to draw a centred column with six
- * KPI cards, which was the layout before the rail landed — a skeleton that resolves into
- * a different arrangement is worse than none, because the page visibly rebuilds itself.
- * The rail and header are drawn flat here rather than imported: the real ones read
- * `searchParams`, which a loading file does not receive.
+ * It mirrors the *shell*: a skeleton that resolves into a different arrangement is worse
+ * than none. The rail and header are drawn flat rather than imported, since the real ones
+ * read `searchParams` and a loading file does not receive them.
  */
 export default function DashboardLoading() {
   return (

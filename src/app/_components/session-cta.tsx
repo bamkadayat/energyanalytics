@@ -3,20 +3,12 @@ import { hasValidSession } from "@/features/auth/api/session";
 import { buttonClasses, type ButtonSize } from "@/shared/ui";
 
 /**
- * The call to action, wherever it appears, with its label following the session.
+ * The call to action, with its label following the session — "Login" is a lie to someone
+ * already signed in. The signed-out label is a prop because it varies by position: the
+ * navbar wants "Login", the hero is the offer and names the destination.
  *
- * A signed-in visitor is sent straight to the dashboard rather than through a login form
- * they do not need — a control should say exactly what it does, and "Login" is a lie to
- * someone already logged in.
- *
- * The signed-out label varies by position, which is why it is a prop. In the navbar
- * "Login" is what a visitor is looking for. In the hero and the closing band the button
- * is the offer, and there the destination is the honest label — login is the gate on the
- * way to it, not the thing being offered.
- *
- * Both the navbar and the hero render this, so the two can never disagree about whether
- * you are signed in. Reading the session is request-time work, so each mount belongs
- * inside `<Suspense>`; that keeps the rest of the page in the prerendered shell.
+ * One component everywhere, so no two can disagree about the session. Reading it is
+ * request-time, hence the `<Suspense>` at each mount.
  */
 export async function SessionCta({
   size = "lg",
@@ -48,12 +40,7 @@ const PLACEHOLDER_SIZE: Record<ButtonSize, string> = {
   lg: "h-11 w-32",
 };
 
-/**
- * Reserves the button's footprint while the session resolves.
- *
- * Deliberately shows no label. Rendering "Login" and correcting it a moment later would
- * flash the wrong word at the primary control on the page.
- */
+/** Reserves the footprint, with no label: guessing would flash the wrong word. */
 export function SessionCtaPlaceholder({
   size = "lg",
   className = "",

@@ -5,14 +5,9 @@ import type { AlignedHours } from "../types";
 import type { DaySummary } from "../utils/derive-summary";
 
 /**
- * The cheapest run of consecutive hours, and how complete the join behind it is.
- *
- * The window is the one figure on this page that is a decision rather than a fact — "when
- * should I run the machine" — which is why it gets a card instead of a row in the
- * observations list.
- *
- * The coverage bar sits underneath because the two are read together: a window derived
- * from a day with holes in it deserves to be seen next to the holes.
+ * The cheapest run of consecutive hours — the one figure here that is a decision rather
+ * than a fact, which is why it gets a card. The coverage bar sits underneath because a
+ * window derived from a day with holes deserves to be seen next to the holes.
  */
 export function CheapestWindowCard({
   aligned,
@@ -54,11 +49,7 @@ export function CheapestWindowCard({
         </p>
       )}
 
-      {/*
-        The join, stated as a count. ui-rules.md requires that the chart never be the only
-        way to understand the result, and "how many hours actually carry both series" is
-        the thing a reader cannot get by looking at it.
-      */}
+      {/* The join as a count — the one thing looking at the chart cannot tell you. */}
       <CoverageBar
         matched={aligned.coverage.matchedHours}
         total={aligned.hours.length}
@@ -68,12 +59,7 @@ export function CheapestWindowCard({
   );
 }
 
-/**
- * How complete the join is.
- *
- * The sentence is the fact and the bar is the illustration, in that order of importance —
- * so the bar is `aria-hidden` and the count is read out in full.
- */
+/** The sentence is the fact, the bar the illustration — so the bar is `aria-hidden`. */
 function CoverageBar({
   matched,
   total,

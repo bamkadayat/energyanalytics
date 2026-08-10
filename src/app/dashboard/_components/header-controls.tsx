@@ -13,15 +13,10 @@ const DAYS: ReadonlyArray<{ value: DaySelection; label: string }> = [
 ];
 
 /**
- * The day, as a segmented control in the header.
+ * The day, as a segmented control — once, in the widest-reaching piece of chrome. There
+ * used to be two of these for one piece of state.
  *
- * There used to be two of these — one in the rail, one above the chart — for a single
- * piece of state. Two controls for one value is two places to look when the wrong day is
- * showing, and two things to keep in sync. The day is the widest-reaching filter on the
- * page, so it sits in the widest-reaching piece of chrome, once.
- *
- * Links, not buttons: a chosen day is shareable and the back button steps through the
- * previous ones. No clock is read here, so this renders in the static header.
+ * Links, not buttons: a chosen day is shareable and the back button steps through them.
  */
 export function DaySwitch({ params }: { params: ViewParams }) {
   return (
@@ -55,19 +50,11 @@ export function DaySwitch({ params }: { params: ViewParams }) {
   );
 }
 
-/**
- * What the numbers on this page describe: the price area, and the one point inside it the
- * weather is measured at. Two caveats this page must never bury, so they sit beside the
- * day rather than in a footnote.
- */
+/** The price area and the point the weather is measured at — never buried in a footnote. */
 export function ScopeLine() {
   return (
     <p className="hidden min-w-0 items-center gap-2 font-mono text-xs text-fg-muted sm:flex">
-      {/*
-        A neutral dot. In green it read as a live-status light, which is a claim this
-        line does not make — it names the scope of the data, it does not report a
-        connection.
-      */}
+      {/* Neutral: in green it read as a live-status light, which this does not claim. */}
       <span aria-hidden="true" className="size-1.5 shrink-0 rounded-pill bg-line-strong" />
       <span className="truncate">
         {PRICE_AREA.label} · {WEATHER_LOCATION.label}
@@ -77,16 +64,12 @@ export function ScopeLine() {
 }
 
 /**
- * The resolved date, spelled out.
+ * The resolved date. "Today" is relative, and a dashboard left open overnight keeps
+ * showing it; this is the absolute answer. Async because it reads the clock, so it
+ * streams behind its own boundary.
  *
- * "Today" is a relative label, and a dashboard left open overnight will happily keep
- * showing it. This is the absolute answer, and it is the reason the component is async:
- * resolving it reads the clock, so it renders behind its own Suspense boundary rather
- * than making the whole header wait.
- *
- * A chip, not a picker. The reference design makes it a date-range control; this app
- * derives its span from the day preset, so a button opening nothing would be a dead
- * control. Stated as read-only text it answers the question the picker exists to answer.
+ * A chip, not a picker: this app derives its span from the day preset, so a control that
+ * opens nothing would be a dead one.
  */
 export async function DateChip({ params }: { params: ViewParams }) {
   await connection();
@@ -95,12 +78,7 @@ export async function DateChip({ params }: { params: ViewParams }) {
 
   return (
     <ChipShell>
-      {/*
-        "mandag 10. august 2026" is a header's worth of text on a phone, and it was
-        pushing the row off the right edge. The weekday and the year are what a narrow
-        screen can afford to lose — the day and month are the answer to "which day is
-        this".
-      */}
+      {/* The weekday and year are what a narrow screen can afford to lose. */}
       <span className="sm:hidden">{formatOsloDateShort(day)}</span>
       <span className="hidden sm:inline">{formatOsloDate(day)}</span>
     </ChipShell>

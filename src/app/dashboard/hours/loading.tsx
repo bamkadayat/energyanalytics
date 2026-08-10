@@ -2,11 +2,8 @@ import { HoursTableSkeleton } from "@/features/market-correlation";
 import { Skeleton } from "@/shared/ui";
 
 /**
- * Its own loading file, because `loading.tsx` cascades.
- *
- * Without this, navigating to `/dashboard/hours` would show the *dashboard's* skeleton —
- * a KPI row and two charts — and then resolve into a table. The shell is the same; only
- * the region below the header differs, which is exactly what this file changes.
+ * Its own, because `loading.tsx` cascades: without it, `/dashboard/hours` would show a
+ * KPI row and two charts resolving into a table.
  */
 export default function HoursLoading() {
   return (

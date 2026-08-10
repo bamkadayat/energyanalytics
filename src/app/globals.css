@@ -165,19 +165,6 @@
   --price-now: var(--navy-900);
 
   /*
-   * ---- 2. Semantic: heatmap ramp ----
-   * A single-hue sequential scale, ordered by lightness rather than by hue. Sequential
-   * data must read as "more" and "less", which a lightness ramp conveys even in
-   * greyscale or with any form of colour blindness — a rainbow scale does not.
-   */
-  --heat-0: #eef2fb;
-  --heat-1: #cfdcf6;
-  --heat-2: #9dbaee;
-  --heat-3: #5b8ae0;
-  --heat-4: #2563eb;
-  --heat-5: #16357f;
-
-  /*
    * ---- 2. Semantic: bento cards ----
    * An ink gradient inside a gradient hairline, so a row of cards reads as panels rather
    * than flat grey boxes. Kept as tokens because every colour in this project lives in
@@ -191,11 +178,8 @@
   /*
    * ---- 2. Semantic: sizing ----
    * Fluid, so charts stay usable at 200% zoom and on a phone without media queries.
-   * The heatmap gets its own, taller value: it has 24 rows to fit, where a line chart
-   * only has to stay legible.
    */
   --chart-min-height: clamp(18rem, 40vh, 28rem);
-  --chart-heatmap-height: clamp(20rem, 55vh, 30rem);
   /*
    * The scroll window of the virtualized hours table. Taller than a chart and tied to the
    * viewport, because the point of that view is the size of the dataset: on a laptop it
@@ -602,6 +586,26 @@
     background: var(--page);
     color: var(--fg);
     font-family: var(--font-sans), system-ui, sans-serif;
+  }
+
+  /*
+   * A pointer cursor on things you can press.
+   *
+   * Tailwind v4's preflight dropped the `cursor: pointer` that browsers give buttons, so
+   * every `<button>`, `<summary>` and select in the app was reading as inert text under
+   * the mouse. Set once here rather than as a class on each control, which is how one
+   * control ends up missing it.
+   *
+   * `:disabled` is excluded — the button module already declares `cursor: not-allowed`
+   * there, and a pointer over a control that cannot be pressed is a lie.
+   */
+  button:not(:disabled),
+  summary,
+  select:not(:disabled),
+  label:has(> input[type="checkbox"]:not(:disabled)),
+  input[type="checkbox"]:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
   }
 
   /*

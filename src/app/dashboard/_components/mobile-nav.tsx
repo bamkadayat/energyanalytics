@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef } from "react";
 import { FiLogOut, FiMenu, FiX } from "react-icons/fi";
 import { logout } from "@/features/auth";
@@ -10,14 +11,9 @@ import { RailContent, type RailContentProps } from "./rail-content";
 /**
  * The rail as an off-canvas drawer, below `lg`.
  *
- * Built on the native `<dialog>` element with `showModal()`, which gives focus trapping,
- * Escape-to-close, and inert background content for free. Hand-rolling those is where
- * custom drawers usually go wrong — a focus trap that leaks is invisible to the author
- * and immediately obvious to a keyboard user.
- *
- * Closing on link click is delegated rather than threaded through every link: the drawer
- * navigates client-side, so without it the panel would stay open over the page you just
- * asked for.
+ * Native `<dialog>` + `showModal()`, so focus trapping, Escape and an inert background
+ * come for free. Link clicks are closed by delegation — the drawer navigates client-side
+ * and would otherwise sit over the page you just asked for.
  */
 export function MobileNav({
   params,
@@ -58,7 +54,15 @@ export function MobileNav({
       >
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-line-inverse px-4 py-3">
-            <Wordmark tone="inverse" />
+            {/* Home, same as the rail's — the drawer is not a lesser copy of it. */}
+            <Link
+              href="/dashboard"
+              scroll={false}
+              onClick={() => dialogRef.current?.close()}
+              className="-mx-2 flex min-w-0 rounded-control px-2 py-1 hover:bg-surface-rail-active focus-visible:outline-fg-inverse"
+            >
+              <Wordmark tone="inverse" short />
+            </Link>
 
             <button
               type="button"
@@ -89,11 +93,12 @@ export function MobileNav({
           */}
           <div className="border-t border-line-inverse p-3">
             <form action={logout}>
+              {/* Same treatment as the rail's, so the drawer is not a quieter copy. */}
               <button
                 type="submit"
-                className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-sm text-fg-inverse-muted hover:bg-surface-rail-active hover:text-fg-inverse"
+                className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-sm font-medium text-fg-inverse hover:bg-surface-rail-active"
               >
-                <FiLogOut aria-hidden="true" className="size-4 shrink-0" />
+                <FiLogOut aria-hidden="true" className="size-5 shrink-0" />
                 Logout
               </button>
             </form>

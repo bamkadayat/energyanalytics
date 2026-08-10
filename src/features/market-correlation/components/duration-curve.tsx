@@ -19,15 +19,11 @@ const TOKENS = [
 ] as const;
 
 /**
- * The price duration curve: every hour in the range sorted from most to least expensive.
+ * Every hour in the range sorted from most to least expensive.
  *
- * Reads as "how many hours were above this price" — the steepness of the left shoulder
- * is the volatility story, which a chronological chart hides. Standard in energy
- * analysis for exactly that reason.
- *
- * `dataZoom` because the interesting part is usually the top few percent, and 720 points
- * compressed into one axis makes that shoulder unreadable without being able to zoom
- * into it.
+ * Reads as "how many hours were above this price" — the left shoulder is the volatility
+ * story a chronological chart hides. `dataZoom` because that shoulder is the top few
+ * percent, unreadable at 720 points across one axis.
  */
 export function DurationCurveChart({ curve }: { curve: DurationCurve }) {
   const tokens = useChartTokens(TOKENS);
@@ -37,7 +33,8 @@ export function DurationCurveChart({ curve }: { curve: DurationCurve }) {
 
     return {
       animation: false,
-      grid: { top: 16, right: 16, bottom: 56, left: 16, containLabel: true },
+      // Room for the axis name above the axis; at 16 the unit was clipped by the card.
+      grid: { top: 36, right: 16, bottom: 56, left: 16, containLabel: true },
 
       tooltip: {
         trigger: "axis",
@@ -45,12 +42,7 @@ export function DurationCurveChart({ curve }: { curve: DurationCurve }) {
         backgroundColor: tokens["--chart-tooltip-surface"],
         borderWidth: 0,
         textStyle: { color: tokens["--chart-tooltip-fg"] },
-        /*
-         * A whole sentence, because the default ("25% · 1,024") reads like a price *at*
-         * 25 % of something — a time, a day, a position in the range. It is neither: it
-         * is a share of hours. Saying it in words at the moment of pointing is worth more
-         * than any caption underneath.
-         */
+        /* A sentence: "25% · 1,024" reads as a price *at* 25 % of something. */
         formatter: (params: unknown) => {
           const point = Array.isArray(params) ? params[0] : params;
           const { axisValue, data } = point as { axisValue: string; data: number };
@@ -109,11 +101,8 @@ export function DurationCurveChart({ curve }: { curve: DurationCurve }) {
           areaStyle: { color: tokens["--chart-price-fill"] },
 
           /*
-           * The median, drawn on the chart rather than left in the caption.
-           * A sorted curve has no landmark of its own — no dates, no peaks in time — so
-           * without one there is nothing to judge "high" or "low" against. The line says
-           * where half the hours fall, and the crossing point on the axis below reads
-           * straight off as 50 %.
+           * A sorted curve has no landmarks — no dates, no peaks in time — so nothing to
+           * judge high or low against until one is drawn.
            */
           markLine: {
             silent: true,

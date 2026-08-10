@@ -10,16 +10,11 @@ import { deriveHourRows } from "../utils/derive-hour-rows";
 import { HoursTable } from "./hours-table";
 
 /**
- * Every hour of the last ninety days, joined and handed to the table.
+ * Every hour of the last ninety days, joined on the server and handed to the table as
+ * flat primitives — the browser never parses a timestamp or aligns anything.
  *
- * **All of the work is here, on the server.** Two providers are fetched concurrently —
- * one Open-Meteo request for the whole span, one cached request per price day — joined on
- * a normalised hour, and reduced to a flat array of primitives. The browser receives rows
- * it can sort and filter immediately; it never parses a timestamp or aligns anything.
- *
- * Days whose prices failed are dropped rather than propagated: 89 days of a 90-day table
- * is still a 90-day table with a gap in it, and the count below says how many hours
- * actually carry a price.
+ * Days whose prices failed are dropped, not propagated; the count below says how many
+ * hours actually carry a price.
  */
 export async function HoursView() {
   await connection();
