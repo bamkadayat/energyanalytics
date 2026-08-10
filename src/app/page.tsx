@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { buttonClasses, Wordmark } from "@/shared/ui";
-import { APP_TIME_ZONE, PRICE_AREA, PRICE_UNIT } from "@/shared/config";
+import { PRICE_AREA, PRICE_UNIT } from "@/shared/config";
 import Link from "next/link";
 import { ClosingCta } from "./_components/closing-cta";
 import { HeroPreview } from "./_components/hero-preview";
@@ -62,25 +62,6 @@ export default function Home() {
               >
                 How the data is joined
               </Link>
-            </div>
-
-            <div className="flex flex-col gap-1 font-mono text-xs text-fg-inverse-muted">
-              <p>
-                Prices{" "}
-                <a
-                  href="https://www.hvakosterstrommen.no"
-                  className="underline underline-offset-4"
-                >
-                  hvakosterstrommen.no
-                </a>
-              </p>
-              <p>
-                Weather{" "}
-                <a href="https://open-meteo.com" className="underline underline-offset-4">
-                  open-meteo.com
-                </a>{" "}
-                · {APP_TIME_ZONE}
-              </p>
             </div>
           </div>
 
