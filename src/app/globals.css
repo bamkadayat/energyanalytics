@@ -142,8 +142,14 @@
   --heat-4: #2563eb;
   --heat-5: #16357f;
 
-  /* ---- 2. Semantic: sizing ---- */
+  /*
+   * ---- 2. Semantic: sizing ----
+   * Fluid, so charts stay usable at 200% zoom and on a phone without media queries.
+   * The heatmap gets its own, taller value: it has 24 rows to fit, where a line chart
+   * only has to stay legible.
+   */
   --chart-min-height: clamp(18rem, 40vh, 28rem);
+  --chart-heatmap-height: clamp(20rem, 55vh, 30rem);
 }
 
 /*
@@ -326,6 +332,65 @@
 }
 
 @layer components {
+  /*
+   * Off-canvas drawer.
+   *
+   * Animating a <dialog> means animating away from `display: none`, which needs
+   * `@starting-style` for the entry and `allow-discrete` on `display` and `overlay` for
+   * the exit — without those the panel snaps in and vanishes instantly on close.
+   *
+   * `translate` rather than `transform` so it composites cheaply without fighting any
+   * transform the element already carries.
+   *
+   * Where `@starting-style` is unsupported the drawer still opens and closes, just
+   * without the slide.
+   */
+  .drawer {
+    translate: -100% 0;
+    transition:
+      translate 260ms cubic-bezier(0.22, 0.7, 0.2, 1),
+      display 260ms allow-discrete,
+      overlay 260ms allow-discrete;
+  }
+
+  .drawer[open] {
+    translate: 0 0;
+  }
+
+  @starting-style {
+    .drawer[open] {
+      translate: -100% 0;
+    }
+  }
+
+  .drawer::backdrop {
+    opacity: 0;
+    background-color: var(--surface-inverse);
+    transition:
+      opacity 260ms ease,
+      display 260ms allow-discrete,
+      overlay 260ms allow-discrete;
+  }
+
+  .drawer[open]::backdrop {
+    opacity: 0.5;
+  }
+
+  @starting-style {
+    .drawer[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  /* Someone who asked for less motion gets the panel, not the slide. */
+  @media (prefers-reduced-motion: reduce) {
+    .drawer,
+    .drawer::backdrop {
+      transition: none;
+      translate: 0 0;
+    }
+  }
+
   /* On load. `both` holds the start state through the delay, so nothing flashes first. */
   .animate-enter {
     animation: rise-in 700ms cubic-bezier(0.22, 0.7, 0.2, 1) both;
@@ -410,6 +475,20 @@
 }
 
 @layer base {
+  /*
+   * Horizontal overflow guard.
+   *
+   * `clip`, never `hidden`: `overflow: hidden` turns the element into a scroll container,
+   * which silently breaks `position: sticky` for every descendant — and this app's header
+   * and rail both depend on it. `clip` prevents the scroll without that side effect.
+   *
+   * This is a net, not a fix. Anything wide enough to hit it is a bug to solve at the
+   * component, with a scroll container of its own.
+   */
+  html {
+    overflow-x: clip;
+  }
+
   body {
     background: var(--page);
     color: var(--fg);

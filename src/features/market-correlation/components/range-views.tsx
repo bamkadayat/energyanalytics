@@ -1,8 +1,9 @@
 import { connection } from "next/server";
 import { getPriceRange } from "@/features/energy-prices";
 import { getWeatherRange } from "@/features/weather-forecast";
-import { PRICE_AREA, PRICE_UNIT } from "@/shared/config";
+import { PRICE_AREA, PRICE_UNIT, RANGE_DAY_OPTIONS } from "@/shared/config";
 import { formatPrice } from "@/shared/lib/format-number";
+import { formatOsloDateShort } from "@/shared/lib/format-oslo";
 import { osloDaysBack } from "@/shared/lib/oslo-day";
 import { StatusMessage } from "@/shared/ui";
 import { alignPriceAndWeather } from "../utils/align-hours";
@@ -10,9 +11,9 @@ import {
   deriveDurationCurve,
   derivePriceHeatmap,
 } from "../utils/derive-range-views";
-import type { ViewParams } from "../utils/view-params";
+import { hrefWith, type ViewParams } from "../utils/view-params";
 import { DurationCurveChart } from "./duration-curve";
-import { RangeSelect } from "./range-select";
+import { ChartToolbar } from "./chart-toolbar";
 import { DurationCurveTable, HeatmapTable } from "./range-tables";
 import { ViewCard } from "./view-card";
 import { PriceHeatmapChart } from "./price-heatmap";
@@ -65,8 +66,8 @@ export async function RangeViews({ params }: { params: ViewParams }) {
   }
 
   return (
-    <section className="flex flex-col gap-4" aria-labelledby="range-heading">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <section className="flex min-w-0 flex-col gap-4" aria-labelledby="range-heading">
+      <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <h2 id="range-heading" className="text-lg font-medium text-fg">
             The last {params.range} days
@@ -79,7 +80,18 @@ export async function RangeViews({ params }: { params: ViewParams }) {
           </p>
         </div>
 
-        <RangeSelect params={params} />
+        <ChartToolbar
+          label="Range length"
+          presets={[...RANGE_DAY_OPTIONS]
+            .sort((a, b) => b - a)
+            .map((days) => ({
+              key: String(days),
+              label: `${days} days`,
+              href: hrefWith(params, { range: days }),
+              selected: params.range === days,
+            }))}
+          period={`${formatOsloDateShort(days[0])} – ${formatOsloDateShort(days[days.length - 1])}`}
+        />
       </div>
 
       {daysLoaded < params.range ? (

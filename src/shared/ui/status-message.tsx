@@ -71,7 +71,7 @@ export function StatusMessage({
     >
       <ToneIcon tone={tone} />
 
-      <div className="flex flex-1 flex-col gap-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         <p className="font-medium">
           <span className="sr-only">{TONE_LABELS[tone]} </span>
           {title}

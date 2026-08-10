@@ -104,7 +104,7 @@ export function DurationCurveChart({ curve }: { curve: DurationCurve }) {
   return (
     <ReactECharts
       opts={{ renderer: "canvas" }}
-      style={{ height: "22rem", width: "100%" }}
+      style={{ height: "var(--chart-min-height)", width: "100%" }}
       notMerge
       option={option}
     />

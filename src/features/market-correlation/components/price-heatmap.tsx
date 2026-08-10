@@ -121,7 +121,7 @@ export function PriceHeatmapChart({ heatmap }: { heatmap: PriceHeatmap }) {
   return (
     <ReactECharts
       opts={{ renderer: "canvas" }}
-      style={{ height: "26rem", width: "100%" }}
+      style={{ height: "var(--chart-heatmap-height)", width: "100%" }}
       notMerge
       option={option}
     />

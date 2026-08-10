@@ -69,7 +69,7 @@ function MetricCard({ id, featured }: { id: WeatherMetricId; featured: boolean }
       */}
       <MetricMotif id={id} featured={featured} />
 
-      <div className="relative flex flex-1 flex-col gap-4">
+      <div className="relative flex min-w-0 flex-1 flex-col gap-4">
         <h3 className="text-2xl font-semibold">{metric.label}</h3>
 
         <p

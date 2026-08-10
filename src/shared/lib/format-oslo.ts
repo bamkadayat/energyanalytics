@@ -52,6 +52,18 @@ export function formatOsloDateTime(instant: Date): string {
   return dateTimeFormatter.format(instant);
 }
 
+const shortDateFormatter = new Intl.DateTimeFormat(APP_LOCALE, {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: APP_TIME_ZONE,
+});
+
+/** Compact date for toolbar chips, e.g. `10. aug. 2026`. */
+export function formatOsloDateShort(day: OsloDay): string {
+  return shortDateFormatter.format(osloDayBounds(day).start);
+}
+
 /** Machine-readable value for a `<time dateTime>` attribute. */
 export function toDateTimeAttribute(instant: Date): string {
   return instant.toISOString();
