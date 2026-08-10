@@ -25,11 +25,16 @@ function aligned(
 const labels = (n: number) => Array.from({ length: n }, (_, i) => String(i).padStart(2, "0"));
 
 describe("toPreviewChart", () => {
-  it("spans the full width from first hour to last", () => {
+  it("spans the plot from first hour to last, inset from the viewBox edge", () => {
+    // Inset on purpose: at x=0 the midnight tick's own glyph is half-clipped by the
+    // viewBox, and the curves read as cropped rather than drawn.
     const chart = toPreviewChart(aligned([1, 2, 3, 4]), labels(4), 0);
 
-    expect(chart.priceLine.startsWith("M0,")).toBe(true);
-    expect(chart.priceLine).toContain(String(chart.width));
+    expect(chart.plotLeft).toBeGreaterThan(0);
+    expect(chart.plotRight).toBeLessThan(chart.width);
+    expect(chart.priceLine.startsWith(`M${chart.plotLeft},`)).toBe(true);
+    expect(chart.priceLine).toContain(String(chart.plotRight));
+    expect(chart.ticks[0]?.x).toBe(chart.plotLeft);
   });
 
   it("puts the highest value nearest the top", () => {
@@ -59,11 +64,25 @@ describe("toPreviewChart", () => {
     expect(toPreviewChart(aligned([1, 2, 3]), labels(3), 0).metricLine).toBe("");
   });
 
-  it("closes the area path back to the baseline", () => {
+  it("closes the area path back to the baseline, along the plot edges", () => {
     const chart = toPreviewChart(aligned([1, 2]), labels(2), 0);
 
     expect(chart.priceArea.endsWith("Z")).toBe(true);
-    expect(chart.priceArea).toContain(`L0,${chart.height}`);
+    expect(chart.priceArea).toContain(`L${chart.plotLeft},${chart.height}`);
+    expect(chart.priceArea).toContain(`L${chart.plotRight},${chart.height}`);
+  });
+
+  it("closes the metric area the same way, so a filled metric cannot skew", () => {
+    // The area used to be assembled in the component with the viewBox width, which put a
+    // wedge under the right-hand end once the plot was inset.
+    const chart = toPreviewChart(aligned([1, 2], [3, 4]), labels(2), 0);
+
+    expect(chart.metricArea.endsWith("Z")).toBe(true);
+    expect(chart.metricArea).toContain(`L${chart.plotRight},${chart.height}`);
+  });
+
+  it("omits the metric area when there are no readings", () => {
+    expect(toPreviewChart(aligned([1, 2]), labels(2), 0).metricArea).toBe("");
   });
 
   it("labels every third hour", () => {
