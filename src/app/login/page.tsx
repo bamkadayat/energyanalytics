@@ -4,9 +4,7 @@ import { redirect } from "next/navigation";
 import { FiArrowLeft } from "react-icons/fi";
 import { LoginForm } from "@/features/auth";
 import { hasValidSession } from "@/features/auth/api/session";
-import { getSettledPrices } from "@/features/energy-prices";
-import { alignPriceAndWeather, toPreviewChart } from "@/features/market-correlation";
-import { PREVIEW_DAY, PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
+import { PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
 import { LogoMark } from "@/shared/ui";
 
 export const metadata: Metadata = {
@@ -40,10 +38,8 @@ export default async function LoginPage() {
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 bg-page px-4 py-16">
-      <div className="bento relative w-full max-w-md overflow-hidden text-fg-inverse">
-        <PriceBand />
-
-        <div className="relative flex flex-col gap-6 px-6 pb-6 pt-24 sm:px-8 sm:pb-8">
+      <div className="bento w-full max-w-md overflow-hidden text-fg-inverse">
+        <div className="flex flex-col gap-6 p-6 sm:p-8">
           <div className="flex flex-col gap-4">
             <span className="flex items-center gap-3">
               <LogoMark className="size-7 shrink-0" />
@@ -94,65 +90,6 @@ export default async function LoginPage() {
         <FiArrowLeft aria-hidden="true" className="size-4" />
         Back to the overview
       </Link>
-    </div>
-  );
-}
-
-/**
- * The band across the top of the card: the **real** price curve for the example day,
- * faded out downward so it reads as texture rather than a chart.
- *
- * Real data rather than a drawn squiggle, for the same reason the landing page uses it —
- * the shape is free, it is already cached, and a product about not inventing numbers
- * should not decorate its own login screen with invented ones.
- *
- * Decorative, so `aria-hidden`; if the provider is unavailable the card simply renders
- * without it.
- */
-async function PriceBand() {
-  const prices = await getSettledPrices(PREVIEW_DAY);
-
-  if (prices.status !== "ok") {
-    return null;
-  }
-
-  const aligned = alignPriceAndWeather(prices.prices, null, "wind");
-  const chart = toPreviewChart(aligned, [], -1);
-
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-x-0 top-0 h-32"
-      // Fades the band out downward so it never competes with the wordmark below it.
-      style={{
-        maskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
-        WebkitMaskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
-      }}
-    >
-      <svg
-        viewBox={`0 0 ${chart.width} ${chart.height}`}
-        preserveAspectRatio="none"
-        className="size-full"
-        role="presentation"
-      >
-        <defs>
-          <linearGradient id="login-band" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--fg-inverse)" stopOpacity="0.16" />
-            <stop offset="100%" stopColor="var(--fg-inverse)" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        <path d={chart.priceArea} fill="url(#login-band)" />
-        <path
-          d={chart.priceLine}
-          fill="none"
-          stroke="var(--fg-inverse)"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          opacity="0.28"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
     </div>
   );
 }
