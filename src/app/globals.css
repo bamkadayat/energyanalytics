@@ -176,6 +176,24 @@
   --card-edge-to: #141a2c;
 
   /*
+   * The quiet variant, for cards flanking a featured one.
+   *
+   * Lighter, not darker. These panels sit on `--page`, so weight comes from contrast
+   * against a *light* ground — a deeper ink would make the outer cards heavier and fight
+   * the middle one. Stepping them up toward the page pulls them back and lets the
+   * featured card hold the row.
+   *
+   * Measured. Against `--page` the featured ink is 16.34:1 and this is 13.61:1, which is
+   * the whole effect — the outer cards weigh less. White text still sits on them, so:
+   * `--fg-inverse` 14.24:1 and `--fg-inverse-muted` 8.73:1 against
+   * `--card-ink-quiet-from`. Do not lighten further without re-running those.
+   */
+  --card-ink-quiet-from: #232a3f;
+  --card-ink-quiet-to: #1a2032;
+  --card-edge-quiet-from: #333c5c;
+  --card-edge-quiet-to: #1e2438;
+
+  /*
    * ---- 2. Semantic: sizing ----
    * Fluid, so charts stay usable at 200% zoom and on a phone without media queries.
    */
@@ -393,6 +411,19 @@
     background:
       linear-gradient(180deg, var(--card-ink-from), var(--card-ink-to)) padding-box,
       linear-gradient(160deg, var(--card-edge-from), var(--card-edge-to)) border-box;
+  }
+
+  /*
+   * A `.bento` that steps back, for the cards either side of a featured one. Same
+   * geometry and the same construction — only the two gradients change, so a row still
+   * reads as one family rather than as two kinds of card.
+   */
+  .bento-quiet {
+    background:
+      linear-gradient(180deg, var(--card-ink-quiet-from), var(--card-ink-quiet-to))
+        padding-box,
+      linear-gradient(160deg, var(--card-edge-quiet-from), var(--card-edge-quiet-to))
+        border-box;
   }
 
   /*

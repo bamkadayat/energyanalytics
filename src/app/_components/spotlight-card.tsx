@@ -38,19 +38,23 @@ export function SpotlightCard({
       }}
       style={{ "--spot-color": `var(${accent})` } as CSSProperties}
       className={`bento bento-spot relative flex min-w-0 flex-col gap-5 overflow-hidden p-5 text-fg-inverse ${
+        // The flanking cards step back with `.bento-quiet` — a lighter fill, so they
+        // carry less contrast against the light page and the featured card holds the row.
+        featured ? "" : "bento-quiet "
+      }${
         /*
-         * The featured card is lifted, and given depth to match.
+         * The featured card is **bigger**, not moved.
          *
-         * An earlier version emphasised the *default metric* — the first of the three —
-         * and could only use depth: lifting the leftmost card made the row's top edge
-         * look misaligned rather than emphasised. Raising the **middle** one has the
-         * opposite effect, because the two beside it are symmetrical about it.
+         * A translate was tried first and is the wrong tool: it shifts a card of the same
+         * size upward, so the row reads as one card knocked out of line rather than one
+         * card given more room. Growing it — more padding here, a taller chart in
+         * `metric-highlights` — makes it larger on both edges, and the grid's
+         * `lg:items-center` centres the outer two against it.
          *
-         * `translate` rather than a margin, so the lift costs no layout: the grid row is
-         * unchanged and the neighbours do not reflow. Only at `lg`, where the three sit
-         * side by side — stacked, a raised card is just a stray gap.
+         * `lg:` only. Stacked, every card is full width and the extra padding would just
+         * be one oddly roomy card in a column.
          */
-        featured ? "shadow-popover lg:-translate-y-6" : ""
+        featured ? "shadow-popover lg:p-8" : ""
       }`}
     >
       {/* Above the ::before glow, which is painted on the panel itself. */}
