@@ -119,16 +119,13 @@ control boundary, and the hairline is nowhere near it.
 
 | Token | Utility | Value | Use for |
 | --- | --- | --- | --- |
-| `--price-bar` | `bg-price-bar` | `--navy-100` | an ordinary hour in the KPI strip |
+| `--price-bar` | `bg-price-bar` | `--navy-100` | an ordinary hour in the price strip |
 | `--price-now` | `bg-price-now` | `--navy-900` | the hour you are in |
-| `--price-low` | `bg-price-low` | `--success-line` | the day's cheapest hour |
-| `--price-low-surface` | `bg-price-low-surface` | `--success-surface` | a below-average delta pill |
-| `--price-high` | `bg-price-high` | `--error-line` | the day's priciest hour |
-| `--price-high-surface` | `bg-price-high-surface` | `--error-surface` | an above-average delta pill |
 
-Aliases of the status palette rather than new hues: on a price dashboard "cheapest" *is*
-the good outcome, so the mapping is the meaning. Every use is paired with a text label
-("Cheapest hour", a signed `+`/`−`), so the colour reinforces and never carries.
+Two tones, not six. The cheapest and priciest hours briefly had their own green and red;
+that spent the loudest colours on the page inside a sparkline, to say what the bar heights
+already said and the cards beside them state in words. Height cannot show *where you are*,
+so that is the only hour with a fill.
 
 Renamed from `--color-border-*` / `--color-focus-ring`, which would have produced
 `border-border-subtle` and `ring-focus-ring`.
@@ -184,9 +181,6 @@ qualifier and provenance notes.
 | `--chart-missing` | `--slate-500` | gaps — never rendered as zero |
 | `--chart-grid` | `--slate-200` | grid lines |
 | `--chart-axis` | `--slate-600` | axis labels (text: 4.5:1) |
-| `--chart-grid-inverse` | `--navy-800` | grid lines, chart on ink |
-| `--chart-axis-inverse` | `--navy-200` | axis labels on ink (11.44:1) |
-| `--chart-crosshair-inverse` | `--navy-500` | crosshair on ink |
 | `--chart-crosshair` | `--slate-700` | crosshair |
 | `--chart-tooltip-surface` / `--chart-tooltip-fg` | `--navy-900` / `--white` | tooltip |
 
@@ -269,11 +263,6 @@ Verified against WCAG 2.2 AA. Every meaning-carrying pair passes:
 | `--on-disabled` on `--disabled` | 6.15:1 | 4.5 |
 | status `fg` on status `surface` (all four) | 6.37–6.80:1 | 4.5 |
 | `--chart-axis` on `--surface` | 7.58:1 | 4.5 |
-| `--chart-axis-inverse` on `--surface-inverse` | 11.44:1 | 4.5 |
-| `--chart-price` on `--surface-inverse` | 3.61:1 | 3 |
-| `--chart-wind` on `--surface-inverse` | 3.42:1 | 3 |
-| `--chart-temperature` on `--surface-inverse` | 3.61:1 | 3 |
-| `--chart-solar` on `--surface-inverse` | 3.79:1 | 3 |
 | `--focus` on `--page` | 17.84:1 | 3 |
 | `--line-selected` on `--surface` | 18.67:1 | 3 |
 | `--line-strong` on `--surface` | 4.76:1 | 3 |

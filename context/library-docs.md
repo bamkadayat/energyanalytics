@@ -145,6 +145,29 @@ Required by the spec via `echarts-for-react`. Decisions already made:
 
 ---
 
+## `@tanstack/react-virtual` 3.14.9
+
+Row virtualization for the hours table at `/dashboard/hours` — a few thousand rows where
+the DOM has to hold a screenful.
+
+- **Why nothing already present suffices.** TanStack Table (already here) owns sorting,
+  filtering and pagination, but renders whatever rows it is given; it has no windowing.
+  Hand-rolling one means reimplementing measurement, overscan and scroll-anchoring, and
+  getting the scrollbar to describe rows that are not in the DOM.
+- **Maintenance, size, licence.** Same maintainer and release cadence as the table
+  package already in use; ~4 kB gzipped, no dependencies; MIT. No known advisories.
+- **Trap worth knowing.** It measures the scroll container with `offsetWidth` /
+  `offsetHeight`, and jsdom answers 0 for both — so under Vitest the virtualizer decides
+  the viewport is zero pixels tall and renders nothing, which looks exactly like a broken
+  component. `hours-table.test.tsx` defines both on `HTMLElement.prototype`, and stubs
+  `ResizeObserver`, which jsdom also lacks.
+- **Accessibility is not free.** Virtualized rows are absent from the DOM and the present
+  ones misreport their position, so the table carries `aria-rowcount` and every row an
+  `aria-rowindex`. The grid-display layout the virtualizer needs also drops the implicit
+  table roles, so each element restates its role explicitly.
+
+---
+
 ## Adding a dependency
 
 Do not add one for something the platform, the existing stack, or a small local utility
