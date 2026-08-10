@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import { FiMenu, FiX } from "react-icons/fi";
+import { FiLogOut, FiMenu, FiX } from "react-icons/fi";
+import { logout } from "@/features/auth";
 import type { ViewParams } from "@/features/market-correlation/client";
 import { Wordmark } from "@/shared/ui";
 import { RailContent } from "./rail-content";
@@ -39,7 +40,8 @@ export function MobileNav({ params }: { params: ViewParams }) {
          * `<dialog>` centres itself by default; these reset it to a full-height panel
          * pinned left. `backdrop:` styles the ::backdrop pseudo-element.
          */
-        className="m-0 h-full max-h-full w-72 max-w-[85vw] bg-surface p-0 backdrop:bg-surface-inverse backdrop:opacity-50 lg:hidden"
+        // `drawer` carries the slide-in; see globals.css for why it needs @starting-style.
+        className="drawer m-0 h-full max-h-full w-72 max-w-[85vw] bg-surface p-0 lg:hidden"
         onClick={(event) => {
           // Clicking the backdrop resolves to the dialog itself, never a child.
           if (event.target === dialogRef.current) {
@@ -73,6 +75,22 @@ export function MobileNav({ params }: { params: ViewParams }) {
           >
             <RailContent params={params} />
           </nav>
+
+          {/*
+            Logout sits with the filters here, as it does in the desktop rail, rather than
+            competing for space in a phone header.
+          */}
+          <div className="border-t border-line p-3">
+            <form action={logout}>
+              <button
+                type="submit"
+                className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-sm text-fg-secondary hover:bg-surface-subtle hover:text-fg"
+              >
+                <FiLogOut aria-hidden="true" className="size-5 shrink-0" />
+                Logout
+              </button>
+            </form>
+          </div>
         </div>
       </dialog>
     </>

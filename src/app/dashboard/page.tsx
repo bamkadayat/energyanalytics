@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { logout } from "@/features/auth";
 import { hasValidSession } from "@/features/auth/api/session";
 import {
   CorrelationView,
@@ -11,7 +10,6 @@ import {
 import { APP_TIME_ZONE, PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
 import { MobileNav } from "./_components/mobile-nav";
 import { DashboardSidebar } from "./_components/sidebar";
-import { Button } from "@/shared/ui";
 
 export const metadata: Metadata = {
   title: "Dashboard · Nordic Power & Weather Explorer",
@@ -77,12 +75,6 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
               </p>
             </div>
 
-            {/* The rail owns Logout from lg up; this is the fallback below it. */}
-            <form action={logout} className="ml-auto lg:hidden">
-              <Button type="submit" variant="outline" size="sm">
-                Logout
-              </Button>
-            </form>
           </div>
         </header>
 
