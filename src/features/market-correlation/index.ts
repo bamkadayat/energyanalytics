@@ -10,6 +10,8 @@ export type { SearchParamsInput, ViewMode, ViewParams } from "./utils/view-param
 
 export { alignPriceAndWeather } from "./utils/align-hours";
 export { toChartSeries } from "./utils/to-chart-series";
+export { toPreviewChart } from "./utils/to-preview-chart";
+export type { PreviewChart } from "./utils/to-preview-chart";
 export { deriveDaySummary, deriveEveningComparison } from "./utils/derive-summary";
 export { deriveInsights } from "./utils/derive-insights";
 export {

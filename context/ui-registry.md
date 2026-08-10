@@ -447,6 +447,25 @@ metric, on a `bg-page` section.
 - the featured card overrides the focus ring (`focus-visible:outline-fg-inverse`), since
   the global `--focus` navy is invisible on it
 
+## Hero preview card
+
+`src/app/_components/hero-preview.tsx` — the dashboard preview beside the headline.
+
+- **Real market data, not a mock-up.** The day is a fixed constant (`PREVIEW_DAY`), so no
+  clock is involved and the card prerenders. Reading "today" would make the marketing page
+  request-time for a decorative chart
+- **inline SVG, not ECharts.** A static picture on a landing page does not justify
+  shipping a charting library; geometry comes from `toPreviewChart`, a pure tested
+  function
+- each series is scaled to its **own** range, like the real dual axes — comparable in
+  shape only, never in height
+- a gap starts a new subpath rather than being bridged, even here
+- the metric pills are **links into the real dashboard view** for that metric: they look
+  like controls and behave like them
+- labelled "Real market data · fixed example day". The reference said "illustrative"; ours
+  does not have to, because the shape is what actually happened
+- the SVG is `aria-hidden` — the stat strip above it carries the same values as text
+
 ## Hero visual
 
 `src/app/_components/hero-visual.tsx` — decorative, `aria-hidden`, in a

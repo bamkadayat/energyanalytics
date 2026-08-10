@@ -31,11 +31,22 @@ const FEATURED: WeatherMetricId = "wind";
 
 export function MetricHighlights() {
   return (
-    <section className="bg-page pb-12 pt-16 sm:pb-16 sm:pt-24">
+    <section id="how-it-works" className="scroll-mt-8 bg-page pb-12 pt-16 sm:pb-16 sm:pt-24">
       <div className="mx-auto w-full max-w-content px-4 sm:px-6">
         <h2 className="animate-reveal mx-auto max-w-2xl text-balance text-center text-display font-semibold text-fg">
           The same 24 hours, three ways to read them
         </h2>
+
+        {/*
+          Answers the hero's "How the data is joined" button, which links here. Stating
+          the join is the honest version of a marketing claim: it is the part of the
+          product that is actually hard.
+        */}
+        <p className="mx-auto mt-4 max-w-2xl text-pretty text-center text-fg-secondary">
+          Prices and weather come from two independent providers, so they are matched on a
+          normalised hour rather than by position — a day is 23 or 25 hours twice a year,
+          and an hour missing from one source stays missing rather than being filled in.
+        </p>
 
         {/*
           `items-center` so the two shorter cards sit centred against the taller featured
