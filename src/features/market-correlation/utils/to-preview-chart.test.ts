@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { AlignedHours } from "../types";
-import { toPreviewChart } from "./to-preview-chart";
+import { summariseMetric, toPreviewChart } from "./to-preview-chart";
 
 const MIDNIGHT_OSLO = Date.UTC(2026, 7, 6, 22, 0, 0);
 
@@ -97,5 +97,46 @@ describe("toPreviewChart", () => {
 
     expect(chart.priceLine).toBe("");
     expect(chart.highlight).toBeNull();
+  });
+});
+
+describe("summariseMetric", () => {
+  const labels = (n: number) =>
+    Array.from({ length: n }, (_, i) => `${String(i).padStart(2, "0")}:00`);
+
+  it("reports range and peak hour", () => {
+    const stats = summariseMetric(aligned([1, 2, 3], [3.1, 8.2, 5]), labels(3));
+
+    expect(stats.min).toBe(3.1);
+    expect(stats.max).toBe(8.2);
+    expect(stats.peakHourLabel).toBe("01:00");
+  });
+
+  it("counts missing readings rather than hiding them", () => {
+    const stats = summariseMetric(aligned([1, 2, 3], [4, null, 6]), labels(3));
+
+    expect(stats.missing).toBe(1);
+    expect(stats.total).toBe(3);
+  });
+
+  it("excludes gaps from the range", () => {
+    const stats = summariseMetric(aligned([1, 2], [null, 7]), labels(2));
+
+    expect(stats.min).toBe(7);
+    expect(stats.max).toBe(7);
+  });
+
+  it("breaks a tie on the earliest hour", () => {
+    const stats = summariseMetric(aligned([1, 2, 3], [5, 5, 1]), labels(3));
+
+    expect(stats.peakHourLabel).toBe("00:00");
+  });
+
+  it("handles a metric with no readings at all", () => {
+    const stats = summariseMetric(aligned([1, 2], [null, null]), labels(2));
+
+    expect(stats.max).toBeNull();
+    expect(stats.peakHourLabel).toBeNull();
+    expect(stats.missing).toBe(2);
   });
 });

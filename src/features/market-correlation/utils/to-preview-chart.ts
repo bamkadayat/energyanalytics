@@ -168,3 +168,48 @@ function smoothPath(
 function round(value: number): number {
   return Math.round(value * 100) / 100;
 }
+
+export interface MetricPreviewStats {
+  min: number | null;
+  max: number | null;
+  peakHourLabel: string | null;
+  missing: number;
+  total: number;
+}
+
+/**
+ * The one-line summary under each metric card.
+ *
+ * Reports missing hours rather than hiding them: a card claiming "24 of 24 hours" when
+ * one reading was absent would be the small dishonesty this product exists to avoid.
+ */
+export function summariseMetric(
+  aligned: AlignedHours,
+  hourLabels: string[],
+): MetricPreviewStats {
+  const values = aligned.metricValues;
+  const present = values
+    .map((value, index) => ({ value, index }))
+    .filter((entry): entry is { value: number; index: number } => entry.value !== null);
+
+  if (present.length === 0) {
+    return {
+      min: null,
+      max: null,
+      peakHourLabel: null,
+      missing: values.length,
+      total: values.length,
+    };
+  }
+
+  // First occurrence wins on a tie, so the answer is stable rather than flipping.
+  const peak = present.reduce((best, entry) => (entry.value > best.value ? entry : best));
+
+  return {
+    min: Math.min(...present.map((entry) => entry.value)),
+    max: Math.max(...present.map((entry) => entry.value)),
+    peakHourLabel: hourLabels[peak.index] ?? null,
+    missing: values.length - present.length,
+    total: values.length,
+  };
+}
