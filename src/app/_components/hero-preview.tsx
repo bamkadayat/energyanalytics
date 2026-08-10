@@ -25,17 +25,9 @@ const SWATCHES: Record<WeatherMetricId, string> = {
 /**
  * The dashboard preview beside the headline.
  *
- * **Real market data, not a mock-up.** The day is a fixed constant, so no clock is
- * involved and the whole thing prerenders — a decorative chart has no business making the
- * marketing page request-time. It is labelled as an example day because that is what it
- * is, and the shape is genuinely what happened.
- *
- * Drawn as inline SVG rather than ECharts: this is a static picture, and shipping a
- * charting library to a landing page would cost it the speed that is its main job.
- *
- * The metric pills are links into the real dashboard view for that metric — they look
- * like controls and they behave like them, rather than being decoration that ignores a
- * click.
+ * Real market data from a fixed day, so no clock is involved and the whole thing
+ * prerenders. Inline SVG rather than ECharts: a charting library on a landing page costs
+ * the speed that is its main job. The metric pills are real links into the dashboard.
  */
 export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetricId }) {
   const [prices, weather] = await Promise.all([
@@ -67,7 +59,8 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
               <Link
                 href={`/dashboard?day=today&metric=${id}`}
                 aria-current={id === metric ? "true" : undefined}
-                className={`flex items-center gap-2 rounded-pill px-3 py-1.5 text-sm ${
+                /* The global `--focus` ring is navy on navy here, so it is overridden. */
+                className={`flex items-center gap-2 rounded-pill px-3 py-1.5 text-sm focus-visible:outline-fg-inverse ${
                   id === metric
                     ? "bg-navy-deep font-medium text-fg-inverse"
                     : "text-fg-inverse-muted hover:text-fg-inverse"
@@ -166,29 +159,72 @@ function PreviewSvg({
         role="presentation"
       >
         <defs>
+          {/* Transparent at 78%: a full-height wash was the largest shape on the card. */}
           <linearGradient id="preview-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--fg-inverse)" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="var(--fg-inverse)" stopOpacity="0" />
+            <stop offset="0%" stopColor="var(--fg-inverse)" stopOpacity="0.22" />
+            <stop offset="78%" stopColor="var(--fg-inverse)" stopOpacity="0" />
+          </linearGradient>
+
+          <linearGradient id="preview-metric-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={metricStroke} stopOpacity="0.28" />
+            <stop offset="82%" stopColor={metricStroke} stopOpacity="0" />
           </linearGradient>
         </defs>
+
+        {/*
+          Three levels, so the curves read against something. Decorative under SC 1.4.11
+          and deliberately far below the line tokens — any stronger and they compete with
+          the data drawn over them.
+        */}
+        {[0.25, 0.5, 0.75].map((fraction) => (
+          <line
+            key={fraction}
+            x1={chart.plotLeft}
+            y1={chart.height * fraction}
+            x2={chart.plotRight}
+            y2={chart.height * fraction}
+            stroke="var(--fg-inverse)"
+            strokeWidth="0.5"
+            opacity="0.08"
+          />
+        ))}
 
         {chart.priceArea ? <path d={chart.priceArea} fill="url(#preview-fill)" /> : null}
 
         {chart.metricLine ? (
-          <path
-            d={chart.metricLine}
-            fill="none"
-            stroke={metricStroke}
-            strokeWidth="1.75"
-            strokeLinecap="round"
-          />
+          <>
+            {chart.metricArea ? (
+              <path d={chart.metricArea} fill="url(#preview-metric-fill)" />
+            ) : null}
+
+            {/*
+              A wide soft stroke under the real one, reading as the line's own glow. This
+              is the treatment the bento cards below already use; the hero is the more
+              prominent chart and was the flatter of the two.
+            */}
+            <path
+              d={chart.metricLine}
+              fill="none"
+              stroke={metricStroke}
+              strokeWidth="7"
+              strokeLinecap="round"
+              opacity="0.2"
+            />
+            <path
+              d={chart.metricLine}
+              fill="none"
+              stroke={metricStroke}
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </>
         ) : null}
 
         <path
           d={chart.priceLine}
           fill="none"
           stroke="var(--fg-inverse)"
-          strokeWidth="1.75"
+          strokeWidth="2"
           strokeLinecap="round"
         />
 
@@ -204,33 +240,80 @@ function PreviewSvg({
               strokeDasharray="3 3"
               opacity="0.5"
             />
-            {chart.highlight.metricY !== null ? (
-              <circle
-                cx={chart.highlight.x}
-                cy={chart.highlight.metricY}
-                r="3.5"
-                fill="var(--navy-deep, var(--surface-deep))"
-                stroke={metricStroke}
-                strokeWidth="1.75"
+
+            {/*
+              The hour the stat strip above is describing, named on the chart itself.
+              Without it the crosshair is a line with no stated subject, and the connection
+              between the three figures and this position has to be inferred.
+            */}
+            <g>
+              <rect
+                x={chart.highlight.x - 15}
+                y="0"
+                width="30"
+                height="15"
+                rx="7.5"
+                fill="var(--fg-inverse)"
               />
-            ) : null}
-            {chart.highlight.priceY !== null ? (
-              <circle
-                cx={chart.highlight.x}
-                cy={chart.highlight.priceY}
-                r="3.5"
+              <text
+                x={chart.highlight.x}
+                y="11"
+                textAnchor="middle"
                 fill="var(--surface-deep)"
-                stroke="var(--fg-inverse)"
-                strokeWidth="1.75"
-              />
+                fontSize="10"
+                fontWeight="600"
+                fontFamily="var(--font-mono)"
+              >
+                {chart.highlight.hourLabel}
+              </text>
+            </g>
+
+            {chart.highlight.metricY !== null ? (
+              <>
+                <circle
+                  cx={chart.highlight.x}
+                  cy={chart.highlight.metricY}
+                  r="7"
+                  fill={metricStroke}
+                  opacity="0.25"
+                />
+                <circle
+                  cx={chart.highlight.x}
+                  cy={chart.highlight.metricY}
+                  r="3.5"
+                  fill="var(--surface-deep)"
+                  stroke={metricStroke}
+                  strokeWidth="2"
+                />
+              </>
+            ) : null}
+
+            {chart.highlight.priceY !== null ? (
+              <>
+                <circle
+                  cx={chart.highlight.x}
+                  cy={chart.highlight.priceY}
+                  r="7"
+                  fill="var(--fg-inverse)"
+                  opacity="0.2"
+                />
+                <circle
+                  cx={chart.highlight.x}
+                  cy={chart.highlight.priceY}
+                  r="3.5"
+                  fill="var(--surface-deep)"
+                  stroke="var(--fg-inverse)"
+                  strokeWidth="2"
+                />
+              </>
             ) : null}
           </g>
         ) : null}
 
         <line
-          x1="0"
+          x1={chart.plotLeft}
           y1={chart.height}
-          x2={chart.width}
+          x2={chart.plotRight}
           y2={chart.height}
           stroke="var(--fg-inverse)"
           strokeWidth="0.5"

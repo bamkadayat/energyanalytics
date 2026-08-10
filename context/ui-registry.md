@@ -139,6 +139,11 @@ is the token that clears 3:1. An *inset ring* rather than a `border`, unlike the
 variant, because this one stands next to a filled pill and a border would make it 2px
 taller than its neighbour.
 
+> `ghost-inverse` currently has **no callers**. Its only one was the hero's secondary
+> action, which became a text link with an arrow — even as a ghost, a second pill read as
+> a peer of the primary. The variant is kept, defined and tested for the next
+> two-actions-on-navy case; delete it if none arrives.
+
 **Every variant is `rounded-pill`**, and a test asserts it — buttons had previously
 drifted between `rounded-pill` and `rounded-control` because each was styled at its call
 site. Every variant also carries a `disabled:` treatment, so a disabled button never
@@ -159,6 +164,12 @@ a data point. Moving air, read as a series.
 - `viewBox 0 0 24 24`, `strokeWidth 2`, round caps and joins
 - `Wordmark` sets colour once on the wrapper and both mark and text inherit, so there is
   one `tone` switch rather than an asset per background
+- **`short` drops "Nordic" from the *visible* name only** — the full name stays in an
+  `sr-only` span, because an abbreviation that is only ever spoken as the abbreviation is
+  how a product ends up with two names. Used by the dashboard rail, where the full name
+  wraps at 240px, and by the **landing navbar**, where the shorter lockup sits better
+  against the "Log in" link opposite it. The footer keeps the full name, which is where a
+  visitor looks for what the product is actually called
 - `src/app/icon.svg` is the same drawing with the navy pinned, since a favicon has no
   inherited colour to take
 
@@ -586,39 +597,80 @@ the closing band (both `size="lg"`).
 - signed out → `/login`; signed in → **Go to dashboard** (`/dashboard`).
   A control should say exactly what it does, and "Login" is a lie to someone already
   logged in
-- **the signed-out label follows the placement**, via `signedOutLabel`. The navbar says
-  **Login**, which is the word a returning visitor scans for. The hero and the closing
-  band say **Open the dashboard**: there the button is the offer, and login is the gate on
-  the way to it rather than the thing being offered
-- **the navbar instance is one size down from the hero's.** The same control at the same
-  size twice in one viewport leaves neither reading as the primary action
+- **that rule binds in both directions.** The hero and closing band used to say **Open the
+  dashboard** while signed out, on the argument that the button is the offer and login is
+  merely the gate on the way to it. That was the same lie reversed — it promised a
+  dashboard and delivered a password field
+- **two labels, no label prop.** Signed out it is **Log in**; signed in, **Go to
+  dashboard**. The label once varied by placement and no longer does: the control does the
+  same thing in all three positions, and a control that reads differently in each spot
+  only invites the three to drift apart again
+- **`appearance` varies the presentation only** — never the label or the destination.
+  `pill` for the hero and closing band, `text` for the navbar
+- **the navbar is a text link, not a pill.** Even one size down it was the hero's control
+  repeated in the same viewport, and two of those leave neither reading as the primary
+  action. It is weighted to answer the wordmark across the bar (`text-base font-semibold
+  sm:text-lg`, the wordmark's own scale) — dropping the pill cost it presence, and a nav
+  link that recedes into the band is worse than the pill it replaced
+- **the navbar link is not underlined at rest**, which `ui-rules.md` otherwise requires.
+  The rule exists because `--link` is near-indistinguishable from body text by colour; this
+  sits alone in the top-right of a `<header>`, opposite the wordmark, where position is the
+  affordance and there is no body text to confuse it with. Underline arrives on hover
+- **the `text` appearance overrides the focus ring** (`focus-visible:outline-fg-inverse`),
+  since it sits on the navy band where the global `--focus` is invisible
 - **one component for both placements**, so the navbar and the hero can never disagree
   about whether you are signed in
 - `inverse` button variant, since both sit on `--surface-inverse`
 - reading the session is request-time, so each mount sits in `<Suspense>`; the headline,
   subtitle and visual stay in the prerendered shell rather than the page going dynamic
   for two buttons
-- the fallback reserves the exact footprint per size and shows **no label**. Rendering
-  "Login" and correcting it afterwards would flash the wrong word at the primary
-  control on the page
+- the fallback reserves the footprint and shows **no label**. Rendering "Log in" and
+  correcting it afterwards would flash the wrong word at the primary control on the page.
+  Its *height* is exact; its **width can only approximate**, because the two labels differ
+  in length and which one arrives is the thing being waited for — the `lg` callers pass
+  `sm:w-48`, which fits the longer of the two. The `text` appearance reserves a **line box,
+  not a pill**: a pill resolving into bare text is a worse flash than no placeholder
 
 ## Login card
 
-`app/login/page.tsx` + `features/auth/components/login-form.tsx` — a dark `bento` panel on
-the light page, with the back link outside it.
+`app/login/page.tsx` + `features/auth/components/login-form.tsx` — **white ground, navy
+ink, no filled surface**, with the back link outside the card.
 
-- the band across the top is the **real price curve** for the example day, masked to fade
-  downward so it reads as texture. Real data rather than a drawn squiggle: it is already
-  cached and free, and a product about not inventing numbers should not decorate its own
-  login screen with invented ones
+- **no dark panel.** This was a `bento` card on a tinted page: two stacked surfaces framing
+  a form with one field. Structure now comes from a single hairline (`border-line`) and the
+  field's own edge. The submit button is the only saturated element on the route, which is
+  what makes it read as the action
+- **`primary`, not `inverse`, on the button.** `inverse` is a white pill built for the dark
+  card and would be white-on-white here
+- **the focus ring needs no override.** `--focus` is the navy primary, so it is visible on
+  white — the dark-surface version had to work around exactly that
+- **the error message uses `--error-fg`.** On the navy card it was `--error-surface`, a
+  *background* token pressed into service as text, which only passed because a pale pink
+  happens to read on navy. Now it is the correct pairing rather than a lucky one
+- **no decorative price curve.** It once carried one across the top; the login polish pass
+  removed it — a real chart drawn too small to read, above a form with one field, costing a
+  price fetch and 6rem of reserved padding
 - wordmark, then a mono eyebrow naming the area and location, then the heading
-- copy states there are no accounts, rather than leaving the absence of email and
-  "forgot password" unexplained
+- **no explanatory paragraph.** One used to state that there are no accounts. A labelled
+  field and a button do not need a sentence describing them, and it was read past rather
+  than read; the demo note carries what mattered
 - the field is a bordered row owning its focus ring via `focus-within`; the input's own
   outline is suppressed so two rings do not nest
 - **Show/Hide is a real toggle**: `aria-pressed` says which way it is set, the visible
   word says what pressing it does. Those are different questions and both get an answer
 - source links sit inside the card behind a divider
+- **the demo-password note is untinted.** It first used the `info` family, which put a pale
+  blue block on a page with no other colour; the restraint pass had already removed exactly
+  that from the dashboard's standing note. It is separated by a rule, like the sources
+  beneath it, with the password boxed in `--line-strong` and `select-all` — a reviewer
+  copies it rather than retyping, and a bare word in a sentence gives them nothing to aim
+  at
+- the note renders **only when `DEMO_PASSWORD_HINT` is set**, and that is deliberately a
+  *second* variable rather than the real `DASHBOARD_PASSWORD`. Publishing a credential has
+  to be an explicit act: reading the real one would mean any deployment published its
+  password by not knowing the feature existed. See `shared/config/server.ts`
+- **"Log in", not "Login"**, on the heading and the submit button — the same words as every
+  CTA that leads here
 
 **Only the controls that exist** — no email field, no "forgot password", no social login.
 With one shared password none of them could do anything.
@@ -692,10 +744,62 @@ the landing page.
   as the logo appearing three times on one page
 - `animate-reveal`, like the cards above it
 
-Three CTAs now share one page. They are all the same component, so they cannot disagree
-about the session — but they are not interchangeable: the navbar is one size down and
-says **Login**, while the hero and this band say **Open the dashboard**. One page, one
-primary action, at one size.
+Three CTAs now share one page. They are all the same component with the same label, so
+they cannot disagree about the session — but they are not interchangeable: the navbar is a
+**text link**, while the hero and this band are **pills**. One page, one primary action.
+
+## "How it's built"
+
+`src/app/_components/how-its-built.tsx` — four decisions, on `bg-surface` between the
+metric cards and the closing band.
+
+- **placed after the cards, not before.** A reader should have seen what the thing does
+  before being told how it holds together
+- **`bg-surface`, so the page alternates ground**: navy hero → `bg-page` cards → white here
+  → `bg-page` closing. Bordered top and bottom rather than shadowed
+- **no colour.** The restraint pass established that colour on these pages encodes data;
+  this section has none, so it is navy and slate like the rest of the chrome
+- each item is a **claim checkable against the repository** — the hour-join, gaps staying
+  gaps, server-side derivation, the solid/dashed constraint — not a capability list. A
+  claim that can be verified is worth more than one that cannot
+- **a counted mono index (`01`–`04`)** above each heading, in the eyebrow style used across
+  the dashboard. Without it the section was four grey blocks under a hairline — no entry
+  point, and no signal they are a set meant to be read in order. `aria-hidden`, since a
+  screen reader already gets the ordinal from the list
+- **the index uses `tracking-wider`, not the eyebrow's `0.18em`.** That tracking is tuned
+  for uppercase words; on a two-character number it opens a gap wide enough that `01` reads
+  as `0 1` — two glyphs rather than one figure
+- **headings are held under ~30 characters**, which is a layout constraint rather than a
+  style preference. The items sit in a plain grid, so a heading wrapping to two lines in
+  one column drops that column's body a line below its neighbours' and the row stops
+  reading as a row. "Joined on the hour, never by index" did exactly that; the qualifier
+  moved into the body, where it has room
+- **bodies are held to roughly one length** for the same reason. At four columns the
+  measure is ~30 characters, and the first draft's 40-word entries set as a ragged wall
+- body copy is `--fg-secondary`, not `--fg-muted` — the latter is for labels, units and
+  captions
+- `sm:grid-cols-2` before `lg:grid-cols-4`: at four columns on a tablet each item is a word
+  wide and the body text sets as a ladder
+
+## Open Graph image
+
+`src/app/opengraph-image.tsx` — the link preview card, 1200×630.
+
+- **real prices from `PREVIEW_DAY`**, the same fixed day as the hero. The landing page
+  exists to be sent to someone, so the preview is part of the product; a generic gradient
+  would be the one invented number on an otherwise sourced page
+- **bars, not a line.** Satori lays out boxes and cannot stroke a path reliably
+- **bars scale from zero**, not from the day's minimum. Scaling from the minimum turns a
+  flat day into a dramatic one — a truncated axis on the image that represents the project
+- **draws nothing when the provider is unreachable** at build time, rather than inventing
+  a shape
+- **it holds the only colour literals in `src/`**, behind a narrow `no-restricted-syntax`
+  exemption. Satori rasterises without a stylesheet, so `var(--token)` has nothing to
+  resolve against, and the guard's silent-failure rationale does not reach a file that
+  emits no classes. **These values do not follow `globals.css`** — re-check the block at
+  the top of that file whenever a colour moves
+- `PREVIEW_DAY` is a constant, so nothing reads the clock and Next generates it once at
+  build time
 
 ## Landing page motion
 
@@ -769,6 +873,18 @@ metric, on a `bg-page` section.
 ## Landing hero band
 
 `src/app/page.tsx` — the navy band holding the headline, the CTAs and the preview card.
+
+- **One pill, one text link.** The primary is `SessionCta` (`inverse`, `lg`); the secondary
+  is "How the data is joined" as **text plus a right arrow**, not a second pill. It was
+  `ghost-inverse`, and even unfilled it read as a peer of the primary — two controls of
+  equal weight leave a visitor to work out which one the page wants
+- **the arrow is the affordance**, which is what lets the underline come off at rest.
+  `ui-rules.md` requires an underline because `--link` is near-indistinguishable from body
+  text by colour; a directional glyph answers that requirement with a second, non-colour
+  signal. Underline arrives on hover, the arrow slides `translate-x-1`. Same pattern as the
+  bento cards' "Open the … view"
+- **the focus ring is overridden** (`focus-visible:outline-fg-inverse`) — as anything
+  focusable on this band must be
 
 - **`min-h-[70svh]` with `content-center`.** `svh`, not `vh`: `vh` resolves against the
   *largest* viewport, so on mobile the hero would stand taller than the screen until the

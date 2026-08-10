@@ -86,8 +86,43 @@ rendered — no browser extension this session either — so verification ran ag
   exclusion, Oslo named as representative within NO1, non-causal wording, both sources
   attributed. All hold. Real data throughout — 24 of 24 hours joined on the example day.
 
-Open, not acted on — see *Owed work*: `hero-visual.tsx` is unreferenced, the landing page
-has no Open Graph metadata, and `<html lang="en">` sits over `nb-NO`-formatted numbers.
+Then four additions, chosen from that list:
+
+- **The demo was unreachable.** Nothing told a visitor `/dashboard` was behind a shared
+  password or how to obtain one — an interviewer opening the link hit a password field and
+  stopped. `/login` now prints it, gated on a **new `DEMO_PASSWORD_HINT` variable**. It is
+  deliberately not `DASHBOARD_PASSWORD`: publishing a credential must be an explicit act,
+  and reading the real variable would mean any deployment published its password by not
+  knowing the feature existed. Unset renders nothing.
+- **Open Graph, with a generated image.** `metadataBase` resolves from `SITE_URL` or
+  Vercel's production URL; `opengraph-image.tsx` draws the example day's real prices as
+  1,200×630 bars. Verified by fetching the route — 61 KB PNG, correct dimensions.
+  `robots` is `noindex` at the layout and re-enabled only on `/`, since the dashboard and
+  login have nothing to offer a crawler.
+- **"How it's built"** — four decisions that can be checked against the repository,
+  between the metric cards and the closing band.
+- **Deleted `public/logo.png`** (934 KB, unreferenced since the SVG mark landed).
+
+**The login route was then rebuilt as white ground, navy ink, no filled surface** — it had
+been a dark `bento` card on a tinted page, two stacked surfaces framing a form with one
+field. Structure is now a single hairline plus the field's own edge, and the submit button
+is the only saturated element on the route.
+
+- Button `inverse` → `primary`; `inverse` is a white pill built for the dark card.
+- **The focus ring override could come out.** `--focus` is the navy primary, visible on
+  white — the dark-surface version existed to work around exactly that.
+- **The error message was using `--error-surface` as a foreground**, a background token
+  pressed into service as text. It only passed because a pale pink happens to read on
+  navy. It is `--error-fg` now, the correct pairing rather than a lucky one.
+- Removed the explanatory paragraph. A labelled field and a button do not need a sentence
+  describing them; the demo note carries what mattered.
+
+Also corrected: the login card's registry entry still described a decorative price curve
+removed in the polish pass, and the heading and submit button said "Login" where every CTA
+leading there now says "Log in".
+
+Still open — see *Owed work*: `hero-visual.tsx` is unreferenced, and `<html lang="en">`
+sits over `nb-NO`-formatted numbers.
 
 Then, from the **first screenshot of the hero anyone has taken**:
 
@@ -107,6 +142,26 @@ Then, from the **first screenshot of the hero anyone has taken**:
   crosshair. The stat strip describes that hour; nothing on the chart used to say so.
 - **Hero band is `min-h-[70svh]`** with content centred. `svh` over `vh` so mobile browser
   chrome cannot make it overflow, and `min-h` over `h` so it still reflows at 200% zoom.
+- **The signed-out CTA promised something it did not deliver.** The hero and closing band
+  said **Open the dashboard** to a visitor with no session, then handed them a password
+  field. `session-cta.tsx` had argued its own rule — "a control should say exactly what it
+  does, and 'Login' is a lie to someone already logged in" — and then broke it in the other
+  direction. Caught by looking at the page signed out.
+- **All three CTAs now read `Log in`**, and the `signedOutLabel` prop is gone. The label
+  varying by placement was what let the hero drift into a claim the button could not keep;
+  the control does the same thing in all three positions.
+- **The navbar wordmark is now `short`** — "Power & Weather" to the eye, the full "Nordic
+  Power & Weather" still in an `sr-only` span, via the prop the rail already used. The
+  footer keeps the full name.
+- **The navbar CTA became a text link.** Even one size down it was the hero's pill repeated
+  in the same viewport. `SessionCta` gained an `appearance` prop that varies presentation
+  only — never label or destination — so the three still cannot disagree about the session.
+  Weighted `text-base font-semibold sm:text-lg` to answer the wordmark across the bar.
+- **The hero's secondary action became a text link with an arrow.** As a `ghost-inverse`
+  pill it still read as a peer of the primary. The arrow is what carries the affordance
+  now that the underline is off at rest — a non-colour second signal, which is what
+  `ui-rules.md`'s underline rule is actually asking for. This leaves `ghost-inverse` with
+  no callers; kept and tested for the next two-actions-on-navy case.
 
 ### 2026-08-10 — The heatmap became a boxplot
 
@@ -350,14 +405,19 @@ docs.
 - **No stale-data state.** Nothing distinguishes "retrieved three hours ago" from fresh
   beyond the timestamp, and `cacheLife("hours")` makes that gap real. Listed in
   `ui-rules.md`'s state table but not implemented.
-- **No OG image** for link previews — and no Open Graph metadata at all. `layout.tsx` sets
-  only `title` and `description`; there is no `metadataBase`, `openGraph` or `twitter`
-  block anywhere in `src/`. The landing page is the shareable entry point, so it is the
-  one page where this is visible.
 - **`_components/hero-visual.tsx` is dead code** — 237 lines, unreferenced since
   `HeroPreview` replaced it in the colour-restraint pass. `ui-registry.md` still documents
   it as live, including its `videoSrc` hook. Delete it, or mark the registry entry
   superseded and say why it is being kept.
+- **`DEMO_PASSWORD_HINT` must be set on the deployment**, or the login page discloses
+  nothing and a cold reviewer is stuck again. It is in `.env.example` and `.env.local`;
+  Vercel needs it added separately.
+- **`SITE_URL` is unset**, so `metadataBase` falls back to Vercel's production URL and,
+  locally, to `http://localhost:3000`. Set it if a custom domain is used.
+- **The OG image duplicates six colour values** as literals, behind a narrow lint
+  exemption — Satori has no stylesheet for `var()` to resolve against. They will not
+  follow `globals.css`; re-check them when a colour moves.
+- **No `robots.ts` / `sitemap.ts`.** Per-page `robots` metadata covers indexing for now.
 - **`<html lang="en">` over `nb-NO` numbers.** Every figure is formatted with
   `APP_LOCALE = "nb-NO"` — `1,024` means one-point-oh-two-four — but the document language
   is English, so a screen reader applies English number rules and says "one thousand

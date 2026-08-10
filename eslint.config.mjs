@@ -55,6 +55,19 @@ const eslintConfig = defineConfig([
     files: ["eslint.config.mjs"],
     rules: { "no-restricted-syntax": "off" },
   },
+  {
+    /*
+     * Open Graph images are rasterised by Satori, which has no stylesheet and therefore
+     * nothing for `var(--token)` to resolve against — the values have to be literals.
+     *
+     * The guard above exists because a bad colour class fails *silently* under a cleared
+     * Tailwind palette. That reasoning does not reach here: this file emits no classes,
+     * and a wrong value is visible in the generated image. The trade is real drift risk,
+     * so the palette is confined to one commented block at the top of the file.
+     */
+    files: ["src/app/**/opengraph-image.tsx", "src/app/**/twitter-image.tsx"],
+    rules: { "no-restricted-syntax": "off" },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
