@@ -84,6 +84,31 @@ The nordic ramp is retained for the `info` status family only.
 | `--surface-rail` | `bg-surface-rail` | `--navy-900` | the dashboard rail and its drawer |
 | `--surface-rail-active` | `bg-surface-rail-active` | `--navy-800` | selected/hovered rail item |
 
+### Bento cards
+
+Not utilities — these are consumed by `.bento` and `.bento-quiet` in `globals.css`, which
+paint an ink gradient inside a gradient hairline. Two backgrounds with different clip
+boxes: `padding-box` fills, `border-box` draws the edge, and a transparent border reveals
+it. That is the only way to get a gradient border without a wrapper element.
+
+| Token | Value | Use for |
+| --- | --- | --- |
+| `--card-ink-from` / `--card-ink-to` | `#171b2b` / `#0e1223` | the featured card's fill |
+| `--card-edge-from` / `--card-edge-to` | `#2b3350` / `#141a2c` | its hairline |
+| `--card-ink-quiet-from` / `--card-ink-quiet-to` | `#232a3f` / `#1a2032` | cards flanking a featured one |
+| `--card-edge-quiet-from` / `--card-edge-quiet-to` | `#333c5c` / `#1e2438` | their hairline |
+
+**The quiet variant is lighter, not darker.** These panels sit on `--page`, so their
+weight comes from contrast against a *light* ground — a deeper ink would make the flanking
+cards heavier and fight the one they are meant to frame. Against `--page` the featured ink
+measures **16.34:1** and the quiet fill **13.61:1**, which is the entire effect.
+
+White text still sits on both: `--fg-inverse` is 14.24:1 and `--fg-inverse-muted` 8.73:1
+against `--card-ink-quiet-from`. Re-run those before lightening it further.
+
+> These four `--card-*` tokens predate this table and were not recorded here — the drift
+> this document warns about, found while adding the quiet variant.
+
 ### Foreground
 
 | Token | Utility | Value | Use for |

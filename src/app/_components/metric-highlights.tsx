@@ -27,17 +27,17 @@ import { SpotlightCard } from "./spotlight-card";
  */
 
 /**
- * Kept to one short line each, and parallel. What they share — the price curve beside
- * them, the hour-for-hour join — is said once in the section intro, not three times.
- */
-/**
- * Index of the card that gets lifted. Derived rather than written as `1`, so it follows
+ * Index of the card that is grown. Derived rather than written as `1`, so it follows
  * `WEATHER_METRIC_IDS` if a fourth metric ever arrives — with an even count this picks
  * the left of the two middles, which is at least a definite answer rather than a silently
  * wrong one.
  */
 const MIDDLE_CARD = Math.floor((WEATHER_METRIC_IDS.length - 1) / 2);
 
+/**
+ * Kept to one short line each, and parallel. What they share — the price curve beside
+ * them, the hour-for-hour join — is said once in the section intro, not three times.
+ */
 const DESCRIPTIONS: Record<WeatherMetricId, string> = {
   wind: "Wind speed over Oslo, hour by hour.",
   temperature: "Air temperature over Oslo, hour by hour.",
@@ -77,11 +77,12 @@ export async function MetricHighlights() {
         </div>
 
         {/*
-          `lg:pt-6` reserves the room the middle card's lift moves into. Without it the
-          raised card's top edge crowds the paragraph above, since `-translate-y-6` takes
-          no layout of its own.
+          `lg:items-center`, so the two outer cards centre against the taller middle one.
+          That is what makes the middle card read as raised — it grows on both edges and
+          the others sit level with its centre. With `items-start` they would all share a
+          top edge and the extra height would just hang off the bottom.
         */}
-        <ul className="mt-12 grid gap-6 lg:grid-cols-3 lg:items-start lg:pt-6">
+        <ul className="mt-12 grid gap-6 lg:grid-cols-3 lg:items-center">
           {WEATHER_METRIC_IDS.map((id, index) => {
             const aligned = hasData
               ? alignPriceAndWeather(
@@ -95,14 +96,12 @@ export async function MetricHighlights() {
 
             return (
               /*
-                The **middle** card is the raised one, which is a claim about position
-                rather than about the metric. It used to be the default metric, so the
-                emphasis meant "this is what the dashboard opens on" — but the default is
-                the first of the three, and only the centre card can be lifted without the
-                row looking misaligned. One emphasised card beats a shadowed first and a
-                raised second, so the meaning moved rather than being doubled. The hero
-                preview still opens on `DEFAULT_WEATHER_METRIC`, which is where that
-                signal now lives alone.
+                The **middle** card is the bigger one — a claim about position rather than
+                about the metric. It used to be the default metric, which is the first of
+                the three, and only the centre card can be grown without the row looking
+                lopsided. One emphasised card beats a shadowed first and a bigger second,
+                so the meaning moved rather than doubling; the hero preview still opens on
+                `DEFAULT_WEATHER_METRIC`, which is where that signal lives now.
               */
               <SpotlightCard
                 key={id}
@@ -111,6 +110,7 @@ export async function MetricHighlights() {
               >
                 <MetricCardBody
                   id={id}
+                  featured={index === MIDDLE_CARD}
                   chart={aligned ? toPreviewChart(aligned, hourLabels, -1) : null}
                   stats={aligned ? summariseMetric(aligned, hourLabels) : null}
                 />
@@ -127,10 +127,12 @@ function MetricCardBody({
   id,
   chart,
   stats,
+  featured = false,
 }: {
   id: WeatherMetricId;
   chart: PreviewChart | null;
   stats: MetricPreviewStats | null;
+  featured?: boolean;
 }) {
   const metric = WEATHER_METRICS[id];
 
@@ -160,7 +162,11 @@ function MetricCardBody({
         {DESCRIPTIONS[id]}
       </p>
 
-      {chart ? <CardChart chart={chart} id={id} /> : null}
+      {/*
+        The featured card's extra height goes into its chart rather than into empty space
+        at the bottom. Growing the padding alone would have made it bigger and emptier.
+      */}
+      {chart ? <CardChart chart={chart} id={id} featured={featured} /> : null}
 
       {stats ? (
         <p className="font-mono text-xs leading-relaxed text-fg-inverse-muted">
@@ -224,13 +230,21 @@ function readingCount(stats: MetricPreviewStats): string {
  * are peers, here the price is context. Nothing on the card depends on telling them
  * apart: the heading, chip and stat line all name the metric. A gap is still a gap.
  */
-function CardChart({ chart, id }: { chart: PreviewChart; id: WeatherMetricId }) {
+function CardChart({
+  chart,
+  id,
+  featured = false,
+}: {
+  chart: PreviewChart;
+  id: WeatherMetricId;
+  featured?: boolean;
+}) {
   const accent = `var(--chart-${id})`;
 
   return (
     <svg
       viewBox={`0 0 ${chart.width} ${chart.height}`}
-      className="h-24 w-full"
+      className={`w-full ${featured ? "h-24 lg:h-36" : "h-24"}`}
       preserveAspectRatio="none"
       aria-hidden="true"
       role="presentation"
