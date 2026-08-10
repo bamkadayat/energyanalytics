@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { FiMaximize2, FiMinimize2 } from "react-icons/fi";
 import type { ViewMode } from "../utils/view-params";
 
 /**
@@ -47,7 +48,46 @@ export function ViewCard({
   tableCaption?: ReactNode;
 }) {
   const [mode, setMode] = useState<ViewMode>(initialMode);
+  const [expanded, setExpanded] = useState(false);
   const caption = mode === "chart" ? chartCaption : (tableCaption ?? chartCaption);
+
+  /*
+   * Escape closes it, and the page behind it stops scrolling while it is open — without
+   * that, a wheel over the expanded card scrolls the dashboard underneath and the reader
+   * comes back to a different place than they left.
+   */
+  useEffect(() => {
+    if (!expanded) {
+      return;
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setExpanded(false);
+      }
+    }
+
+    const { documentElement } = document;
+    const previousOverflow = documentElement.style.overflow;
+    documentElement.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      documentElement.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [expanded]);
+
+  /*
+   * ECharts sizes its canvas once and then listens for *window* resizes. Expanding the
+   * card changes the container without changing the window, so the chart would keep its
+   * old dimensions inside a much larger box. Telling it after the browser has laid the
+   * new size out is what makes the redraw match the frame.
+   */
+  function toggleExpanded() {
+    setExpanded((current) => !current);
+    requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+  }
 
   function select(next: ViewMode) {
     setMode(next);
@@ -59,7 +99,16 @@ export function ViewCard({
   }
 
   return (
-    <section className="flex min-w-0 flex-col overflow-hidden rounded-card border border-line bg-surface">
+    <section
+      className={
+        expanded
+          ? // Over everything, edge to edge. Not a `<dialog>`: focus is not trapped and
+            // nothing behind it is inert, so calling it modal would be a lie to a screen
+            // reader. It is a panel that fills the window, and Escape closes it.
+            "fixed inset-0 z-50 flex min-w-0 flex-col overflow-hidden border-0 bg-surface"
+          : "flex min-w-0 flex-col overflow-hidden rounded-card border border-line bg-surface"
+      }
+    >
       <header className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
         <div className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-2">
           <h3 className="text-base font-semibold text-fg">{title}</h3>
@@ -67,6 +116,7 @@ export function ViewCard({
           {mode === "chart" && legend ? legend : null}
         </div>
 
+        <div className="flex flex-wrap items-center gap-2">
         <div
           role="group"
           aria-label={`${title} view`}
@@ -85,6 +135,26 @@ export function ViewCard({
             description={`Show ${title.toLowerCase()} as a table`}
           />
         </div>
+
+          {/*
+            Full screen earns its place on the wide views: the heatmap is 24 rows across
+            30 day columns, and its table is the same grid in numbers — both are wider
+            than a card in a two-column grid can show without scrolling everything.
+          */}
+          <button
+            type="button"
+            onClick={toggleExpanded}
+            aria-pressed={expanded}
+            className="flex items-center gap-2 rounded-control px-2 py-1.5 text-sm text-fg-secondary hover:text-fg focus-visible:outline-focus"
+          >
+            {expanded ? (
+              <FiMinimize2 aria-hidden="true" className="size-4 shrink-0" />
+            ) : (
+              <FiMaximize2 aria-hidden="true" className="size-4 shrink-0" />
+            )}
+            {expanded ? "Exit full screen" : "Full screen"}
+          </button>
+        </div>
       </header>
 
       {/*
@@ -95,7 +165,14 @@ export function ViewCard({
         Chart/Table reads as navigating rather than as toggling one view of one thing.
         The series clear 3:1 on paper too, so nothing was traded for the consistency.
       */}
-      <div className="flex flex-1 flex-col gap-3 px-4 pb-4">
+      {/* Expanded, the body is what scrolls — the page behind it is locked. */}
+      <div
+        className={
+          expanded
+            ? "flex flex-1 flex-col gap-3 overflow-auto px-4 pb-4"
+            : "flex flex-1 flex-col gap-3 px-4 pb-4"
+        }
+      >
         {mode === "chart" ? (
           /*
            * The chart fills whatever height the card ends up with — in a grid row beside

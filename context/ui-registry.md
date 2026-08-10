@@ -422,6 +422,16 @@ left, a chart/table toggle on the right, content, then a caption.
   day switch, with an `aria-label` carrying the fuller description. The icon-only version
   it replaces made the reader decode a glyph to find the numbers
 - selection carries a fill **and** a weight change plus `aria-pressed`, never colour alone
+- **a full-screen toggle** in the header, on every card. It earns its place on the wide
+  views: the heatmap is 24 rows across 30 day columns, and its table is the same grid in
+  numbers — neither fits a card in a two-column grid without scrolling the page. Expanded,
+  the section is `fixed inset-0 z-50`, the body scrolls and the page behind it is locked
+- **not a `<dialog>`.** Focus is not trapped and nothing behind is inert, so `aria-modal`
+  would be a lie to a screen reader. It is a panel that fills the window: `aria-pressed`
+  reports the state and Escape closes it
+- expanding **dispatches a window resize**. ECharts sizes its canvas once and then listens
+  for window resizes, so a container that grows without the window growing leaves the
+  chart drawn at its old size inside a much larger box
 - the caption under the body is **optional** (`chartCaption?`). The day chart's axes are
   already named with their units on the canvas and keyed by the legend in the header, so
   a sentence repeating them was a third statement of the same thing
