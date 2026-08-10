@@ -226,19 +226,23 @@ A list rather than prose: each observation is independent and should be scannabl
 
 ## Dashboard shell
 
-`app/dashboard/page.tsx` — an application shell, not a document.
+`app/dashboard/page.tsx` + `app/dashboard/_components/sidebar.tsx` — a rail and a
+full-width work area, which is the layout that reads as an application rather than a page.
 
-- **sticky header** (`sticky top-0 z-30 border-b bg-surface`) with the wordmark, the
-  area/location/timezone chips, and Logout; a second sticky row holds the filters. In an
-  analytics tool the filters are used constantly, and a header that scrolls away makes
-  every change of view a scroll to the top and back
-- the caveat chips are `hidden lg:block` — they matter, but not enough to wrap the header
-  onto two lines on a phone
-- body is `max-w-content` with `gap-6`, tighter than the marketing pages: a dashboard is
-  scanned, not read
-- charts sit in a **grid**, not a column: the day chart takes 2fr against 1fr of
-  observations at `xl`, and the two range charts split at `2xl`. Stacking full-width
-  cards is what made it read like a report
+- **sidebar** (`w-60`, sticky, full height) carries the brand and the filters. Every entry
+  is a **real filter or a real anchor** — a rail of dead links looks like a dashboard and
+  behaves like a mock-up
+- rail selection uses a background *and* a left border marker, plus `aria-current`
+- hidden below `lg`, where the horizontal `ViewControls` in the header takes over. A fixed
+  rail on a phone costs more width than the charts can spare
+- **thin sticky header**: caveat chips and Logout only. With filters in the rail there is
+  nothing else that needs to persist
+- the work area is **full width** with `px-4 sm:px-6`, not a centred `max-w-content`
+  column. Centring is what made it read as a document
+- charts sit in a **grid**: the day chart takes 2fr against 1fr of observations at `xl`,
+  and the two range charts split at `2xl`
+- sections carry `scroll-mt-24` so the sticky header does not cover a heading the rail
+  anchors jump to
 
 ## KPI strip
 

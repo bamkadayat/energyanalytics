@@ -10,7 +10,8 @@ import {
   ViewControls,
 } from "@/features/market-correlation";
 import { APP_TIME_ZONE, PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
-import { Button, Wordmark } from "@/shared/ui";
+import { DashboardSidebar } from "./_components/sidebar";
+import { Button } from "@/shared/ui";
 
 export const metadata: Metadata = {
   title: "Dashboard · Nordic Power & Weather Explorer",
@@ -43,62 +44,68 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
 
   return (
     /*
-     * An application shell rather than a document: a sticky bar that keeps identity,
-     * filters and sign-out in reach while the data scrolls. In an analytics tool the
-     * filters are used constantly, and a header that scrolls away makes every change of
-     * view a scroll to the top and back.
+     * Rail plus a full-width work area — the layout that reads as an application rather
+     * than a page. The rail carries the filters, so the header can stay thin and the
+     * charts get the whole width instead of a centred column.
      */
-    <div className="flex min-h-screen flex-col bg-page">
-      <header className="sticky top-0 z-30 border-b border-line bg-surface">
-        <div className="mx-auto flex w-full max-w-content flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-4">
-            <Wordmark />
+    <div className="flex min-h-screen bg-page">
+      <DashboardSidebar params={params} />
 
-            {/*
-              Visually hidden. The wordmark carries the product name; a page still needs
-              an h1 or the heading outline starts at h2 with a hole in it.
-            */}
-            <h1 className="sr-only">
-              Dashboard — {PRICE_AREA.label} prices and {WEATHER_LOCATION.label} weather
-            </h1>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-30 border-b border-line bg-surface">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+            <div className="flex min-w-0 flex-col gap-0.5">
+              {/*
+                Visually hidden. The rail carries the product name; a page still needs an
+                h1 or the heading outline starts at h2 with a hole in it.
+              */}
+              <h1 className="sr-only">
+                Dashboard — {PRICE_AREA.label} prices and {WEATHER_LOCATION.label} weather
+              </h1>
 
-            {/*
-              The three caveats this page must never bury: which area the prices cover,
-              that Oslo is one representative point inside it, and which clock every hour
-              is stated in. As header chips they stay on screen rather than scrolling away.
-            */}
-            <p className="hidden font-mono text-xs text-fg-muted lg:block">
-              {PRICE_AREA.label} · {WEATHER_LOCATION.label} weather · {APP_TIME_ZONE}
-            </p>
+              <p className="text-sm font-medium text-fg lg:hidden">Dashboard</p>
+
+              {/*
+                The three caveats this page must never bury: which area the prices cover,
+                that Oslo is one representative point inside it, and which clock every
+                hour is stated in.
+              */}
+              <p className="truncate font-mono text-xs text-fg-muted">
+                {PRICE_AREA.label} · {WEATHER_LOCATION.label} weather · {APP_TIME_ZONE}
+              </p>
+            </div>
+
+            <form action={logout}>
+              <Button type="submit" variant="outline" size="sm">
+                Logout
+              </Button>
+            </form>
           </div>
 
-          <form action={logout}>
-            <Button type="submit" variant="outline" size="sm">
-              Logout
-            </Button>
-          </form>
-        </div>
-
-        <div className="border-t border-line bg-surface">
-          <div className="mx-auto w-full max-w-content px-4 py-2.5 sm:px-6">
+          {/* Below lg the rail is hidden, so the filters live here instead. */}
+          <div className="border-t border-line px-4 py-2.5 sm:px-6 lg:hidden">
             <ViewControls params={params} />
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="mx-auto flex w-full max-w-content flex-1 flex-col gap-6 px-4 py-6 sm:px-6">
-        <Suspense fallback={<LoadingRegion />}>
-          <CorrelationView params={params} />
-        </Suspense>
+        <main className="flex flex-1 flex-col gap-6 px-4 py-6 sm:px-6">
+          <section id="day-view" className="scroll-mt-24">
+            <Suspense fallback={<LoadingRegion />}>
+              <CorrelationView params={params} />
+            </Suspense>
+          </section>
 
-        {/*
-          Its own boundary: the 30-day range is 30 price requests, and making today's
-          chart wait on them would be the wrong trade.
-        */}
-        <Suspense fallback={<LoadingRegion label="Loading the last 30 days…" />}>
-          <RangeViews params={params} />
-        </Suspense>
-      </main>
+          {/*
+            Its own boundary: the range is one price request per day, and making today's
+            chart wait on them would be the wrong trade.
+          */}
+          <section className="scroll-mt-24">
+            <Suspense fallback={<LoadingRegion label="Loading the range…" />}>
+              <RangeViews params={params} />
+            </Suspense>
+          </section>
+        </main>
+      </div>
     </div>
   );
 }
