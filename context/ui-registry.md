@@ -872,7 +872,34 @@ metric, on a `bg-page` section.
 
 ## Landing hero band
 
-`src/app/page.tsx` — the navy band holding the headline, the CTAs and the preview card.
+`src/app/page.tsx` — the band holding the headline, the CTAs and the preview card, over a
+photograph of the region the data describes.
+
+- **`public/hero.png` as the background**, through `next/image` with `fill` and
+  `priority`. Not a CSS `background-image`: the source is a 2.7 MB PNG and `next/image`
+  serves a resized WebP/AVIF instead — **28 KB at 640w, 196 KB at 1920w**, measured. A
+  landing page whose argument is speed cannot ship the original, and `priority` also
+  preloads it, since it is the LCP element
+- **`alt=""` — decorative.** It shows the region the data covers but carries nothing the
+  headline does not, and a description of scenery announced before the product name is
+  noise
+- **`isolate` on the band.** The photograph and its scrim sit at `-z-10`; without a new
+  stacking context they drop behind the page background rather than behind this band's
+  content. `bg-surface-inverse` stays underneath, so the hero is the same navy while the
+  image loads and if it never arrives
+- **The scrim is load-bearing, not styling.** Measured against the asset: the brightest
+  pixel under the text area is pure white, so these are true worst cases —
+
+  | scrim | `--fg-inverse` | `--fg-inverse-muted` |
+  | --- | --- | --- |
+  | 80% | 10.18:1 | 6.24:1 |
+  | 75% | 8.45:1 | 5.18:1 |
+
+  The gradient bottoms out at **75%**, and the muted paragraph fails first. Do not lighten
+  it without re-measuring — AA wants 4.5:1 there, leaving 0.68 in hand. Re-measure if the
+  image is swapped
+- `bg-linear-to-r`, not `bg-gradient-to-r`: this is Tailwind 4, where the utility was
+  renamed. The v3 name emits nothing
 
 - **One pill, one text link.** The primary is `SessionCta` (`inverse`, `lg`); the secondary
   is "How the data is joined" as **text plus a right arrow**, not a second pill. It was
