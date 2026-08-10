@@ -13,6 +13,16 @@ import {
   type DaySummary,
 } from "./derive-summary";
 
+/**
+ * How many observations the list shows.
+ *
+ * Three. A fourth is one more than anyone reads before moving on, and the one that falls
+ * off first — the weather peak — is already stated as its own KPI card above the chart.
+ * It still appears when a price observation is missing, which is exactly when there is
+ * room for it.
+ */
+const MAX_INSIGHTS = 3;
+
 export interface Insight {
   id: string;
   /**
@@ -39,6 +49,8 @@ export interface Insight {
  *
  * An observation is omitted rather than hedged when its inputs are missing: a list of
  * three true statements is better than four where one says "unknown".
+ *
+ * At most `MAX_INSIGHTS`, and the order they are pushed in is the priority order.
  */
 export function deriveInsights(
   aligned: AlignedHours,
@@ -96,7 +108,7 @@ export function deriveInsights(
     });
   }
 
-  return insights;
+  return insights.slice(0, MAX_INSIGHTS);
 }
 
 /**
