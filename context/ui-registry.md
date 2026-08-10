@@ -812,10 +812,18 @@ Current stagger: header 0 → headline 90ms → subtitle 180ms → CTA 270ms →
 - stats end in a **reading count** (`24 of 24 hours`, or `1 hour without a reading`),
   which is the thing the card could not say before
 - the arrow button **fills with the accent on hover** rather than nudging sideways
-- the featured card is the default metric, so the emphasis means "this is what the
-  dashboard opens on". **Depth only (`shadow-popover`), no vertical offset** — it is the
-  first of the three, and lifting it made the row's top edge look misaligned rather than
-  emphasised
+- **the middle card is raised** (`lg:-translate-y-6`) and carries the depth. This used to
+  emphasise the *default metric* with depth alone, on the grounds that lifting it made the
+  row's top edge look misaligned — true, because the default is the **first** of the
+  three. Only the centre card can be lifted without that happening: the two beside it are
+  symmetrical about it, so it reads as a pedestal
+- **the emphasis moved rather than doubling.** A shadowed first card and a raised second
+  would be two competing focal points, so `featured` is now positional. The
+  "this is what the dashboard opens on" signal lives in the hero preview alone, which
+  still opens on `DEFAULT_WEATHER_METRIC`
+- `translate` rather than a margin, so the lift costs no layout and the neighbours do not
+  reflow; `lg:` only, since a raised card in a stacked column is just a stray gap. The
+  list carries `lg:pt-6` to reserve the room the lift moves into
 
 ## Metric highlight cards (superseded)
 

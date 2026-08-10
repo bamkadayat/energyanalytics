@@ -38,11 +38,19 @@ export function SpotlightCard({
       }}
       style={{ "--spot-color": `var(${accent})` } as CSSProperties}
       className={`bento bento-spot relative flex min-w-0 flex-col gap-5 overflow-hidden p-5 text-fg-inverse ${
-        // The default metric is raised, so the emphasis means "this is what the dashboard
-        // opens on" rather than being an arbitrary favourite. Depth only, no offset: the
-        // featured card is the first of the three, and lifting it left the row's top edge
-        // looking misaligned rather than emphasised.
-        featured ? "shadow-popover" : ""
+        /*
+         * The featured card is lifted, and given depth to match.
+         *
+         * An earlier version emphasised the *default metric* — the first of the three —
+         * and could only use depth: lifting the leftmost card made the row's top edge
+         * look misaligned rather than emphasised. Raising the **middle** one has the
+         * opposite effect, because the two beside it are symmetrical about it.
+         *
+         * `translate` rather than a margin, so the lift costs no layout: the grid row is
+         * unchanged and the neighbours do not reflow. Only at `lg`, where the three sit
+         * side by side — stacked, a raised card is just a stray gap.
+         */
+        featured ? "shadow-popover lg:-translate-y-6" : ""
       }`}
     >
       {/* Above the ::before glow, which is painted on the panel itself. */}
