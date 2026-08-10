@@ -11,7 +11,6 @@ import {
 } from "@/features/market-correlation";
 import {
   APP_LOCALE,
-  DEFAULT_WEATHER_METRIC,
   PREVIEW_DAY,
   WEATHER_METRICS,
   WEATHER_METRIC_IDS,
@@ -31,6 +30,14 @@ import { SpotlightCard } from "./spotlight-card";
  * Kept to one short line each, and parallel. What they share — the price curve beside
  * them, the hour-for-hour join — is said once in the section intro, not three times.
  */
+/**
+ * Index of the card that gets lifted. Derived rather than written as `1`, so it follows
+ * `WEATHER_METRIC_IDS` if a fourth metric ever arrives — with an even count this picks
+ * the left of the two middles, which is at least a definite answer rather than a silently
+ * wrong one.
+ */
+const MIDDLE_CARD = Math.floor((WEATHER_METRIC_IDS.length - 1) / 2);
+
 const DESCRIPTIONS: Record<WeatherMetricId, string> = {
   wind: "Wind speed over Oslo, hour by hour.",
   temperature: "Air temperature over Oslo, hour by hour.",
@@ -69,8 +76,13 @@ export async function MetricHighlights() {
           </p>
         </div>
 
-        <ul className="mt-12 grid gap-6 lg:grid-cols-3 lg:items-start">
-          {WEATHER_METRIC_IDS.map((id) => {
+        {/*
+          `lg:pt-6` reserves the room the middle card's lift moves into. Without it the
+          raised card's top edge crowds the paragraph above, since `-translate-y-6` takes
+          no layout of its own.
+        */}
+        <ul className="mt-12 grid gap-6 lg:grid-cols-3 lg:items-start lg:pt-6">
+          {WEATHER_METRIC_IDS.map((id, index) => {
             const aligned = hasData
               ? alignPriceAndWeather(
                   prices.prices,
@@ -82,10 +94,20 @@ export async function MetricHighlights() {
             const hourLabels = aligned?.hours.map((hour) => formatOsloTime(hour)) ?? [];
 
             return (
+              /*
+                The **middle** card is the raised one, which is a claim about position
+                rather than about the metric. It used to be the default metric, so the
+                emphasis meant "this is what the dashboard opens on" — but the default is
+                the first of the three, and only the centre card can be lifted without the
+                row looking misaligned. One emphasised card beats a shadowed first and a
+                raised second, so the meaning moved rather than being doubled. The hero
+                preview still opens on `DEFAULT_WEATHER_METRIC`, which is where that
+                signal now lives alone.
+              */
               <SpotlightCard
                 key={id}
                 accent={`--chart-${id}`}
-                featured={id === DEFAULT_WEATHER_METRIC}
+                featured={index === MIDDLE_CARD}
               >
                 <MetricCardBody
                   id={id}
