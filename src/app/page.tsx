@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Suspense } from "react";
 import { FiArrowRight } from "react-icons/fi";
 import { Wordmark } from "@/shared/ui";
@@ -43,7 +44,51 @@ export default function Home() {
       </header>
 
       <main className="flex flex-1 flex-col">
-        <div className="bg-surface-inverse text-fg-inverse">
+        {/*
+          `isolate` matters: the photograph and its scrim sit at `-z-10`, and without a
+          new stacking context here they would drop behind the page background instead of
+          behind this band's own content. `bg-surface-inverse` stays as the ground beneath
+          them, so the hero is the same navy while the image loads and if it never does.
+        */}
+        <div className="relative isolate overflow-hidden bg-surface-inverse text-fg-inverse">
+          {/*
+            `alt=""` — decorative. It is a view of the region the data describes, but it
+            carries nothing the headline does not, and a screen reader announcing a
+            description of scenery before the product name is noise.
+
+            `priority`, because this is the LCP element and Next would otherwise lazy-load
+            it. `next/image` is doing real work here: the source is a 2.7 MB PNG, and this
+            serves a resized AVIF/WebP instead — a landing page whose whole argument is
+            speed cannot ship the original.
+          */}
+          <Image
+            src="/hero.png"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="-z-10 object-cover object-center"
+          />
+
+          {/*
+            The scrim, and it is load-bearing rather than styling.
+
+            Measured against the asset itself, not estimated: the brightest pixel under
+            the text area is pure white, so this is the true worst case. Composited over
+            `--surface-inverse` the ratios are
+
+              80% -> `--fg-inverse` 10.18:1, `--fg-inverse-muted` 6.24:1
+              75% ->                 8.45:1,                       5.18:1
+
+            The gradient bottoms out at 75%, which is the floor those numbers were taken
+            at, and the muted paragraph is what fails first. **Do not lighten it** without
+            re-measuring — AA wants 4.5:1 for that paragraph and 75% leaves only 0.68 in
+            hand. Re-measure too if the image is ever swapped.
+          */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-linear-to-r from-surface-inverse via-surface-inverse/90 to-surface-inverse/75"
+          />
           {/*
             Fills 70% of the viewport, with the content centred in it.
 

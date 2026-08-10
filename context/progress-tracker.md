@@ -62,6 +62,24 @@ Plus an unplanned track, added on request partway through and not in `build-plan
 
 ## Completed
 
+### 2026-08-10 — A photograph behind the hero
+
+`public/hero.png` — the region the data describes, seen from orbit — now sits behind the
+hero band.
+
+- **Through `next/image`, not a CSS background.** The source is a 2.7 MB PNG; the served
+  variants are **28 KB at 640w and 196 KB at 1920w**, measured against the running server.
+  `priority` because it is the LCP element, which also emits the preload.
+- **The scrim was measured, not estimated.** Sampling the asset, the brightest pixel under
+  the text area is pure white — the true worst case. Over `--surface-inverse` at the
+  gradient's 75% floor that leaves `--fg-inverse` at 8.45:1 and `--fg-inverse-muted` at
+  5.18:1; at 80%, 10.18:1 and 6.24:1. The muted paragraph fails first and has 0.68 in hand
+  at the floor, so the gradient must not be lightened without re-measuring.
+- `isolate` on the band, since the image and scrim sit at `-z-10` and would otherwise drop
+  behind the page background. `bg-surface-inverse` remains underneath as the fallback.
+- `bg-linear-to-r`, not the v3 `bg-gradient-to-r` — this is Tailwind 4 and the old name
+  emits nothing. Verified against the compiled stylesheet.
+
 ### 2026-08-10 — Landing page accessibility pass
 
 A static audit of the served markup — heading order, landmarks, link text, `aria-hidden`
