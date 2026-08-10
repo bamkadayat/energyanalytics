@@ -18,7 +18,12 @@ export function SiteFooter() {
     <footer className="border-t border-line bg-page">
       <div className="mx-auto flex w-full max-w-content flex-col gap-6 px-4 py-10 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <Wordmark />
+          {/*
+            `short`, matching the navbar. The full name is still spoken — `short` keeps it
+            in an `sr-only` span — and still carries the page title, so it is only the
+            visible lockup that drops "Nordic".
+          */}
+          <Wordmark short />
 
           <p className="break-words font-mono text-xs text-fg-muted">
             Data:{" "}
