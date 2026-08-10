@@ -229,10 +229,18 @@ A list rather than prose: each observation is independent and should be scannabl
 `app/dashboard/page.tsx` + `app/dashboard/_components/sidebar.tsx` — a rail and a
 full-width work area, which is the layout that reads as an application rather than a page.
 
-- **sidebar** (`w-60`, sticky, full height) carries the brand and the filters. Every entry
-  is a **real filter or a real anchor** — a rail of dead links looks like a dashboard and
-  behaves like a mock-up
-- rail selection uses a background *and* a left border marker, plus `aria-current`
+- **sidebar** (`w-60`, sticky, full height) carries the brand, the filters and Logout.
+  Every entry is a **real filter or a real anchor** — a rail of dead links looks like a
+  dashboard and behaves like a mock-up
+- items are `rounded-control px-3 py-2` with a `size-5` icon; active is a **soft fill plus
+  a weight change** (`bg-surface-subtle font-medium`) and `aria-current`. The fill alone
+  would be colour carrying meaning on its own — the heavier label is the second channel
+- badges are live data (the loaded range), not decoration
+- Logout is pinned to the bottom behind a divider: used once a session, so it does not
+  deserve space next to the data. The header keeps a fallback below `lg`
+- **no search field.** The reference has one, but this app has a single dataset and
+  nothing to search; a box that accepts typing and does nothing is a worse lie than an
+  absent feature
 - hidden below `lg`, where the horizontal `ViewControls` in the header takes over. A fixed
   rail on a phone costs more width than the charts can spare
 - **thin sticky header**: caveat chips and Logout only. With filters in the rail there is
