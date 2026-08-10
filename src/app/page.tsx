@@ -1,13 +1,22 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { FiArrowRight } from "react-icons/fi";
 import { Wordmark } from "@/shared/ui";
 import { DEFAULT_WEATHER_METRIC, PRICE_AREA } from "@/shared/config";
 import Link from "next/link";
-import { ClosingCta } from "./_components/closing-cta";
 import { HeroPreview } from "./_components/hero-preview";
+import { HowItsBuilt } from "./_components/how-its-built";
 import { MetricHighlights } from "./_components/metric-highlights";
 import { SessionCta, SessionCtaPlaceholder } from "./_components/session-cta";
 import { SiteFooter } from "./_components/site-footer";
+
+/**
+ * The one route a crawler should see. The root layout opts everything out by default,
+ * because the dashboard and login sit behind a password.
+ */
+export const metadata: Metadata = {
+  robots: { index: true, follow: true },
+};
 
 /**
  * Public landing page. Everything but the session-aware button is static — the preview
@@ -20,14 +29,15 @@ export default function Home() {
           sit outside every landmark, where "skip to content" could not reach it. */}
       <header className="bg-surface-inverse text-fg-inverse">
         <div className="mx-auto flex w-full max-w-content items-center justify-between gap-4 px-4 py-6 sm:px-6">
-          <Wordmark tone="inverse" />
+          <Wordmark tone="inverse" short />
 
           {/*
-            Smaller than the hero's button on purpose: the same control at the same size
-            twice in one viewport leaves neither of them reading as the primary action.
+            Text, not a pill. Even one size down it was still the hero's control repeated
+            in the same viewport, and two of those leave neither reading as the primary
+            action. The hero keeps the pill; this is navigation.
           */}
-          <Suspense fallback={<SessionCtaPlaceholder size="sm" />}>
-            <SessionCta size="sm" />
+          <Suspense fallback={<SessionCtaPlaceholder appearance="text" />}>
+            <SessionCta appearance="text" />
           </Suspense>
         </div>
       </header>
@@ -57,14 +67,14 @@ export default function Home() {
               </p>
 
               <div className="flex flex-wrap items-center gap-3">
+                {/*
+                  Says "Log in", because that is what it does. It once said "Open the
+                  dashboard" to a signed-out visitor and delivered a password field.
+                */}
                 <Suspense
                   fallback={<SessionCtaPlaceholder size="lg" className="sm:w-48" />}
                 >
-                  <SessionCta
-                    size="lg"
-                    className="sm:min-w-48"
-                    signedOutLabel="Open the dashboard"
-                  />
+                  <SessionCta size="lg" className="sm:min-w-48" />
                 </Suspense>
 
                 {/*
@@ -107,7 +117,13 @@ export default function Home() {
 
         <MetricHighlights />
 
-        <ClosingCta />
+        {/*
+          After the cards, not before: the reader should have seen what the thing does
+          before being told how it holds together. It is also the last section — the
+          closing CTA band that used to follow it is gone, so the page ends on the
+          engineering rather than on a second ask.
+        */}
+        <HowItsBuilt />
       </main>
 
       <SiteFooter />
