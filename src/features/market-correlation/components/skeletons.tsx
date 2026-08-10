@@ -66,14 +66,14 @@ export function DayViewSkeleton() {
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <div className="flex flex-col gap-6">
         <Card>
           <CardHeader />
           <Skeleton className="min-h-[var(--chart-min-height)] flex-1" />
         </Card>
 
         {/* Same three arrangements as the real column — see `correlation-view.tsx`. */}
-        <div className="grid gap-4 md:grid-cols-2 md:items-start xl:grid-cols-1">
+        <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
           <Card>
             <Skeleton className="h-5 w-32" />
             {[0, 1, 2, 3].map((row) => (

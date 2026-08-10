@@ -105,7 +105,7 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
             was the other way to remove that white space, but it left the page with a
             ragged bottom edge and a chart no bigger than its minimum.
           */}
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="flex flex-col gap-6">
           <ViewCard
             title="Hour by hour"
             paramKey="view"
@@ -146,7 +146,15 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
             `items-start` so the shorter card keeps its own height rather than being
             stretched to the taller one's.
           */}
-          <div className="grid gap-4 md:grid-cols-2 md:items-start xl:grid-cols-1">
+          {/*
+            Stacked full width until `xl`, side by side from there. Two cards this dense
+            need a wide page to sit next to each other and still hold a sentence, which
+            `md` and `lg` do not have once the rail is subtracted.
+
+            `items-start` so the shorter card keeps its own height instead of being
+            stretched to the taller one's and padding the difference with white.
+          */}
+          <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
             <div className="rounded-card border border-line bg-surface p-4">
               <InsightsList insights={insights} />
             </div>
