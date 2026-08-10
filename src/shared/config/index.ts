@@ -122,6 +122,20 @@ export const RANGE_DAY_OPTIONS = [7, 14, 30, 60] as const;
 
 export type RangeDays = (typeof RANGE_DAY_OPTIONS)[number];
 
+/**
+ * The day the landing page's preview chart shows.
+ *
+ * Fixed on purpose: a constant date needs no clock, so the preview is **real market data
+ * that still prerenders statically**. Reading "today" would make the marketing page
+ * request-time for a decorative chart.
+ *
+ * Labelled as an example day in the UI, because it is one.
+ */
+export const PREVIEW_DAY = { year: 2026, month: 8, day: 7 } as const;
+
+/** Hour the preview highlights — late afternoon, where the two curves diverge. */
+export const PREVIEW_HOUR_INDEX = 16;
+
 export type DaySelection = "today" | "tomorrow";
 
 export const DEFAULT_DAY: DaySelection = "today";

@@ -427,7 +427,32 @@ rule alone would leave the reveals fully active for users who asked for less mot
 
 Current stagger: header 0 → headline 90ms → subtitle 180ms → CTA 270ms → visual 340ms.
 
-## Metric highlight cards
+## Bento metric cards
+
+`_components/metric-highlights.tsx` + `_components/spotlight-card.tsx`.
+
+- **ink gradient inside a 1px gradient border**, `--radius-bento` (20px). Two backgrounds
+  with different clip boxes — `padding-box` paints the fill, `border-box` the edge, and a
+  transparent border reveals it. That is the only way to get a gradient border without a
+  wrapper element
+- **cursor spotlight** in each card's own accent, positioned by `--spot-x`/`--spot-y`
+  written straight to the element. Not React state: a mousemove handler that calls
+  `setState` re-renders the subtree every pixel, and this is pure paint. `:focus-within`
+  covers keyboards
+- **charts carry real data** from the fixed example day — gradient area fill, a wide soft
+  stroke as glow, and the price behind as a dashed ghost
+- **the ghost inverts the dashboard's solid/dashed convention, deliberately.** There the
+  two series are peers and line style separates them; here the metric is the subject and
+  price is context. Nothing on the card depends on telling them apart — the heading, unit
+  chip and stat line all name the metric. The dashboard's rule is untouched
+- unit lives in a chip in the header chrome, not repeated in the stat sentence
+- stats end in a **reading count** (`24 of 24 hours`, or `1 hour without a reading`),
+  which is the thing the card could not say before
+- the arrow button **fills with the accent on hover** rather than nudging sideways
+- the featured card is the default metric, so the emphasis means "this is what the
+  dashboard opens on"
+
+## Metric highlight cards (superseded)
 
 `src/app/_components/metric-highlights.tsx` — three cards below the hero, one per weather
 metric, on a `bg-page` section.
@@ -446,6 +471,25 @@ metric, on a `bg-page` section.
   price curve would put invented market data on the marketing page
 - the featured card overrides the focus ring (`focus-visible:outline-fg-inverse`), since
   the global `--focus` navy is invisible on it
+
+## Hero preview card
+
+`src/app/_components/hero-preview.tsx` — the dashboard preview beside the headline.
+
+- **Real market data, not a mock-up.** The day is a fixed constant (`PREVIEW_DAY`), so no
+  clock is involved and the card prerenders. Reading "today" would make the marketing page
+  request-time for a decorative chart
+- **inline SVG, not ECharts.** A static picture on a landing page does not justify
+  shipping a charting library; geometry comes from `toPreviewChart`, a pure tested
+  function
+- each series is scaled to its **own** range, like the real dual axes — comparable in
+  shape only, never in height
+- a gap starts a new subpath rather than being bridged, even here
+- the metric pills are **links into the real dashboard view** for that metric: they look
+  like controls and behave like them
+- labelled "Real market data · fixed example day". The reference said "illustrative"; ours
+  does not have to, because the shape is what actually happened
+- the SVG is `aria-hidden` — the stat strip above it carries the same values as text
 
 ## Hero visual
 

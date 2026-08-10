@@ -83,6 +83,12 @@
   --line: var(--slate-300);
   --line-strong: var(--slate-500);
   --line-selected: var(--navy-900);
+  /*
+   * Hairline for dark surfaces. The neutral line tokens are slate, which reads as bright
+   * grey against navy and pulls the eye to the frame instead of the content. A navy a
+   * step above the fill separates without announcing itself.
+   */
+  --line-inverse: var(--navy-800);
   --focus: var(--navy-900);
 
   /* ---- 2. Semantic: actions ---- */
@@ -143,6 +149,17 @@
   --heat-5: #16357f;
 
   /*
+   * ---- 2. Semantic: bento cards ----
+   * An ink gradient inside a gradient hairline, so a row of cards reads as panels rather
+   * than flat grey boxes. Kept as tokens because every colour in this project lives in
+   * this file and nowhere else.
+   */
+  --card-ink-from: #171b2b;
+  --card-ink-to: #0e1223;
+  --card-edge-from: #2b3350;
+  --card-edge-to: #141a2c;
+
+  /*
    * ---- 2. Semantic: sizing ----
    * Fluid, so charts stay usable at 200% zoom and on a phone without media queries.
    * The heatmap gets its own, taller value: it has 24 rows to fit, where a line chart
@@ -188,6 +205,7 @@
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-line-selected: var(--line-selected);
+  --color-line-inverse: var(--line-inverse);
   --color-focus: var(--focus);
 
   --color-action-primary: var(--action-primary);
@@ -236,6 +254,8 @@
   --radius-control: 0.5rem;
   --radius-card: 0.75rem;
   --radius-pill: 9999px;
+  /* Bento panels sit between a card and a container: 20px. */
+  --radius-bento: 1.25rem;
 
   --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.06), 0 1px 3px 0 rgb(15 23 42 / 0.1);
   --shadow-popover: 0 8px 24px -4px rgb(15 23 42 / 0.18);
@@ -332,6 +352,53 @@
 }
 
 @layer components {
+  /*
+   * Bento panel: ink gradient inside a 1px gradient border.
+   *
+   * Two backgrounds with different clip boxes is the only way to get a gradient border
+   * without a wrapper element — `padding-box` paints the fill, `border-box` paints the
+   * edge, and the transparent border reveals it.
+   */
+  .bento {
+    border: 1px solid transparent;
+    border-radius: var(--radius-bento);
+    background:
+      linear-gradient(180deg, var(--card-ink-from), var(--card-ink-to)) padding-box,
+      linear-gradient(160deg, var(--card-edge-from), var(--card-edge-to)) border-box;
+  }
+
+  /*
+   * Cursor spotlight in the card's own accent.
+   *
+   * Position comes from --spot-x / --spot-y, set by the client wrapper on pointer move.
+   * `focus-within` covers keyboards, which a mouse-only effect would leave out entirely.
+   */
+  .bento-spot::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      16rem circle at var(--spot-x, 50%) var(--spot-y, 50%),
+      var(--spot-color, transparent),
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 220ms ease;
+    pointer-events: none;
+  }
+
+  .bento-spot:hover::before,
+  .bento-spot:focus-within::before {
+    opacity: 0.16;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bento-spot::before {
+      transition: none;
+    }
+  }
+
   /*
    * Off-canvas drawer.
    *

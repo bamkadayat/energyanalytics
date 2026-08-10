@@ -1,169 +1,255 @@
 import Link from "next/link";
 import { FiArrowRight } from "react-icons/fi";
+import { getSettledPrices } from "@/features/energy-prices";
+import { getWeather } from "@/features/weather-forecast";
 import {
+  alignPriceAndWeather,
+  summariseMetric,
+  toPreviewChart,
+  type MetricPreviewStats,
+  type PreviewChart,
+} from "@/features/market-correlation";
+import {
+  DEFAULT_WEATHER_METRIC,
+  PREVIEW_DAY,
   WEATHER_METRICS,
   WEATHER_METRIC_IDS,
   type WeatherMetricId,
 } from "@/shared/config";
+import { formatMetricValue } from "@/shared/lib/format-number";
+import { formatOsloTime } from "@/shared/lib/format-oslo";
+import { SpotlightCard } from "./spotlight-card";
 
 /**
- * The three weather metrics, as three ways into the product.
+ * The three weather metrics, each with a real mini-chart from the example day.
  *
- * Each card links to the dashboard **already filtered to that metric** — a real, working
- * URL rather than a "Read more" pointing at a page that does not exist. A signed-out
- * visitor is redirected to sign in, which is the expected behaviour for a protected view.
+ * Same fixed day as the hero, fetched once and aligned three ways — two requests for the
+ * whole section, and no clock, so it still prerenders.
  *
- * Copy stays descriptive. These cards say what is plotted next to what; none claims that
- * weather moves prices, because this project has no basis for that and says so
- * everywhere else.
+ * Each card links to the dashboard already filtered to that metric: a real view, not a
+ * "Read more" pointing nowhere.
  */
 
 const DESCRIPTIONS: Record<WeatherMetricId, string> = {
-  wind: "Wind speed over Oslo on the same hourly timeline as day-ahead spot prices, for today or tomorrow.",
+  wind: "Wind over Oslo on the same hourly timeline as day-ahead prices, for today or tomorrow.",
   temperature:
     "Hourly temperature beside the price curve, so you can see where the two happen to move together.",
   solar:
     "Shortwave radiation across daylight hours, next to what electricity cost in the same hour.",
 };
 
-/** The default metric leads, so the featured card is the one the dashboard opens on. */
-const FEATURED: WeatherMetricId = "wind";
+export async function MetricHighlights() {
+  const [prices, weather] = await Promise.all([
+    getSettledPrices(PREVIEW_DAY),
+    getWeather(PREVIEW_DAY),
+  ]);
 
-export function MetricHighlights() {
+  const hasData = prices.status === "ok";
+
   return (
-    <section className="bg-page pb-12 pt-16 sm:pb-16 sm:pt-24">
+    <section id="how-it-works" className="scroll-mt-8 bg-page py-16 sm:py-24">
       <div className="mx-auto w-full max-w-content px-4 sm:px-6">
-        <h2 className="animate-reveal mx-auto max-w-2xl text-balance text-center text-display font-semibold text-fg">
-          The same 24 hours, three ways to read them
-        </h2>
+        <div className="flex max-w-2xl flex-col gap-4">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-fg-muted">
+            Three layers, one timeline
+          </p>
 
-        {/*
-          `items-center` so the two shorter cards sit centred against the taller featured
-          one, which is what gives the middle card its lift rather than a shadow.
-        */}
-        <ul className="mt-12 grid gap-6 lg:grid-cols-3 lg:items-center">
-          {WEATHER_METRIC_IDS.map((id) => (
-            <MetricCard key={id} id={id} featured={id === FEATURED} />
-          ))}
+          <h2 className="text-balance text-display font-semibold text-fg">
+            The same 24 hours, three ways to read them
+          </h2>
+
+          {/*
+            Answers the hero's "How the data is joined" button, which links here. Stating
+            the join is the honest version of a marketing claim — it is the part of the
+            product that is actually hard.
+          */}
+          <p className="text-pretty text-fg-secondary">
+            Each view keeps the price curve in place and puts one weather reading beside
+            it, so you compare hours rather than charts. The two feeds are independent, so
+            they are matched on a normalised hour rather than by position — a day is 23 or
+            25 hours twice a year, and a missing reading stays missing.
+          </p>
+        </div>
+
+        <ul className="mt-12 grid gap-6 lg:grid-cols-3 lg:items-start">
+          {WEATHER_METRIC_IDS.map((id) => {
+            const aligned = hasData
+              ? alignPriceAndWeather(
+                  prices.prices,
+                  weather.status === "ok" ? weather.weather : null,
+                  id,
+                )
+              : null;
+
+            const hourLabels = aligned?.hours.map((hour) => formatOsloTime(hour)) ?? [];
+
+            return (
+              <SpotlightCard
+                key={id}
+                accent={`--chart-${id}`}
+                featured={id === DEFAULT_WEATHER_METRIC}
+              >
+                <MetricCardBody
+                  id={id}
+                  chart={aligned ? toPreviewChart(aligned, hourLabels, -1) : null}
+                  stats={aligned ? summariseMetric(aligned, hourLabels) : null}
+                />
+              </SpotlightCard>
+            );
+          })}
         </ul>
       </div>
     </section>
   );
 }
 
-function MetricCard({ id, featured }: { id: WeatherMetricId; featured: boolean }) {
+function MetricCardBody({
+  id,
+  chart,
+  stats,
+}: {
+  id: WeatherMetricId;
+  chart: PreviewChart | null;
+  stats: MetricPreviewStats | null;
+}) {
   const metric = WEATHER_METRICS[id];
 
   return (
-    <li
-      className={`animate-reveal relative flex min-h-80 flex-col overflow-hidden rounded-card p-6 sm:p-8 ${
-        featured
-          ? "bg-surface-inverse text-fg-inverse lg:min-h-[26rem]"
-          : "bg-surface-selected text-fg lg:min-h-96"
-      }`}
-    >
-      {/*
-        Iconographic rather than a chart. A stylised price curve here would put invented
-        market data on the marketing page, which is the one thing this product must not
-        do — so each card carries the instrument, not a reading.
-      */}
-      <MetricMotif id={id} featured={featured} />
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="flex items-center gap-2.5 text-lg font-semibold">
+          {/* Glows in the accent, so the swatch reads as lit rather than printed. */}
+          <span
+            aria-hidden="true"
+            className="size-2.5 rounded-[3px]"
+            style={{
+              backgroundColor: `var(--chart-${id})`,
+              boxShadow: `0 0 12px var(--chart-${id})`,
+            }}
+          />
+          {metric.label}
+        </h3>
 
-      <div className="relative flex min-w-0 flex-1 flex-col gap-4">
-        <h3 className="text-2xl font-semibold">{metric.label}</h3>
-
-        <p
-          className={`max-w-xs text-pretty ${
-            featured ? "text-fg-inverse-muted" : "text-fg-secondary"
-          }`}
-        >
-          {DESCRIPTIONS[id]}
-        </p>
-
-        <Link
-          href={`/dashboard?day=today&metric=${id}`}
-          /*
-           * The global focus ring is near-black navy and would be invisible on the
-           * featured card, so that one overrides the outline colour — the same problem
-           * the buttons solve through --btn-ring-color.
-           */
-          className={`mt-auto inline-flex items-center gap-3 self-start font-medium underline-offset-4 hover:underline ${
-            featured ? "focus-visible:outline-fg-inverse" : ""
-          }`}
-        >
-          <FiArrowRight aria-hidden="true" className="size-5 shrink-0" />
-          Open the {metric.label.toLowerCase()} view
-        </Link>
+        {/* The unit belongs in the chrome, not repeated inside the stat sentence. */}
+        <span className="shrink-0 rounded-control border border-line-inverse px-2 py-0.5 font-mono text-[0.6875rem] uppercase text-fg-inverse-muted">
+          {metric.unit}
+        </span>
       </div>
-    </li>
+
+      <p className="text-pretty text-sm leading-relaxed text-fg-inverse-muted">
+        {DESCRIPTIONS[id]}
+      </p>
+
+      {chart ? <CardChart chart={chart} id={id} /> : null}
+
+      {stats ? (
+        <p className="font-mono text-xs leading-relaxed text-fg-inverse-muted">
+          {stats.max === null
+            ? "No readings for this day"
+            : `${formatMetricValue(stats.min)}–${formatMetricValue(stats.max)} · peak ${stats.peakHourLabel} · ${readingCount(stats)}`}
+        </p>
+      ) : null}
+
+      <Link
+        href={`/dashboard?day=today&metric=${id}`}
+        className="group mt-auto flex items-center justify-between gap-3 font-medium focus-visible:outline-fg-inverse"
+      >
+        <span className="underline-offset-4 group-hover:underline">
+          Open the {metric.label.toLowerCase()} view
+        </span>
+
+        {/* Fills with the accent on hover, rather than nudging sideways. */}
+        <span
+          aria-hidden="true"
+          className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-pill border border-line-inverse transition-colors duration-200 group-hover:border-transparent group-hover:text-fg"
+        >
+          <span
+            className="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+            style={{ backgroundColor: `var(--chart-${id})` }}
+          />
+          <FiArrowRight className="relative size-4" />
+        </span>
+      </Link>
+    </>
   );
+}
+
+/** Says what the card could not before: how much of the day actually had readings. */
+function readingCount(stats: MetricPreviewStats): string {
+  if (stats.missing === 0) {
+    return `${stats.total} of ${stats.total} hours`;
+  }
+  return `${stats.missing} hour${stats.missing === 1 ? "" : "s"} without a reading`;
 }
 
 /**
- * Decorative artwork, bleeding off the bottom-right corner as in the reference.
+ * Mini chart with depth: the metric in front, the price behind as a dashed ghost.
  *
- * Drawn in the metric's own chart colour, so a card and its series on the dashboard read
- * as the same thing.
+ * This **inverts the dashboard's solid/dashed convention**, deliberately. There the two
+ * series are peers, and line style is what separates them. Here the metric is the subject
+ * and the price is context, so a ghost reads as a reference rather than as a second
+ * metric. The dashboard's rule is untouched, and nothing on this card depends on telling
+ * the two apart to be understood — the heading, the unit chip and the stat line all name
+ * the metric.
+ *
+ * A gap is still a real break in the line.
  */
-function MetricMotif({ id, featured }: { id: WeatherMetricId; featured: boolean }) {
-  const tint: Record<WeatherMetricId, string> = {
-    wind: "text-chart-wind",
-    temperature: "text-chart-temperature",
-    solar: "text-chart-solar",
-  };
+function CardChart({ chart, id }: { chart: PreviewChart; id: WeatherMetricId }) {
+  const accent = `var(--chart-${id})`;
 
   return (
-    <span
+    <svg
+      viewBox={`0 0 ${chart.width} ${chart.height}`}
+      className="h-24 w-full"
+      preserveAspectRatio="none"
       aria-hidden="true"
-      className={`pointer-events-none absolute -bottom-8 -right-6 size-56 ${tint[id]} ${
-        featured ? "opacity-60" : "opacity-40"
-      }`}
+      role="presentation"
     >
-      <svg
-        viewBox="0 0 100 100"
+      <defs>
+        <linearGradient id={`card-fill-${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={accent} stopOpacity="0.35" />
+          <stop offset="100%" stopColor={accent} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+
+      {/* Price first, so it sits behind everything else. */}
+      <path
+        d={chart.priceLine}
         fill="none"
-        stroke="currentColor"
-        strokeWidth="3"
+        stroke="var(--fg-inverse)"
+        strokeWidth="1.5"
+        strokeDasharray="5 6"
         strokeLinecap="round"
-        strokeLinejoin="round"
-        className="size-full"
-      >
-        {id === "wind" ? <WindGlyph /> : null}
-        {id === "temperature" ? <TemperatureGlyph /> : null}
-        {id === "solar" ? <SolarGlyph /> : null}
-      </svg>
-    </span>
-  );
-}
+        opacity="0.35"
+        vectorEffect="non-scaling-stroke"
+      />
 
-/** Gust curls, echoing the logo mark. */
-function WindGlyph() {
-  return (
-    <>
-      <path d="M8 30h34a9 9 0 1 0-9-9" />
-      <path d="M8 50h48a9 9 0 1 1-9 9" />
-      <path d="M8 70h30a8 8 0 1 1-8 8" />
-    </>
-  );
-}
-
-/** A thermometer, read as the instrument rather than a value. */
-function TemperatureGlyph() {
-  return (
-    <>
-      <path d="M50 20a9 9 0 0 1 18 0v38a17 17 0 1 1-18 0z" />
-      <path d="M59 40v26" />
-      <path d="M74 30h12M74 44h8M74 58h12" />
-    </>
-  );
-}
-
-/** A sun with rays. */
-function SolarGlyph() {
-  return (
-    <>
-      <circle cx="52" cy="52" r="18" />
-      <path d="M52 18v10M52 76v10M18 52h10M76 52h10M28 28l7 7M69 69l7 7M76 28l-7 7M35 69l-7 7" />
-    </>
+      {chart.metricLine ? (
+        <>
+          {/* Area under the metric, then a wide soft stroke as its glow. */}
+          <path
+            d={`${chart.metricLine} L${chart.width},${chart.height} L0,${chart.height} Z`}
+            fill={`url(#card-fill-${id})`}
+          />
+          <path
+            d={chart.metricLine}
+            fill="none"
+            stroke={accent}
+            strokeWidth="7"
+            strokeLinecap="round"
+            opacity="0.18"
+            vectorEffect="non-scaling-stroke"
+          />
+          <path
+            d={chart.metricLine}
+            fill="none"
+            stroke={accent}
+            strokeWidth="2.25"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </>
+      ) : null}
+    </svg>
   );
 }
