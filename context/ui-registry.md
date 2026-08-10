@@ -748,39 +748,6 @@ Three CTAs now share one page. They are all the same component with the same lab
 they cannot disagree about the session — but they are not interchangeable: the navbar is a
 **text link**, while the hero and this band are **pills**. One page, one primary action.
 
-## "How it's built"
-
-`src/app/_components/how-its-built.tsx` — four decisions, on `bg-surface` between the
-metric cards and the closing band.
-
-- **placed after the cards, not before.** A reader should have seen what the thing does
-  before being told how it holds together
-- **`bg-surface`, so the page alternates ground**: navy hero → `bg-page` cards → white here
-  → `bg-page` closing. Bordered top and bottom rather than shadowed
-- **no colour.** The restraint pass established that colour on these pages encodes data;
-  this section has none, so it is navy and slate like the rest of the chrome
-- each item is a **claim checkable against the repository** — the hour-join, gaps staying
-  gaps, server-side derivation, the solid/dashed constraint — not a capability list. A
-  claim that can be verified is worth more than one that cannot
-- **a counted mono index (`01`–`04`)** above each heading, in the eyebrow style used across
-  the dashboard. Without it the section was four grey blocks under a hairline — no entry
-  point, and no signal they are a set meant to be read in order. `aria-hidden`, since a
-  screen reader already gets the ordinal from the list
-- **the index uses `tracking-wider`, not the eyebrow's `0.18em`.** That tracking is tuned
-  for uppercase words; on a two-character number it opens a gap wide enough that `01` reads
-  as `0 1` — two glyphs rather than one figure
-- **headings are held under ~30 characters**, which is a layout constraint rather than a
-  style preference. The items sit in a plain grid, so a heading wrapping to two lines in
-  one column drops that column's body a line below its neighbours' and the row stops
-  reading as a row. "Joined on the hour, never by index" did exactly that; the qualifier
-  moved into the body, where it has room
-- **bodies are held to roughly one length** for the same reason. At four columns the
-  measure is ~30 characters, and the first draft's 40-word entries set as a ragged wall
-- body copy is `--fg-secondary`, not `--fg-muted` — the latter is for labels, units and
-  captions
-- `sm:grid-cols-2` before `lg:grid-cols-4`: at four columns on a tablet each item is a word
-  wide and the body text sets as a ladder
-
 ## Open Graph image
 
 `src/app/opengraph-image.tsx` — the link preview card, 1200×630.

@@ -80,6 +80,18 @@ hero band.
 - `bg-linear-to-r`, not the v3 `bg-gradient-to-r` — this is Tailwind 4 and the old name
   emits nothing. Verified against the compiled stylesheet.
 
+### 2026-08-10 — The landing page ends on the metric cards
+
+Both sections that followed them are gone: the closing CTA band earlier, and now the "How
+it's built" strip. What remains is header, hero, three metric cards, footer.
+
+- The hero's secondary link points at `#how-it-works`, which is the **metric cards**
+  section, not the removed one — checked before deleting, so the anchor still resolves.
+- The hero preview card was trimmed to the two figures the chart cannot do without. The
+  hour had a stat column while the crosshair chip stated it again; the footer legend named
+  both series a third time. The legend's one unique fact — which colour is which line —
+  moved onto the stat labels rather than being lost with the row.
+
 ### 2026-08-10 — Landing page accessibility pass
 
 A static audit of the served markup — heading order, landmarks, link text, `aria-hidden`
@@ -141,8 +153,9 @@ Then four additions, chosen from that list:
   1200×630 bars. Verified by fetching the route — 61 KB PNG, correct dimensions.
   `robots` is `noindex` at the layout and re-enabled only on `/`, since the dashboard and
   login have nothing to offer a crawler.
-- **"How it's built"** — four decisions that can be checked against the repository,
-  between the metric cards and the closing band.
+- **"How it's built"** — four decisions checkable against the repository, between the
+  metric cards and the closing band. *Removed later the same day; the landing page now
+  ends on the metric cards.*
 - **Deleted `public/logo.png`** (934 KB, unreferenced since the SVG mark landed).
 
 **The login route was then rebuilt as white ground, navy ink, no filled surface** — it had
