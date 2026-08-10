@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import { getPrices, type PriceFetchResult } from "@/features/energy-prices";
 import { getWeather, type WeatherFetchResult } from "@/features/weather-forecast";
-import { PRICE_UNIT, WEATHER_LOCATION, WEATHER_METRICS } from "@/shared/config";
+import { WEATHER_LOCATION, WEATHER_METRICS } from "@/shared/config";
 import {
   formatOsloDate,
   formatOsloDateTime,
@@ -14,13 +14,14 @@ import { alignPriceAndWeather } from "../utils/align-hours";
 import { toChartSeries } from "../utils/to-chart-series";
 import { deriveDaySummary } from "../utils/derive-summary";
 import { deriveInsights } from "../utils/derive-insights";
-import { hrefWith, type ViewParams } from "../utils/view-params";
+import type { ViewParams } from "../utils/view-params";
+import { CheapestWindowCard } from "./cheapest-window-card";
 import { CorrelationChart } from "./correlation-chart";
 import { SummaryCards } from "./summary-cards";
 import { HourlyDataTable } from "./hourly-data-table";
 import { HourlyTable } from "./hourly-table";
 import { InsightsList } from "./insights-list";
-import { ChartToolbar } from "./chart-toolbar";
+import { SeriesLegend } from "./series-legend";
 import { SourceStatus } from "./source-status";
 import { ViewCard } from "./view-card";
 
@@ -83,21 +84,10 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
   return (
     <div className="flex min-w-0 flex-col gap-6">
       {/*
-        The date moved from a floating heading into the toolbar's period chip: a heading
-        above a card whose own header says "Hour by hour" meant two titles for one thing.
+        No day switch and no date heading here: both live in the page header now. This
+        section used to open with a second copy of the day control and a title that
+        repeated the card's own — chrome for chrome.
       */}
-      <ChartToolbar
-        label="Day"
-        presets={[
-          { key: "today", label: "Today", selected: params.day === "today" },
-          { key: "tomorrow", label: "Tomorrow", selected: params.day === "tomorrow" },
-        ].map((option) => ({
-          ...option,
-          href: hrefWith(params, { day: option.key as "today" | "tomorrow" }),
-        }))}
-        period={formatOsloDate(day)}
-      />
-
       <SourceStatus
         prices={prices}
         weather={weather}
@@ -119,6 +109,13 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
             title="Hour by hour"
             paramKey="view"
             initialMode={params.view}
+            legend={
+              <SeriesLegend
+                priceLabel="Spot price"
+                metricLabel={metric.label}
+                metricId={aligned.metricId}
+              />
+            }
             chart={
               <>
                 <CorrelationChart series={toChartSeries(aligned)} />
@@ -145,7 +142,7 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
               <>
                 Spot price (solid, left axis) against {metric.label.toLowerCase()}{" "}
                 (dashed, right axis) for {formatOsloDate(day)}, by hour in Oslo time. The
-                two axes use independent scales.
+                axes use independent scales, so crossings are not comparisons.
               </>
             }
             tableCaption={
@@ -155,20 +152,18 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
             }
           />
 
-          <div className="flex flex-col gap-4 rounded-card border border-line bg-surface p-4">
-            <InsightsList insights={insights} />
-          </div>
-          </div>
-
           {/*
-            Kept alongside the chart, not replaced by it: ui-rules.md requires the chart
-            never be the only way to understand the result.
+            The rail beside the chart: what the chart says, then the one figure that is a
+            decision rather than a reading.
           */}
-          <p className="text-fg-secondary">
-            {aligned.hours.length} hours of data.{" "}
-            {aligned.coverage.matchedHours} have both a spot price in {PRICE_UNIT} and a{" "}
-            {metric.label.toLowerCase()} reading in {metric.unit}.
-          </p>
+          <div className="flex flex-col gap-4">
+            <div className="rounded-card border border-line bg-surface p-4">
+              <InsightsList insights={insights} />
+            </div>
+
+            <CheapestWindowCard aligned={aligned} summary={summary} />
+          </div>
+          </div>
 
           <StatusMessage tone="info" title="How to read this">
             {WEATHER_LOCATION.label} weather is shown as a representative location within

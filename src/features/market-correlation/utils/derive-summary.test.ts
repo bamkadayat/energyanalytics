@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { AlignedHours } from "../types";
-import { deriveDaySummary, deriveEveningComparison } from "./derive-summary";
+import {
+  deriveCheapestWindow,
+  deriveDaySummary,
+  deriveEveningComparison,
+} from "./derive-summary";
 
 /** 2026-08-09T00:00 Europe/Oslo. */
 const MIDNIGHT_OSLO = Date.UTC(2026, 7, 8, 22, 0, 0);
@@ -92,9 +96,11 @@ describe("deriveDaySummary", () => {
     expect(summary).toEqual({
       currentHour: null,
       averageNokPerKwh: null,
+      currentVsAverage: null,
       cheapestHour: null,
       priciestHour: null,
       metricPeakHour: null,
+      cheapestWindow: null,
     });
   });
 });
@@ -155,3 +161,67 @@ describe("deriveEveningComparison", () => {
     expect(comparison?.eveningAverage).toBeCloseTo(2.8, 5);
   });
 });
+
+describe("deriveCheapestWindow", () => {
+  it("finds the cheapest run of consecutive hours", () => {
+    const window = deriveCheapestWindow(day([2, 2, 0.1, 0.2, 0.3, 2]), 3);
+
+    expect(window?.from).toEqual(at(2));
+    expect(window?.averageNokPerKwh).toBeCloseTo(0.2, 5);
+    expect(window?.hourCount).toBe(3);
+  });
+
+  it("ends the window one hour past its last hour", () => {
+    // Exclusive end: a 00:00-02:00 window covers three hours and stops at 03:00.
+    expect(deriveCheapestWindow(day([1, 1, 1, 9]), 3)?.until).toEqual(at(3));
+  });
+
+  it("requires the hours to be consecutive, not merely cheap", () => {
+    /*
+     * The three cheapest *hours* here are 0, 2 and 4 — but they are scattered, and the
+     * question this answers is when to start a machine, which needs a run.
+     */
+    const window = deriveCheapestWindow(day([0.1, 5, 0.1, 5, 0.1, 5]), 3);
+
+    expect(window?.from).toEqual(at(0));
+    expect(window?.averageNokPerKwh).toBeCloseTo(1.733_333, 4);
+  });
+
+  it("skips a window containing an hour without a price", () => {
+    // Averaging the two hours that exist would silently answer a different question.
+    // 00-02 and 01-03 both straddle the gap, so the first eligible run starts at 02:00.
+    const window = deriveCheapestWindow(day([0.1, null, 0.1, 2, 2, 2]), 3);
+
+    expect(window?.from).toEqual(at(2));
+  });
+
+  it("breaks a tie on the earliest window", () => {
+    expect(deriveCheapestWindow(day([1, 1, 1, 1, 1, 1]), 3)?.from).toEqual(at(0));
+  });
+
+  it("returns null when the day is shorter than the window", () => {
+    expect(deriveCheapestWindow(day([1, 2]), 3)).toBeNull();
+  });
+
+  it("returns null when no run of the length has a full set of prices", () => {
+    expect(deriveCheapestWindow(day([1, null, 1, null, 1]), 3)).toBeNull();
+  });
+});
+
+describe("currentVsAverage", () => {
+  it("signs the current hour against the daily average", () => {
+    // Average of 1, 2 and 3 is 2; the current hour (index 0) is 50 % below it.
+    const summary = deriveDaySummary(day([1, 2, 3]), at(0));
+
+    expect(summary.currentVsAverage).toBeCloseTo(-0.5, 5);
+  });
+
+  it("is null when the day does not contain the current hour", () => {
+    expect(deriveDaySummary(day([1, 2, 3]), at(99)).currentVsAverage).toBeNull();
+  });
+
+  it("is null rather than infinite when the average is zero", () => {
+    expect(deriveDaySummary(day([0, 0]), at(0)).currentVsAverage).toBeNull();
+  });
+});
+

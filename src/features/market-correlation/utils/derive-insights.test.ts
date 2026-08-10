@@ -30,10 +30,33 @@ function insightsFor(aligned: AlignedHours) {
 
 describe("deriveInsights", () => {
   it("states the cheapest and most expensive hours", () => {
-    const texts = insightsFor(day([1.2, 0.4, 2.5])).map((i) => i.text);
+    const insights = insightsFor(day([1.2, 0.4, 2.5]));
 
-    expect(texts.join(" ")).toMatch(/cheapest hour is 01:00/i);
-    expect(texts.join(" ")).toMatch(/most expensive hour is 02:00/i);
+    expect(insights.find((i) => i.id === "cheapest")?.hour).toBe("01:00");
+    expect(insights.find((i) => i.id === "priciest")?.hour).toBe("02:00");
+  });
+
+  it("carries the hour in its own field rather than inside the sentence", () => {
+    // The chip renders `hour`; a time left in the prose would print twice.
+    const insights = insightsFor(day([1.2, 0.4, 2.5], [1, 2, 3]));
+
+    for (const insight of insights) {
+      expect(insight.text).not.toMatch(/\d{2}:\d{2}/);
+    }
+  });
+
+  it("compares each extreme to the daily average", () => {
+    const cheapest = insightsFor(day([2, 1, 3])).find((i) => i.id === "cheapest");
+
+    // Average of 2, 1 and 3 is 2, so the cheapest hour is 50 % below it.
+    expect(cheapest?.text).toMatch(/50 % below the daily average/);
+  });
+
+  it("drops the comparison rather than dividing by a zero average", () => {
+    const cheapest = insightsFor(day([0, 0, 0])).find((i) => i.id === "cheapest");
+
+    expect(cheapest?.text).not.toMatch(/average/);
+    expect(cheapest?.text).toMatch(/NOK\/kWh/);
   });
 
   it("always states a unit alongside a number", () => {
@@ -88,6 +111,7 @@ describe("deriveInsights", () => {
 
     const evening = insightsFor(aligned).find((i) => i.id === "evening");
 
+    expect(evening?.hour).toBe("17–21");
     expect(evening?.text).toMatch(/evening hours/i);
     expect(evening?.text).toMatch(/above the daily average/i);
   });
@@ -105,8 +129,9 @@ describe("deriveInsights", () => {
   it("reports the metric peak with its own label and unit", () => {
     const aligned = day([1, 2, 3], [4.4, 9.1, 2.2]);
 
+    expect(insightsFor(aligned).find((i) => i.id === "metric-peak")?.hour).toBe("01:00");
     expect(insightsFor(aligned).find((i) => i.id === "metric-peak")?.text).toMatch(
-      /wind speed peaks at 01:00 at 9,1 m\/s/i,
+      /wind speed peaks at 9,1 m\/s/i,
     );
   });
 

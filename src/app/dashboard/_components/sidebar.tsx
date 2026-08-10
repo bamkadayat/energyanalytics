@@ -7,7 +7,11 @@ import { RailContent } from "./rail-content";
 /**
  * The application rail, from `lg` up.
  *
- * Below that the same filters appear in `MobileNav`'s drawer — both render `RailContent`,
+ * Dark against a light work area. That is not decoration: it separates chrome from
+ * content without a heavier border, and it carries the same ink the landing page's cards
+ * use, so the two halves of the product look like one product.
+ *
+ * Below `lg` the same filters appear in `MobileNav`'s drawer — both render `RailContent`,
  * so a phone can never show a different set of filters from the desktop.
  *
  * Every entry is a real filter or a real anchor. A rail of links to pages that do not
@@ -18,14 +22,14 @@ import { RailContent } from "./rail-content";
  */
 export function DashboardSidebar({ params }: { params: ViewParams }) {
   return (
-    <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-line bg-surface lg:flex">
-      <div className="px-4 py-4">
-        <Wordmark />
+    <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-surface-rail text-fg-inverse lg:flex">
+      <div className="border-b border-line-inverse px-4 py-4">
+        <Wordmark tone="inverse" />
       </div>
 
       <nav
         aria-label="Dashboard filters"
-        className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 pb-4"
+        className="flex flex-1 flex-col gap-7 overflow-y-auto px-3 py-5"
       >
         <RailContent params={params} />
       </nav>
@@ -35,13 +39,13 @@ export function DashboardSidebar({ params }: { params: ViewParams }) {
         rather than in the header: it is used once a session and does not deserve prime
         space next to the data.
       */}
-      <div className="border-t border-line px-3 py-3">
+      <div className="border-t border-line-inverse px-3 py-3">
         <form action={logout}>
           <button
             type="submit"
-            className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-sm text-fg-secondary hover:bg-surface-subtle hover:text-fg"
+            className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-sm text-fg-inverse-muted hover:bg-surface-rail-active hover:text-fg-inverse"
           >
-            <FiLogOut aria-hidden="true" className="size-5 shrink-0" />
+            <FiLogOut aria-hidden="true" className="size-4 shrink-0" />
             Logout
           </button>
         </form>

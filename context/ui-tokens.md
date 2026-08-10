@@ -63,6 +63,7 @@ The nordic ramp is retained for the `info` status family only.
 | `--navy-50` | `#eef0f7` | selected surfaces |
 | `--navy-100` | `#dfe3f0` | secondary action background |
 | `--navy-200` | `#c3cae2` | secondary action hover |
+| `--navy-500` | `#5b6591` | control borders on dark surfaces |
 | `--navy-800` | `#16204a` | primary hover (lighter) |
 | **`--navy-900`** | **`#0b1128`** | **the primary** |
 | `--navy-950` | `#06091a` | primary active |
@@ -79,7 +80,9 @@ The nordic ramp is retained for the `info` status family only.
 | `--surface` | `bg-surface` | `--white` | cards, panels, table |
 | `--surface-subtle` | `bg-surface-subtle` | `--slate-100` | inset areas, code, zebra rows |
 | `--surface-selected` | `bg-surface-selected` | `--navy-50` | active day / metric toggle |
-| `--surface-inverse` | `bg-surface-inverse` | `--navy-900` | tooltips, inverse chips |
+| `--surface-inverse` | `bg-surface-inverse` | `--navy-900` | tooltips, inverse chips, the chart panel |
+| `--surface-rail` | `bg-surface-rail` | `--navy-900` | the dashboard rail and its drawer |
+| `--surface-rail-active` | `bg-surface-rail-active` | `--navy-800` | selected/hovered rail item |
 
 ### Foreground
 
@@ -104,7 +107,28 @@ the token name, so `--color-text-primary` would have produced `text-text-primary
 | `--line-strong` | `border-line-strong` | `--slate-500` | control borders |
 | `--line-selected` | `border-line-selected` | `--navy-900` | selected control |
 | `--line-inverse` | `border-line-inverse` | `--navy-800` | hairlines **on dark surfaces** |
+| `--line-inverse-strong` | `border-line-inverse-strong` | `--navy-500` | control borders **on dark surfaces** |
 | `--focus` | `outline-focus` | `--navy-900` | focus ring |
+
+The two inverse line tokens split the same way `--line` and `--line-strong` do on light
+surfaces: `--line-inverse` separates regions, `--line-inverse-strong` bounds something you
+interact with. Use the strong one for any field or control edge — WCAG 2.2 asks 3:1 for a
+control boundary, and the hairline is nowhere near it.
+
+### Price emphasis
+
+| Token | Utility | Value | Use for |
+| --- | --- | --- | --- |
+| `--price-bar` | `bg-price-bar` | `--navy-100` | an ordinary hour in the KPI strip |
+| `--price-now` | `bg-price-now` | `--navy-900` | the hour you are in |
+| `--price-low` | `bg-price-low` | `--success-line` | the day's cheapest hour |
+| `--price-low-surface` | `bg-price-low-surface` | `--success-surface` | a below-average delta pill |
+| `--price-high` | `bg-price-high` | `--error-line` | the day's priciest hour |
+| `--price-high-surface` | `bg-price-high-surface` | `--error-surface` | an above-average delta pill |
+
+Aliases of the status palette rather than new hues: on a price dashboard "cheapest" *is*
+the good outcome, so the mapping is the meaning. Every use is paired with a text label
+("Cheapest hour", a signed `+`/`−`), so the colour reinforces and never carries.
 
 Renamed from `--color-border-*` / `--color-focus-ring`, which would have produced
 `border-border-subtle` and `ring-focus-ring`.
@@ -160,6 +184,9 @@ qualifier and provenance notes.
 | `--chart-missing` | `--slate-500` | gaps — never rendered as zero |
 | `--chart-grid` | `--slate-200` | grid lines |
 | `--chart-axis` | `--slate-600` | axis labels (text: 4.5:1) |
+| `--chart-grid-inverse` | `--navy-800` | grid lines, chart on ink |
+| `--chart-axis-inverse` | `--navy-200` | axis labels on ink (11.44:1) |
+| `--chart-crosshair-inverse` | `--navy-500` | crosshair on ink |
 | `--chart-crosshair` | `--slate-700` | crosshair |
 | `--chart-tooltip-surface` / `--chart-tooltip-fg` | `--navy-900` / `--white` | tooltip |
 
@@ -242,6 +269,11 @@ Verified against WCAG 2.2 AA. Every meaning-carrying pair passes:
 | `--on-disabled` on `--disabled` | 6.15:1 | 4.5 |
 | status `fg` on status `surface` (all four) | 6.37–6.80:1 | 4.5 |
 | `--chart-axis` on `--surface` | 7.58:1 | 4.5 |
+| `--chart-axis-inverse` on `--surface-inverse` | 11.44:1 | 4.5 |
+| `--chart-price` on `--surface-inverse` | 3.61:1 | 3 |
+| `--chart-wind` on `--surface-inverse` | 3.42:1 | 3 |
+| `--chart-temperature` on `--surface-inverse` | 3.61:1 | 3 |
+| `--chart-solar` on `--surface-inverse` | 3.79:1 | 3 |
 | `--focus` on `--page` | 17.84:1 | 3 |
 | `--line-selected` on `--surface` | 18.67:1 | 3 |
 | `--line-strong` on `--surface` | 4.76:1 | 3 |

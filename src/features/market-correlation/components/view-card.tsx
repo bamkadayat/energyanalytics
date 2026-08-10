@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { FiBarChart2, FiGrid } from "react-icons/fi";
 import type { ViewMode } from "../utils/view-params";
 
 /**
@@ -26,6 +25,7 @@ export function ViewCard({
   title,
   paramKey,
   initialMode,
+  legend,
   chart,
   table,
   chartCaption,
@@ -35,6 +35,8 @@ export function ViewCard({
   /** Search-param key this card owns, e.g. `heatmap`. */
   paramKey: string;
   initialMode: ViewMode;
+  /** Series key, shown beside the title while the chart is up. */
+  legend?: ReactNode;
   chart: ReactNode;
   table: ReactNode;
   chartCaption: ReactNode;
@@ -52,35 +54,59 @@ export function ViewCard({
   }
 
   return (
-    <section className="flex min-w-0 flex-col gap-3 rounded-card border border-line bg-surface p-4">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-base font-semibold text-fg">{title}</h3>
+    <section className="flex min-w-0 flex-col overflow-hidden rounded-card border border-line bg-surface">
+      <header className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-2">
+          <h3 className="text-base font-semibold text-fg">{title}</h3>
+          {/* Only with the chart: a key to lines nobody is looking at is noise. */}
+          {mode === "chart" && legend ? legend : null}
+        </div>
 
         <div
           role="group"
           aria-label={`${title} view`}
-          className="flex gap-1 rounded-pill border border-line p-1"
+          className="flex gap-0.5 rounded-pill bg-surface-subtle p-0.5"
         >
           <ToggleButton
             selected={mode === "chart"}
             onSelect={() => select("chart")}
-            label={`Show ${title.toLowerCase()} as a chart`}
-            Icon={FiBarChart2}
+            label="Chart"
+            description={`Show ${title.toLowerCase()} as a chart`}
           />
           <ToggleButton
             selected={mode === "table"}
             onSelect={() => select("table")}
-            label={`Show ${title.toLowerCase()} as a table`}
-            Icon={FiGrid}
+            label="Table"
+            description={`Show ${title.toLowerCase()} as a table`}
           />
         </div>
       </header>
 
-      {mode === "chart" ? chart : table}
+      {/*
+        The chart sits on ink, the table on paper.
+        A canvas of thin coloured lines holds together far better against a dark ground —
+        the series separate, and the panel reads as an instrument rather than as an image
+        pasted into a document. A table is text, and text belongs on paper.
+      */}
+      <div
+        className={
+          mode === "chart"
+            ? "flex flex-col gap-3 bg-surface-inverse px-4 pb-4 pt-2 text-fg-inverse"
+            : "flex flex-col gap-3 px-4 pb-4"
+        }
+      >
+        {mode === "chart" ? chart : table}
 
-      <p className="text-sm text-fg-muted">
-        {mode === "chart" ? chartCaption : (tableCaption ?? chartCaption)}
-      </p>
+        <p
+          className={
+            mode === "chart"
+              ? "text-pretty text-sm text-fg-inverse-muted"
+              : "text-pretty text-sm text-fg-muted"
+          }
+        >
+          {mode === "chart" ? chartCaption : (tableCaption ?? chartCaption)}
+        </p>
+      </div>
     </section>
   );
 }
@@ -89,27 +115,28 @@ function ToggleButton({
   selected,
   onSelect,
   label,
-  Icon,
+  description,
 }: {
   selected: boolean;
   onSelect: () => void;
   label: string;
-  Icon: typeof FiGrid;
+  description: string;
 }) {
   return (
     <button
       type="button"
       onClick={onSelect}
-      aria-label={label}
+      // The visible word is the name; the description says what pressing it does.
+      aria-label={description}
       // The state of a toggle, which aria-current cannot express on a non-link.
       aria-pressed={selected}
       className={
         selected
-          ? "flex size-8 items-center justify-center rounded-pill border border-line-selected bg-surface-selected text-on-action-secondary"
-          : "flex size-8 items-center justify-center rounded-pill border border-surface text-fg-muted hover:bg-surface-subtle"
+          ? "rounded-pill bg-surface px-4 py-1.5 text-sm font-medium text-fg shadow-card"
+          : "rounded-pill px-4 py-1.5 text-sm text-fg-secondary hover:text-fg"
       }
     >
-      <Icon aria-hidden="true" className="size-4" />
+      {label}
     </button>
   );
 }

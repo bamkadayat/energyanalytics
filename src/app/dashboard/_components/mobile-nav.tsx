@@ -41,7 +41,8 @@ export function MobileNav({ params }: { params: ViewParams }) {
          * pinned left. `backdrop:` styles the ::backdrop pseudo-element.
          */
         // `drawer` carries the slide-in; see globals.css for why it needs @starting-style.
-        className="drawer m-0 h-full max-h-full w-72 max-w-[85vw] bg-surface p-0 lg:hidden"
+        // Dark, like the rail it stands in for — the same navigation, not a second one.
+        className="drawer m-0 h-full max-h-full w-72 max-w-[85vw] bg-surface-rail p-0 text-fg-inverse lg:hidden"
         onClick={(event) => {
           // Clicking the backdrop resolves to the dialog itself, never a child.
           if (event.target === dialogRef.current) {
@@ -50,14 +51,14 @@ export function MobileNav({ params }: { params: ViewParams }) {
         }}
       >
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between border-b border-line px-4 py-3">
-            <Wordmark />
+          <div className="flex items-center justify-between border-b border-line-inverse px-4 py-3">
+            <Wordmark tone="inverse" />
 
             <button
               type="button"
               onClick={() => dialogRef.current?.close()}
               aria-label="Close filters"
-              className="flex size-9 items-center justify-center rounded-control text-fg-secondary hover:bg-surface-subtle"
+              className="flex size-9 items-center justify-center rounded-control text-fg-inverse-muted hover:bg-surface-rail-active hover:text-fg-inverse"
             >
               <FiX aria-hidden="true" className="size-5" />
             </button>
@@ -66,7 +67,7 @@ export function MobileNav({ params }: { params: ViewParams }) {
           {/* Any link inside navigates, so close the drawer behind it. */}
           <nav
             aria-label="Dashboard filters"
-            className="flex flex-1 flex-col gap-6 overflow-y-auto p-3"
+            className="flex flex-1 flex-col gap-7 overflow-y-auto p-3"
             onClick={(event) => {
               if ((event.target as HTMLElement).closest("a")) {
                 dialogRef.current?.close();
@@ -80,13 +81,13 @@ export function MobileNav({ params }: { params: ViewParams }) {
             Logout sits with the filters here, as it does in the desktop rail, rather than
             competing for space in a phone header.
           */}
-          <div className="border-t border-line p-3">
+          <div className="border-t border-line-inverse p-3">
             <form action={logout}>
               <button
                 type="submit"
-                className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-sm text-fg-secondary hover:bg-surface-subtle hover:text-fg"
+                className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-sm text-fg-inverse-muted hover:bg-surface-rail-active hover:text-fg-inverse"
               >
-                <FiLogOut aria-hidden="true" className="size-5 shrink-0" />
+                <FiLogOut aria-hidden="true" className="size-4 shrink-0" />
                 Logout
               </button>
             </form>

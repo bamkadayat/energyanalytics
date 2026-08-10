@@ -42,6 +42,7 @@
   --navy-50: #eef0f7;
   --navy-100: #dfe3f0;
   --navy-200: #c3cae2;
+  --navy-500: #5b6591;
   --navy-800: #16204a;
   --navy-900: #0b1128;
   --navy-950: #06091a;
@@ -61,6 +62,12 @@
   --surface-subtle: var(--slate-100);
   --surface-selected: var(--navy-50);
   --surface-inverse: var(--navy-900);
+  /*
+   * The application rail. Dark, so the work area reads as the page and the navigation as
+   * chrome — the reader's eye goes to the data without being told to.
+   */
+  --surface-rail: var(--navy-900);
+  --surface-rail-active: var(--navy-800);
   /* Ground for the decorative hero visual, a step below the inverse surface. */
   --surface-deep: var(--navy-950);
 
@@ -89,6 +96,14 @@
    * step above the fill separates without announcing itself.
    */
   --line-inverse: var(--navy-800);
+  /*
+   * The same job for *interactive* boundaries on dark surfaces — a field edge, a control
+   * outline. A hairline that only has to whisper "these are two regions" is too quiet to
+   * say "this is where you type": WCAG 2.2 asks 3:1 for the boundary of a control, and
+   * --line-inverse gives about 1.2:1 on the ink cards. This clears 3:1 against both the
+   * card fill and the field fill it sits between.
+   */
+  --line-inverse-strong: var(--navy-500);
   --focus: var(--navy-900);
 
   /* ---- 2. Semantic: actions ---- */
@@ -134,6 +149,30 @@
   --chart-crosshair: var(--slate-700);
   --chart-tooltip-surface: var(--navy-900);
   --chart-tooltip-fg: var(--white);
+
+  /*
+   * The same chart drawn on ink. Only the chrome changes — the four series colours were
+   * tuned for 3:1 against white and clear it against --surface-inverse too (price 3.6:1,
+   * wind 3.4:1, temperature 3.6:1, solar 3.8:1), so the palette itself carries over and
+   * the two grounds cannot drift into different-looking data.
+   */
+  --chart-grid-inverse: var(--navy-800);
+  --chart-axis-inverse: var(--navy-200);
+  --chart-crosshair-inverse: var(--navy-500);
+
+  /*
+   * ---- 2. Semantic: price emphasis ----
+   * The day's two extremes and the hour you are currently in, for the KPI strip and the
+   * cards that call them out. Aliases of the status palette rather than new hues: on a
+   * price dashboard "cheapest" *is* the good outcome, so the mapping is the meaning.
+   * Every use is paired with a text label, so the colour reinforces and never carries.
+   */
+  --price-bar: var(--navy-100);
+  --price-now: var(--navy-900);
+  --price-low: var(--success-line);
+  --price-low-surface: var(--success-surface);
+  --price-high: var(--error-line);
+  --price-high-surface: var(--error-surface);
 
   /*
    * ---- 2. Semantic: heatmap ramp ----
@@ -192,6 +231,8 @@
   --color-surface-subtle: var(--surface-subtle);
   --color-surface-selected: var(--surface-selected);
   --color-surface-inverse: var(--surface-inverse);
+  --color-surface-rail: var(--surface-rail);
+  --color-surface-rail-active: var(--surface-rail-active);
   --color-navy-deep: var(--surface-deep);
 
   --color-fg: var(--fg);
@@ -206,6 +247,7 @@
   --color-line-strong: var(--line-strong);
   --color-line-selected: var(--line-selected);
   --color-line-inverse: var(--line-inverse);
+  --color-line-inverse-strong: var(--line-inverse-strong);
   --color-focus: var(--focus);
 
   --color-action-primary: var(--action-primary);
@@ -237,6 +279,13 @@
   --color-chart-temperature: var(--chart-temperature);
   --color-chart-solar: var(--chart-solar);
   --color-chart-missing: var(--chart-missing);
+
+  --color-price-bar: var(--price-bar);
+  --color-price-now: var(--price-now);
+  --color-price-low: var(--price-low);
+  --color-price-low-surface: var(--price-low-surface);
+  --color-price-high: var(--price-high);
+  --color-price-high-surface: var(--price-high-surface);
 
   /* Typography. Geist is wired up as a CSS variable in layout.tsx. */
   --font-sans: var(--font-geist-sans);

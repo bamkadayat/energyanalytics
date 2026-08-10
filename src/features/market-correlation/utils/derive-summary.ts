@@ -14,6 +14,15 @@ export interface HourValue {
   value: number;
 }
 
+/** A run of consecutive hours, every one of which has a price. */
+export interface PriceWindow {
+  from: Date;
+  /** Exclusive: the instant the window ends, one hour past its last hour. */
+  until: Date;
+  averageNokPerKwh: number;
+  hourCount: number;
+}
+
 export interface DaySummary {
   /** The hour containing `now`, if the displayed day contains it at all. */
   currentHour: {
@@ -23,34 +32,108 @@ export interface DaySummary {
   } | null;
   /** Mean of the hours that have a price. Null when none do. */
   averageNokPerKwh: number | null;
+  /**
+   * The current hour against the daily average, as a signed fraction: -0.47 means the
+   * current hour is 47 % below it. Null unless both figures exist and the average is
+   * non-zero, so the UI omits the comparison instead of dividing by nothing.
+   */
+  currentVsAverage: number | null;
   cheapestHour: HourValue | null;
   priciestHour: HourValue | null;
   metricPeakHour: HourValue | null;
+  cheapestWindow: PriceWindow | null;
 }
 
 /** Evening window, in Oslo wall-clock hours: 17:00 up to but not including 22:00. */
-const EVENING_FROM = 17;
-const EVENING_UNTIL = 22;
+export const EVENING_FROM = 17;
+export const EVENING_UNTIL = 22;
+
+/**
+ * Length of the cheapest-run window. Three hours is roughly a dishwasher or a wash cycle
+ * — long enough to be a real decision, short enough that most days contain a clear one.
+ */
+export const CHEAPEST_WINDOW_HOURS = 3;
 
 export function deriveDaySummary(aligned: AlignedHours, now: Date): DaySummary {
   const currentIndex = aligned.hours.findIndex(
     (hour) => Math.abs(hour.getTime() - floorToHour(now)) < 1,
   );
 
+  const currentHour =
+    currentIndex === -1
+      ? null
+      : {
+          at: aligned.hours[currentIndex],
+          nokPerKwh: aligned.nokPerKwh[currentIndex] ?? null,
+          metricValue: aligned.metricValues[currentIndex] ?? null,
+        };
+
+  const averageNokPerKwh = mean(aligned.nokPerKwh);
+
   return {
-    currentHour:
-      currentIndex === -1
-        ? null
-        : {
-            at: aligned.hours[currentIndex],
-            nokPerKwh: aligned.nokPerKwh[currentIndex] ?? null,
-            metricValue: aligned.metricValues[currentIndex] ?? null,
-          },
-    averageNokPerKwh: mean(aligned.nokPerKwh),
+    currentHour,
+    averageNokPerKwh,
+    currentVsAverage: ratioAgainst(currentHour?.nokPerKwh ?? null, averageNokPerKwh),
     cheapestHour: extreme(aligned.hours, aligned.nokPerKwh, "min"),
     priciestHour: extreme(aligned.hours, aligned.nokPerKwh, "max"),
     metricPeakHour: extreme(aligned.hours, aligned.metricValues, "max"),
+    cheapestWindow: deriveCheapestWindow(aligned, CHEAPEST_WINDOW_HOURS),
   };
+}
+
+/**
+ * The cheapest run of `length` consecutive hours.
+ *
+ * This is the question a consumer actually asks — not "which single hour is cheapest" but
+ * "when should I start the machine" — and it is why the answer is a *window* rather than
+ * the three cheapest hours in the day, which could be scattered across it.
+ *
+ * A window containing an hour without a price is skipped rather than averaged over the
+ * hours it does have: "cheapest three hours" made from two would be a different claim,
+ * quietly.
+ */
+export function deriveCheapestWindow(
+  aligned: AlignedHours,
+  length: number,
+): PriceWindow | null {
+  if (length < 1 || aligned.hours.length < length) {
+    return null;
+  }
+
+  let best: PriceWindow | null = null;
+
+  for (let start = 0; start + length <= aligned.hours.length; start += 1) {
+    const prices = aligned.nokPerKwh.slice(start, start + length);
+    if (prices.some((price) => price === null)) {
+      continue;
+    }
+
+    const average = mean(prices);
+    // Non-null by construction, but the compiler cannot see that through `mean`.
+    if (average === null || (best !== null && average >= best.averageNokPerKwh)) {
+      continue;
+    }
+
+    best = {
+      from: aligned.hours[start],
+      // Derived from the last hour's instant, not from a local-time calculation: the
+      // hours are an hour apart in real time even on the days the wall clock is not.
+      until: new Date(aligned.hours[start + length - 1].getTime() + 3_600_000),
+      averageNokPerKwh: average,
+      hourCount: length,
+    };
+  }
+
+  return best;
+}
+
+/** Signed fraction of `value` against `reference`, or null when it cannot be computed. */
+function ratioAgainst(value: number | null, reference: number | null): number | null {
+  if (value === null || reference === null || reference === 0) {
+    return null;
+  }
+
+  return (value - reference) / reference;
 }
 
 export interface EveningComparison {

@@ -100,6 +100,7 @@ and a component per element would be the same rule copied three times.
 | `secondary` | supporting action on a light surface |
 | `outline` | low-emphasis action (sign out, retry) |
 | `inverse` | on `--surface-inverse` — a white pill against navy |
+| `ghost-inverse` | the *second* action on `--surface-inverse`, beside an `inverse` pill |
 
 | Size | Padding | Use |
 | --- | --- | --- |
@@ -128,6 +129,13 @@ variant that sets `--btn-ring-color` now gets a visible focus ring on its own su
 
 The `inverse` variant also inverts its fill on hover (navy fill, white text). Its ring is
 white, and a white ring around a white pill on navy would be invisible.
+
+**Two filled pills side by side have no hierarchy** — that is what `ghost-inverse` is
+for. It carries `inset-ring-line-inverse-strong`, brightening to `--fg-inverse` on hover.
+The hairline `--line-inverse` is too faint for a control boundary: `--line-inverse-strong`
+is the token that clears 3:1. An *inset ring* rather than a `border`, unlike the `outline`
+variant, because this one stands next to a filled pill and a border would make it 2px
+taller than its neighbour.
 
 **Every variant is `rounded-pill`**, and a test asserts it — buttons had previously
 drifted between `rounded-pill` and `rounded-control` because each was styled at its call
@@ -195,6 +203,12 @@ something looks wrong.
 **Loading region** — states what is being waited for rather than spinning, sized with
 `min-h-[var(--chart-min-height)]` so the page does not jump, and marked `aria-busy`.
 
+**Landmarks** — `<header>` for the banner, then **one `<main>` wrapping every content
+section**, then `<footer>`. `layout.tsx` provides none of these, so each page owns them.
+Putting `<main>` on the first section instead of around all of them leaves the rest of
+the page outside every landmark, where "skip to content" and landmark navigation cannot
+reach it — that is exactly what the landing page did until it was fixed.
+
 ---
 
 ## Summary card
@@ -220,31 +234,44 @@ line styles.
 
 ## Observations list
 
-`components/insights-list.tsx` — a `<section aria-labelledby>` with an `<h3>`, then a
-`<ul>` whose items use `border-l-2 border-line-selected pl-3 text-sm text-fg-secondary`.
-A list rather than prose: each observation is independent and should be scannable.
+`components/insights-list.tsx` — plain restatements, never inferences. Every sentence is
+something a reader could verify from the table.
+
+- the hour lives in a **mono chip in its own column**, not at the head of the sentence.
+  That is what makes the list scannable: the times line up, so "when" is answered by
+  running an eye down the left edge, and each sentence is free to start with its subject
+- rows are separated by **hairlines** (`divide-y divide-line`), not boxed individually —
+  four boxes read as four cards
+- each extreme is stated **against the daily average**, and that clause is dropped rather
+  than hedged when there is no average to compare to
+- causal vocabulary is forbidden, and a test fails on it
 
 ## Dashboard shell
 
 `app/dashboard/page.tsx` + `app/dashboard/_components/sidebar.tsx` — a rail and a
 full-width work area, which is the layout that reads as an application rather than a page.
 
+- the rail is **dark** (`bg-surface-rail`, navy-900) against a light work area. Not
+  decoration: it separates chrome from content without a heavier border, and it carries
+  the same ink the landing page's bento cards use, so the two halves look like one product
 - **sidebar** (`w-60`, sticky, full height) carries the brand, the filters and Logout.
   Every entry is a **real filter or a real anchor** — a rail of dead links looks like a
   dashboard and behaves like a mock-up
-- items are `rounded-control px-3 py-2` with a `size-5` icon; active is a **soft fill plus
-  a weight change** (`bg-surface-subtle font-medium`) and `aria-current`. The fill alone
-  would be colour carrying meaning on its own — the heavier label is the second channel
+- items are `rounded-control px-3 py-2`; active is a **soft fill plus a weight change**
+  (`bg-surface-rail-active font-medium`) and `aria-current`. The fill alone would be
+  colour carrying meaning on its own — the heavier label is the second channel
+- **metrics carry a colour swatch, not an icon.** A thermometer beside "Temperature"
+  repeats the word; the swatch says what the label cannot — which line in the chart this
+  is. Unit chips sit on the right (`border-line-inverse-strong`)
 - badges are live data (the loaded range), not decoration
 - Logout is pinned to the bottom behind a divider: used once a session, so it does not
-  deserve space next to the data. The header keeps a fallback below `lg`
+  deserve space next to the data
 - **no search field.** The reference has one, but this app has a single dataset and
   nothing to search; a box that accepts typing and does nothing is a worse lie than an
   absent feature
-- hidden below `lg`, where the horizontal `ViewControls` in the header takes over. A fixed
-  rail on a phone costs more width than the charts can spare
-- **thin sticky header**: caveat chips and Logout only. With filters in the rail there is
-  nothing else that needs to persist
+- hidden below `lg`, where `MobileNav`'s `<dialog>` drawer renders the **same**
+  `RailContent`, on the same dark ground. A fixed rail on a phone costs more width than
+  the charts can spare
 - the work area is **full width** with `px-4 sm:px-6`, not a centred `max-w-content`
   column. Centring is what made it read as a document
 - charts sit in a **grid**: the day chart takes 2fr against 1fr of observations at `xl`,
@@ -252,11 +279,59 @@ full-width work area, which is the layout that reads as an application rather th
 - sections carry `scroll-mt-24` so the sticky header does not cover a heading the rail
   anchors jump to
 
+## Dashboard header
+
+`app/dashboard/_components/header-controls.tsx` — a **command bar**, not a title bar.
+
+- carries the **day switch, once.** It used to exist twice, in the rail and above the
+  chart, for one piece of state: two places to look when the wrong day is showing, and two
+  things to keep in sync
+- a segmented pill of **links** (`bg-surface-subtle` track, `bg-surface shadow-card` on the
+  selected one) with `aria-current` — a chosen day is shareable and the back button steps
+  through previous ones
+- `ScopeLine` states the price area and the weather point beside it. Two caveats this page
+  must never bury, so they sit next to the control rather than in a footnote
+- `DateChip` resolves "today" to an **absolute date**, right-aligned. It is `async` because
+  resolving it reads the clock, so it renders behind its own `<Suspense>` with a
+  same-footprint placeholder rather than making the whole header request-time
+- the chip is **read-only text, not a picker.** This app derives its span from the preset,
+  so a button opening nothing would be a dead control
+- the `h1` is `sr-only`: the rail carries the product name, but the heading outline still
+  needs a root
+
 ## KPI strip
 
-`summary-cards.tsx` — `p-3`, `text-xl tabular-nums` value, `text-[0.6875rem]` uppercase
-label, up to six across at `2xl`. Deliberately denser than a content card: a KPI strip is
-scanned at a glance, and full card padding pushes the charts below the fold.
+`summary-cards.tsx` — one large card and four small, not six equal ones.
+
+- **`PriceNowCard`** takes the left column: the current price at `text-4xl/5xl`, a signed
+  delta pill against the daily average, and `PriceStrip` under it. The three belong
+  together — a price means nothing without the average, and the average means nothing
+  without the shape of the day. Six equal cards made the reader decide what mattered
+- the delta pill **carries its own sign** (`+` / `−`) rather than leaving the fill to say
+  it: a red 47 % could mean either direction, and this is the figure most likely to be
+  acted on
+- the four compact cards stay `p-3` with a `text-xl tabular-nums` value and a
+  `text-[0.6875rem]` uppercase label, in a **2×2 grid at every width**. A single row would
+  stretch each to the tall card's height and leave two thirds of it empty
+- cheapest and priciest carry a **left border** in `--price-low` / `--price-high`,
+  alongside a term that says the same thing in words
+- **`price-strip.tsx`** draws one bar per hour, scaled **from zero** — a floor at the day's
+  minimum would redraw a flat day as a dramatic one. The current, cheapest and priciest
+  hours are picked out; a missing hour keeps its slot as a 2px sliver rather than letting
+  the bars close ranks. `aria-hidden`, because every figure in it is already text elsewhere
+
+## Cheapest window card
+
+`cheapest-window-card.tsx` — the cheapest run of **consecutive** hours (3), and the join's
+coverage under it.
+
+- the only figure on the page that is a **decision rather than a reading** ("when should I
+  start the machine"), which is why it gets a card instead of a list row
+- a window containing an hour without a price is **skipped, not averaged over what it
+  has** — "cheapest three hours" made from two would be a different claim, quietly
+- the coverage bar states how many hours carry **both** series. That sentence is what
+  satisfies "the chart is never the only way to read the result"; the bar is
+  `aria-hidden` illustration of it
 
 ## Range dropdown
 
@@ -276,8 +351,8 @@ scanned at a glance, and full card padding pushes the charts below the fold.
 
 ## Chart card with view toggle
 
-`components/view-card.tsx` — wraps every chart section: title on the left, an icon
-chart/table toggle on the right, content, then a caption.
+`components/view-card.tsx` — wraps every chart section: title and series legend on the
+left, a chart/table toggle on the right, content, then a caption.
 
 - **one toggle per card, not one for the page.** Each view answers a different question,
   and someone reading the duration curve as numbers should not have their heatmap switch
@@ -290,8 +365,18 @@ chart/table toggle on the right, content, then a caption.
   page already has
 - `<button aria-pressed>`, **not links**, because nothing navigates. A link that goes
   nowhere lies to anyone using a keyboard or a screen reader
-- icon-only, which is **only** acceptable because each button carries an `aria-label`
-- selection carries background **and** border plus `aria-pressed`, never colour alone
+- the toggle is **worded** ("Chart" / "Table") in a segmented pill matching the header's
+  day switch, with an `aria-label` carrying the fuller description. The icon-only version
+  it replaces made the reader decode a glyph to find the numbers
+- selection carries a fill **and** a weight change plus `aria-pressed`, never colour alone
+- in chart mode the body sits on **ink** (`bg-surface-inverse`), in table mode on paper. A
+  canvas of thin coloured lines separates far better against a dark ground and reads as an
+  instrument; a table is text, and text belongs on paper
+- **`series-legend.tsx`** puts the key in the DOM rather than on the canvas, where it is
+  selectable, readable by assistive technology, and survives the chart failing to mount.
+  Its swatches are **line samples, solid and dashed**, so the legend teaches the
+  distinction ui-tokens.md calls load-bearing. ECharts' own legend is off: two keys inches
+  apart is one too many
 - in chart mode the day's table renders **inside the chart branch** as a disclosure, so
   it follows the live mode rather than a stale server param. The canvas is opaque to
   assistive technology, so the numbers must not depend on noticing the toggle
@@ -317,12 +402,18 @@ rather than optional.
 
 ## Session call to action
 
-`src/app/_components/session-cta.tsx` — used in the navbar (`size="md"`) and the hero
-(`size="lg"`).
+`src/app/_components/session-cta.tsx` — used in the navbar (`size="sm"`), the hero and
+the closing band (both `size="lg"`).
 
-- signed out → **Login** (`/login`); signed in → **Go to dashboard** (`/dashboard`).
+- signed out → `/login`; signed in → **Go to dashboard** (`/dashboard`).
   A control should say exactly what it does, and "Login" is a lie to someone already
   logged in
+- **the signed-out label follows the placement**, via `signedOutLabel`. The navbar says
+  **Login**, which is the word a returning visitor scans for. The hero and the closing
+  band say **Open the dashboard**: there the button is the offer, and login is the gate on
+  the way to it rather than the thing being offered
+- **the navbar instance is one size down from the hero's.** The same control at the same
+  size twice in one viewport leaves neither reading as the primary action
 - **one component for both placements**, so the navbar and the hero can never disagree
   about whether you are signed in
 - `inverse` button variant, since both sit on `--surface-inverse`
@@ -333,7 +424,28 @@ rather than optional.
   "Login" and correcting it afterwards would flash the wrong word at the primary
   control on the page
 
-## Sign-in card
+## Login card
+
+`app/login/page.tsx` + `features/auth/components/login-form.tsx` — a dark `bento` panel on
+the light page, with the back link outside it.
+
+- the band across the top is the **real price curve** for the example day, masked to fade
+  downward so it reads as texture. Real data rather than a drawn squiggle: it is already
+  cached and free, and a product about not inventing numbers should not decorate its own
+  login screen with invented ones
+- wordmark, then a mono eyebrow naming the area and location, then the heading
+- copy states there are no accounts, rather than leaving the absence of email and
+  "forgot password" unexplained
+- the field is a bordered row owning its focus ring via `focus-within`; the input's own
+  outline is suppressed so two rings do not nest
+- **Show/Hide is a real toggle**: `aria-pressed` says which way it is set, the visible
+  word says what pressing it does. Those are different questions and both get an answer
+- source links sit inside the card behind a divider
+
+**Only the controls that exist** — no email field, no "forgot password", no social login.
+With one shared password none of them could do anything.
+
+## Sign-in card (superseded)
 
 `src/app/login/page.tsx` + `features/auth/components/login-form.tsx`.
 
@@ -403,7 +515,9 @@ the landing page.
 - `animate-reveal`, like the cards above it
 
 Three CTAs now share one page. They are all the same component, so they cannot disagree
-about the session.
+about the session — but they are not interchangeable: the navbar is one size down and
+says **Login**, while the hero and this band say **Open the dashboard**. One page, one
+primary action, at one size.
 
 ## Landing page motion
 
@@ -450,7 +564,9 @@ Current stagger: header 0 → headline 90ms → subtitle 180ms → CTA 270ms →
   which is the thing the card could not say before
 - the arrow button **fills with the accent on hover** rather than nudging sideways
 - the featured card is the default metric, so the emphasis means "this is what the
-  dashboard opens on"
+  dashboard opens on". **Depth only (`shadow-popover`), no vertical offset** — it is the
+  first of the three, and lifting it made the row's top edge look misaligned rather than
+  emphasised
 
 ## Metric highlight cards (superseded)
 
@@ -487,8 +603,12 @@ metric, on a `bg-page` section.
 - a gap starts a new subpath rather than being bridged, even here
 - the metric pills are **links into the real dashboard view** for that metric: they look
   like controls and behave like them
-- labelled "Real market data · fixed example day". The reference said "illustrative"; ours
-  does not have to, because the shape is what actually happened
+- labelled "Real market data". The reference said "illustrative"; ours does not have to,
+  because the shape is what actually happened. The card header already dates the day, so
+  the footer does not repeat it
+- **the previewed metric is `DEFAULT_WEATHER_METRIC`**, not a hand-picked one. Previewing
+  a different metric made the hero, the featured card below and the dashboard itself open
+  on three different things
 - the SVG is `aria-hidden` — the stat strip above it carries the same values as text
 
 ## Hero visual
