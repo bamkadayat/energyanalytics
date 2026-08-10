@@ -20,7 +20,7 @@ export function SiteFooter() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Wordmark />
 
-          <p className="font-mono text-xs text-fg-muted">
+          <p className="break-words font-mono text-xs text-fg-muted">
             Data:{" "}
             <a
               href="https://www.hvakosterstrommen.no"

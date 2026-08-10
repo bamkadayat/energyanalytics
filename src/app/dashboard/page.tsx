@@ -78,7 +78,9 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
           </div>
         </header>
 
-        <main className="flex flex-1 flex-col gap-6 px-4 py-6 sm:px-6">
+        {/* min-w-0: a flex item defaults to min-width:auto and will not shrink below its
+            widest child, which is how one wide table pushes the whole page sideways. */}
+        <main className="flex min-w-0 flex-1 flex-col gap-6 px-4 py-6 sm:px-6">
           <section id="day-view" className="scroll-mt-24">
             <Suspense fallback={<LoadingRegion />}>
               <CorrelationView params={params} />

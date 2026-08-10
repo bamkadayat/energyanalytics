@@ -81,7 +81,7 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
   const insights = deriveInsights(aligned, summary);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex min-w-0 flex-col gap-6">
       {/*
         The date moved from a floating heading into the toolbar's period chip: a heading
         above a card whose own header says "Hour by hour" meant two titles for one thing.
@@ -206,7 +206,7 @@ function Provenance({
   weatherFetchedAt: Date;
 }) {
   return (
-    <footer className="flex flex-col gap-1 border-t border-line pt-4 font-mono text-xs text-fg-muted">
+    <footer className="flex min-w-0 flex-col gap-1 break-words border-t border-line pt-4 font-mono text-xs text-fg-muted">
       <p>
         Prices:{" "}
         <a className="text-link underline underline-offset-2" href="https://www.hvakosterstrommen.no">

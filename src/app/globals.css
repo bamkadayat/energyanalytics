@@ -475,6 +475,20 @@
 }
 
 @layer base {
+  /*
+   * Horizontal overflow guard.
+   *
+   * `clip`, never `hidden`: `overflow: hidden` turns the element into a scroll container,
+   * which silently breaks `position: sticky` for every descendant — and this app's header
+   * and rail both depend on it. `clip` prevents the scroll without that side effect.
+   *
+   * This is a net, not a fix. Anything wide enough to hit it is a bug to solve at the
+   * component, with a scroll container of its own.
+   */
+  html {
+    overflow-x: clip;
+  }
+
   body {
     background: var(--page);
     color: var(--fg);

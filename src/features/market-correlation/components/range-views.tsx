@@ -66,7 +66,7 @@ export async function RangeViews({ params }: { params: ViewParams }) {
   }
 
   return (
-    <section className="flex flex-col gap-4" aria-labelledby="range-heading">
+    <section className="flex min-w-0 flex-col gap-4" aria-labelledby="range-heading">
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <h2 id="range-heading" className="text-lg font-medium text-fg">
