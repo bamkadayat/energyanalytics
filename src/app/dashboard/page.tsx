@@ -8,6 +8,12 @@ import {
   RangeViews,
 } from "@/features/market-correlation";
 import { APP_TIME_ZONE, PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
+import {
+  DateChip,
+  DateChipPlaceholder,
+  DaySwitch,
+  ScopeLine,
+} from "./_components/header-controls";
 import { MobileNav } from "./_components/mobile-nav";
 import { DashboardSidebar } from "./_components/sidebar";
 
@@ -50,31 +56,34 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
       <DashboardSidebar params={params} />
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {/*
+          A command bar, not a title bar: it carries the one filter that reaches every
+          view on the page, and says which day that filter resolved to. The title it used
+          to hold is redundant with the rail beside it.
+        */}
         <header className="sticky top-0 z-30 border-b border-line bg-surface">
-          <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
             <MobileNav params={params} />
 
-            <div className="flex min-w-0 flex-col gap-0.5">
-              {/*
-                Visually hidden. The rail carries the product name; a page still needs an
-                h1 or the heading outline starts at h2 with a hole in it.
-              */}
-              <h1 className="sr-only">
-                Dashboard — {PRICE_AREA.label} prices and {WEATHER_LOCATION.label} weather
-              </h1>
+            {/*
+              Visually hidden. The rail carries the product name; a page still needs an h1
+              or the heading outline starts at h2 with a hole in it.
+            */}
+            <h1 className="sr-only">
+              Dashboard — {PRICE_AREA.label} prices and {WEATHER_LOCATION.label} weather,
+              by hour in {APP_TIME_ZONE}
+            </h1>
 
-              <p className="text-sm font-medium text-fg lg:hidden">Dashboard</p>
+            <DaySwitch params={params} />
 
-              {/*
-                The three caveats this page must never bury: which area the prices cover,
-                that Oslo is one representative point inside it, and which clock every
-                hour is stated in.
-              */}
-              <p className="truncate font-mono text-xs text-fg-muted">
-                {PRICE_AREA.label} · {WEATHER_LOCATION.label} weather · {APP_TIME_ZONE}
-              </p>
+            <ScopeLine />
+
+            {/* Its own boundary: resolving the date reads the clock. */}
+            <div className="ml-auto shrink-0">
+              <Suspense fallback={<DateChipPlaceholder />}>
+                <DateChip params={params} />
+              </Suspense>
             </div>
-
           </div>
         </header>
 
