@@ -47,8 +47,9 @@ Plus an unplanned track, added on request partway through and not in `build-plan
    `pnpm build` / `next start` share `.next` with a running `pnpm dev`, which left the
    dev server stale at the end of the last session. Use a separate dist dir for
    verification if both need to run.
-2. **Look at the dashboard.** Still the largest open risk — the charts, the shell
-   density, the animations and the login flow have never been seen rendered.
+2. **Look at the dashboard.** Still the largest open risk, and now the redesign rests on
+   it too: the ink chart panel, the KPI strip's bar heights, the dark rail and the login
+   card have all been verified as *markup* but never seen rendered.
 3. **Write the README.** Highest-leverage remaining item: it is still create-next-app
    boilerplate, and it is the first thing a reviewer opens. Should carry the problem, an
    architecture sketch, and the decisions with their reasoning — hour-join vs array
@@ -60,6 +61,43 @@ Plus an unplanned track, added on request partway through and not in `build-plan
 ---
 
 ## Completed
+
+### 2026-08-10 — Login polish and dashboard redesign (unplanned)
+
+Login card:
+
+- **Removed the decorative price curve.** A real chart drawn too small to read, above a
+  form with one field, costing a price fetch and 6rem of reserved padding.
+- **Password field edge was invisible** (~1.2:1). It used `--line-inverse`, the *hairline*
+  token. Added `--line-inverse-strong` (navy-500) as the dark-surface counterpart to
+  `--line-strong` — 3.11:1 against the card fill, 3.30:1 against the field fill, so it
+  meets WCAG 2.2 non-text contrast from either side.
+
+Dashboard, built against a supplied reference:
+
+- **One day switch, not two.** It existed in the rail *and* in a toolbar above the chart.
+  Now a segmented pill in the header, once.
+- **Header is a command bar**: day switch, price area + weather point, resolved date
+  right-aligned. The date is `async` (it reads the clock) so it streams behind its own
+  Suspense boundary with a same-footprint placeholder; the header shell stays static.
+- **Rail went dark**, drawer with it. Metrics carry their chart colour as a swatch rather
+  than a generic icon.
+- **KPI row is one hero plus four.** Current price, a signed delta pill against the daily
+  average, and a bar-per-hour strip scaled from zero. The four compact cards sit 2×2 at
+  every width — a single row would stretch them to the hero's height, which is the flaw in
+  the reference.
+- **New derivation: `deriveCheapestWindow`** — the cheapest run of *consecutive* priced
+  hours. A run containing a gap is skipped, not averaged over what it has.
+- **Observations carry the hour as a chip** in its own column, and state each extreme
+  against the daily average.
+- **Chart draws on ink**, table on paper. Chrome uses `--chart-*-inverse`; the four series
+  colours are shared because they clear 3:1 on both grounds (3.4:1–3.8:1, measured).
+- **Legend moved from canvas to DOM**, as solid/dashed line samples. ECharts' legend is
+  off.
+- Verified against `next start` with a minted session cookie: every figure in the
+  reference reproduced from live data (0,564 now, −47 %, cheapest 0,336 at 15:00, cheapest
+  3-hour run 0,484 at 13:00–16:00, 24 of 24 hours joined). **Still never seen rendered in
+  a browser** — no extension available this session.
 
 ### 2026-08-09 — Data-heavy views, dashboard shell, error handling (unplanned)
 
