@@ -104,7 +104,13 @@ the token name, so `--color-text-primary` would have produced `text-text-primary
 | `--line-strong` | `border-line-strong` | `--slate-500` | control borders |
 | `--line-selected` | `border-line-selected` | `--navy-900` | selected control |
 | `--line-inverse` | `border-line-inverse` | `--navy-800` | hairlines **on dark surfaces** |
+| `--line-inverse-strong` | `border-line-inverse-strong` | `--navy-500` | control borders **on dark surfaces** |
 | `--focus` | `outline-focus` | `--navy-900` | focus ring |
+
+The two inverse line tokens split the same way `--line` and `--line-strong` do on light
+surfaces: `--line-inverse` separates regions, `--line-inverse-strong` bounds something you
+interact with. Use the strong one for any field or control edge — WCAG 2.2 asks 3:1 for a
+control boundary, and the hairline is nowhere near it.
 
 Renamed from `--color-border-*` / `--color-focus-ring`, which would have produced
 `border-border-subtle` and `ring-focus-ring`.

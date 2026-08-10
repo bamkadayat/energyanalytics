@@ -42,6 +42,7 @@
   --navy-50: #eef0f7;
   --navy-100: #dfe3f0;
   --navy-200: #c3cae2;
+  --navy-500: #5b6591;
   --navy-800: #16204a;
   --navy-900: #0b1128;
   --navy-950: #06091a;
@@ -89,6 +90,14 @@
    * step above the fill separates without announcing itself.
    */
   --line-inverse: var(--navy-800);
+  /*
+   * The same job for *interactive* boundaries on dark surfaces — a field edge, a control
+   * outline. A hairline that only has to whisper "these are two regions" is too quiet to
+   * say "this is where you type": WCAG 2.2 asks 3:1 for the boundary of a control, and
+   * --line-inverse gives about 1.2:1 on the ink cards. This clears 3:1 against both the
+   * card fill and the field fill it sits between.
+   */
+  --line-inverse-strong: var(--navy-500);
   --focus: var(--navy-900);
 
   /* ---- 2. Semantic: actions ---- */
@@ -206,6 +215,7 @@
   --color-line-strong: var(--line-strong);
   --color-line-selected: var(--line-selected);
   --color-line-inverse: var(--line-inverse);
+  --color-line-inverse-strong: var(--line-inverse-strong);
   --color-focus: var(--focus);
 
   --color-action-primary: var(--action-primary);

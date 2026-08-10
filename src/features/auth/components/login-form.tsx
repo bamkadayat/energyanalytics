@@ -23,7 +23,12 @@ export function LoginForm() {
           Dashboard password
         </label>
 
-        <div className="flex items-center gap-2 rounded-control border border-line-inverse bg-surface-inverse px-3 py-2 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-fg-inverse">
+        {/*
+          The edge of a field is not decoration — it is what says "type here". So it uses
+          the interactive line token rather than the hairline one, and gets the taller
+          padding of something you aim at.
+        */}
+        <div className="flex items-center gap-2 rounded-control border border-line-inverse-strong bg-surface-inverse px-3 py-2.5 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-fg-inverse">
           <FiLock aria-hidden="true" className="size-4 shrink-0 text-fg-inverse-muted" />
 
           <input
@@ -50,7 +55,7 @@ export function LoginForm() {
             onClick={() => setVisible((current) => !current)}
             aria-pressed={visible}
             aria-controls={fieldId}
-            className="shrink-0 rounded-control border border-line-inverse px-2 py-1 font-mono text-[0.6875rem] uppercase tracking-wider text-fg-inverse-muted hover:text-fg-inverse"
+            className="shrink-0 rounded-control border border-line-inverse-strong px-2 py-1 font-mono text-[0.6875rem] uppercase tracking-wider text-fg-inverse-muted hover:border-fg-inverse hover:text-fg-inverse"
           >
             {visible ? "Hide" : "Show"}
           </button>
