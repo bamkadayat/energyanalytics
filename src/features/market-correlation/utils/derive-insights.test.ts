@@ -144,6 +144,25 @@ describe("deriveInsights", () => {
     expect(ids).toContain("cheapest");
   });
 
+  it("stops at three, dropping the peak the KPI strip already states", () => {
+    // A full day produces four candidates: cheapest, priciest, evening, metric peak.
+    const aligned = day(
+      Array.from({ length: 24 }, (_, hour) => (hour >= 17 && hour < 22 ? 2 : 1)),
+      Array.from({ length: 24 }, (_, hour) => hour),
+    );
+
+    const ids = insightsFor(aligned).map((i) => i.id);
+
+    expect(ids).toEqual(["cheapest", "priciest", "evening"]);
+  });
+
+  it("keeps the peak when a price observation is missing", () => {
+    // Too short for an evening window, so there is room for the weather line.
+    const aligned = day([1, 2, 3], [4.4, 9.1, 2.2]);
+
+    expect(insightsFor(aligned).map((i) => i.id)).toContain("metric-peak");
+  });
+
   it("returns nothing at all for an empty day", () => {
     expect(insightsFor(day([]))).toEqual([]);
   });
