@@ -75,7 +75,8 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
               </p>
             </div>
 
-            <form action={logout}>
+            {/* The rail owns Logout from lg up; this is the fallback below it. */}
+            <form action={logout} className="lg:hidden">
               <Button type="submit" variant="outline" size="sm">
                 Logout
               </Button>
