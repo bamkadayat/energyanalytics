@@ -4,6 +4,7 @@ import type { EChartsOption } from "echarts";
 import ReactECharts from "echarts-for-react";
 import { useMemo } from "react";
 import { PRICE_UNIT } from "@/shared/config";
+import { formatPrice } from "@/shared/lib/format-number";
 import type { DurationCurve } from "../utils/derive-range-views";
 import { useChartTokens } from "./use-chart-tokens";
 
@@ -44,13 +45,27 @@ export function DurationCurveChart({ curve }: { curve: DurationCurve }) {
         backgroundColor: tokens["--chart-tooltip-surface"],
         borderWidth: 0,
         textStyle: { color: tokens["--chart-tooltip-fg"] },
+        /*
+         * A whole sentence, because the default ("25% · 1,024") reads like a price *at*
+         * 25 % of something — a time, a day, a position in the range. It is neither: it
+         * is a share of hours. Saying it in words at the moment of pointing is worth more
+         * than any caption underneath.
+         */
+        formatter: (params: unknown) => {
+          const point = Array.isArray(params) ? params[0] : params;
+          const { axisValue, data } = point as { axisValue: string; data: number };
+
+          return `${axisValue} of hours cost ${formatPrice(data)} ${PRICE_UNIT} or more`;
+        },
       },
 
       xAxis: {
         type: "category",
         // Whole percents; the raw index would mean nothing to a reader.
         data: curve.percentiles.map((value) => `${value.toFixed(0)}%`),
-        name: "Share of hours at or above",
+        // The sentence has to finish. "Share of hours at or above" left the reader to
+        // guess above *what*, which is the whole trick of a duration curve.
+        name: "Share of hours at or above this price",
         nameLocation: "middle",
         nameGap: 28,
         nameTextStyle: { color: tokens["--chart-axis"] },
@@ -92,19 +107,44 @@ export function DurationCurveChart({ curve }: { curve: DurationCurve }) {
           lineStyle: { color: tokens["--chart-price"], width: 2 },
           itemStyle: { color: tokens["--chart-price"] },
           areaStyle: { color: tokens["--chart-price-fill"] },
+
+          /*
+           * The median, drawn on the chart rather than left in the caption.
+           * A sorted curve has no landmark of its own — no dates, no peaks in time — so
+           * without one there is nothing to judge "high" or "low" against. The line says
+           * where half the hours fall, and the crossing point on the axis below reads
+           * straight off as 50 %.
+           */
+          markLine: {
+            silent: true,
+            symbol: "none",
+            lineStyle: {
+              color: tokens["--chart-crosshair"],
+              type: "dashed",
+              width: 1,
+            },
+            label: {
+              formatter: `Median ${formatPrice(curve.median)}`,
+              position: "insideEndTop",
+              color: tokens["--chart-axis"],
+              fontSize: 11,
+            },
+            data: [{ yAxis: curve.median }],
+          },
         },
       ],
     };
   }, [tokens, curve]);
 
   if (option === null) {
-    return <div className="min-h-[var(--chart-min-height)]" aria-hidden="true" />;
+    return <div className="h-full min-h-[var(--chart-min-height)]" aria-hidden="true" />;
   }
 
   return (
     <ReactECharts
       opts={{ renderer: "canvas" }}
-      style={{ height: "var(--chart-min-height)", width: "100%" }}
+      // Fills the card. The slot in `view-card.tsx` carries the minimum.
+      style={{ height: "100%", width: "100%" }}
       notMerge
       option={option}
     />

@@ -2,7 +2,7 @@ import { FiLogOut } from "react-icons/fi";
 import { logout } from "@/features/auth";
 import type { ViewParams } from "@/features/market-correlation/client";
 import { Wordmark } from "@/shared/ui";
-import { RailContent } from "./rail-content";
+import { RailContent, type RailContentProps } from "./rail-content";
 
 /**
  * The application rail, from `lg` up.
@@ -20,7 +20,13 @@ import { RailContent } from "./rail-content";
  * There is deliberately no search field: this app has one dataset and nothing to search,
  * and a box that accepts typing and does nothing is a worse lie than an absent feature.
  */
-export function DashboardSidebar({ params }: { params: ViewParams }) {
+export function DashboardSidebar({
+  params,
+  active,
+}: {
+  params: ViewParams;
+  active?: RailContentProps["active"];
+}) {
   return (
     <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-surface-rail text-fg-inverse lg:flex">
       <div className="border-b border-line-inverse px-4 py-4">
@@ -31,7 +37,7 @@ export function DashboardSidebar({ params }: { params: ViewParams }) {
         aria-label="Dashboard filters"
         className="flex flex-1 flex-col gap-7 overflow-y-auto px-3 py-5"
       >
-        <RailContent params={params} />
+        <RailContent params={params} active={active} />
       </nav>
 
       {/*

@@ -109,8 +109,11 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
           <Key className="bg-fg-inverse" label="Spot price" />
           <Key className={SWATCHES[metric]} label={active.label} />
         </span>
-        {/* Says what it is. The shape is what happened, not an illustration of it. */}
-        <span>Real market data · fixed example day</span>
+        {/*
+          Says what it is. The shape is what happened, not an illustration of it — the
+          header above already dates the day, so this does not repeat it.
+        */}
+        <span>Real market data</span>
       </footer>
     </div>
   );

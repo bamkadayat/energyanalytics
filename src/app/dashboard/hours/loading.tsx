@@ -1,20 +1,14 @@
-import { DayViewSkeleton, RangeViewsSkeleton } from "@/features/market-correlation";
+import { HoursTableSkeleton } from "@/features/market-correlation";
 import { Skeleton } from "@/shared/ui";
 
 /**
- * Shown while the dashboard segment loads on navigation.
+ * Its own loading file, because `loading.tsx` cascades.
  *
- * The route is dynamic and behind a session check, so there is a real gap between the
- * click and the first byte. Without this, navigating from the landing page leaves the
- * previous screen frozen with nothing to say anything is happening.
- *
- * **It mirrors the shell, not a page.** This file used to draw a centred column with six
- * KPI cards, which was the layout before the rail landed — a skeleton that resolves into
- * a different arrangement is worse than none, because the page visibly rebuilds itself.
- * The rail and header are drawn flat here rather than imported: the real ones read
- * `searchParams`, which a loading file does not receive.
+ * Without this, navigating to `/dashboard/hours` would show the *dashboard's* skeleton —
+ * a KPI row and two charts — and then resolve into a table. The shell is the same; only
+ * the region below the header differs, which is exactly what this file changes.
  */
-export default function DashboardLoading() {
+export default function HoursLoading() {
   return (
     <div className="flex min-h-screen bg-page">
       <aside
@@ -41,14 +35,13 @@ export default function DashboardLoading() {
         <header className="border-b border-line bg-surface">
           <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
             <Skeleton className="size-9 lg:hidden" />
-            <Skeleton className="h-9 w-44 rounded-pill" />
-            <Skeleton className="ml-auto h-8 w-40" />
+            <Skeleton className="h-6 w-56" />
+            <Skeleton className="ml-auto h-8 w-8 rounded-pill" />
           </div>
         </header>
 
         <main className="flex min-w-0 flex-1 flex-col gap-6 px-4 py-6 sm:px-6">
-          <DayViewSkeleton />
-          <RangeViewsSkeleton />
+          <HoursTableSkeleton />
         </main>
       </div>
     </div>

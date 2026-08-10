@@ -62,6 +62,61 @@ Plus an unplanned track, added on request partway through and not in `build-plan
 
 ## Completed
 
+### 2026-08-10 — Skeletons that predict their own replacement
+
+- `shared/ui/skeleton.tsx` (`Skeleton`, `SkeletonRegion`) plus three composed shapes:
+  `DayViewSkeleton`, `RangeViewsSkeleton`, `HoursTableSkeleton`. Each mirrors the grid,
+  card count and proportions it stands in for, so nothing reflows on arrival.
+- Replaced the old fallback — a sentence over three bars of unequal width, floating in a
+  tall empty card.
+- `dashboard/loading.tsx` **was still the pre-rail layout**: a centred column with six KPI
+  cards. It now mirrors the shell. `/dashboard/hours` gained its own `loading.tsx`, since
+  `loading.tsx` cascades and would otherwise resolve a chart skeleton into a table.
+- Blocks are `aria-hidden`, the region carries one `role="status"` naming what is being
+  waited for, and the pulse stops under `prefers-reduced-motion`.
+
+### 2026-08-10 — Hours table: 2,160 rows, virtualized
+
+New route `/dashboard/hours`, reached from **All hours** in the rail — the only rail entry
+that is a route rather than an in-page anchor.
+
+- **Real data, at scale.** 90 days of hourly prices and weather, joined on the hour by
+  `deriveHourRows` (the wide sibling of `alignPriceAndWeather`: same normalised-hour key,
+  all three metrics instead of one). One Open-Meteo request for the whole span; prices stay
+  one cached request per day. Verified live: 2,160 hours, every one of them priced.
+- **Sortable, filterable, paginated, virtualized** — TanStack Table for the first three,
+  `@tanstack/react-virtual` for the last. Sorting and filtering run over the whole set;
+  only the visible window is mounted.
+- **Rows cross the boundary as primitives** — epoch milliseconds and one pre-formatted
+  label — so the client never parses a timestamp or formats thousands of dates.
+- Six component tests cover virtualization, whole-set sorting and filtering, pagination and
+  the ARIA row count. They needed `offsetHeight`/`offsetWidth` and `ResizeObserver` stubs:
+  jsdom reports zero for the first two, which makes the virtualizer render nothing.
+- **Still not seen in a browser** — no extension this session. Verified through the tests
+  and a `curl` of the route with a minted session cookie.
+
+### 2026-08-10 — Colour restraint pass, landing and dashboard
+
+Prompted by the first real look at both pages rendered. **Colour is for data now**; chrome
+is navy and slate. Six decorative uses removed: the green/red left edges on the KPI cards,
+the green/red delta pill, the green and red bars in the price strip, the green coverage
+rule, the green scope dot, and the blue tint on the standing "How to read this" note. What
+still carries colour encodes something — the chart series, the rail swatches that key them,
+and the heatmap's sequential ramp.
+
+- **One ground.** The chart moved off ink onto paper, so the dashboard is not one dark
+  panel among white cards. That also fixed two things the ink hid: the grid was
+  `--chart-grid-inverse` on `--surface-inverse` (**1.19:1**), and the heatmap and duration
+  curve were already reading the *light* chrome tokens while sitting on that dark panel.
+- **Rail selection** was the same fill as hover (1.19:1 either way). Selected now adds an
+  inset ring in `--line-inverse-strong` (3.3:1); hover is the fill alone.
+- Chart axis names were clipped by the top of the panel (`grid.top` 20 → 36).
+- Landing: `<main>` wrapped only the hero, so the rest of the page sat outside every
+  landmark. Nav and hero CTAs were the same button at the same size. Copy trimmed through
+  the hero and the metric section, and the hero now previews `DEFAULT_WEATHER_METRIC`, so
+  it agrees with the featured card and with what the dashboard opens on.
+- New `ghost-inverse` button variant for the second action on a dark surface.
+
 ### 2026-08-10 — Login polish and dashboard redesign (unplanned)
 
 Login card:

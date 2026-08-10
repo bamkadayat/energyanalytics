@@ -39,8 +39,10 @@ export function SpotlightCard({
       style={{ "--spot-color": `var(${accent})` } as CSSProperties}
       className={`bento bento-spot relative flex min-w-0 flex-col gap-5 overflow-hidden p-5 text-fg-inverse ${
         // The default metric is raised, so the emphasis means "this is what the dashboard
-        // opens on" rather than being an arbitrary favourite.
-        featured ? "shadow-popover lg:-mt-3" : ""
+        // opens on" rather than being an arbitrary favourite. Depth only, no offset: the
+        // featured card is the first of the three, and lifting it left the row's top edge
+        // looking misaligned rather than emphasised.
+        featured ? "shadow-popover" : ""
       }`}
     >
       {/* Above the ::before glow, which is painted on the panel itself. */}

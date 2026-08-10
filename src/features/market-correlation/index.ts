@@ -9,6 +9,8 @@ export type { AlignedHours, AlignmentCoverage } from "./types";
 export type { SearchParamsInput, ViewMode, ViewParams } from "./utils/view-params";
 
 export { alignPriceAndWeather } from "./utils/align-hours";
+export { deriveHourRows } from "./utils/derive-hour-rows";
+export type { HourRecord } from "./utils/derive-hour-rows";
 export { toChartSeries } from "./utils/to-chart-series";
 export { summariseMetric, toPreviewChart } from "./utils/to-preview-chart";
 export type { MetricPreviewStats, PreviewChart } from "./utils/to-preview-chart";
@@ -24,6 +26,12 @@ export type { Insight } from "./utils/derive-insights";
 export type { DurationCurve, PriceHeatmap } from "./utils/derive-range-views";
 export { CorrelationChart } from "./components/correlation-chart";
 export { CorrelationView } from "./components/correlation-view";
+export { HoursView } from "./components/hours-view";
+export {
+  DayViewSkeleton,
+  HoursTableSkeleton,
+  RangeViewsSkeleton,
+} from "./components/skeletons";
 export { RangeViews } from "./components/range-views";
 export { ViewCard } from "./components/view-card";
 export { ViewControls } from "./components/view-controls";

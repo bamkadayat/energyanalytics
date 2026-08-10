@@ -4,8 +4,10 @@ import { Suspense } from "react";
 import { hasValidSession } from "@/features/auth/api/session";
 import {
   CorrelationView,
+  DayViewSkeleton,
   parseViewParams,
   RangeViews,
+  RangeViewsSkeleton,
 } from "@/features/market-correlation";
 import { APP_TIME_ZONE, PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
 import {
@@ -15,6 +17,7 @@ import {
   ScopeLine,
 } from "./_components/header-controls";
 import { MobileNav } from "./_components/mobile-nav";
+import { DataNote } from "./_components/data-note";
 import { DashboardSidebar } from "./_components/sidebar";
 
 export const metadata: Metadata = {
@@ -78,8 +81,19 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
 
             <ScopeLine />
 
-            {/* Its own boundary: resolving the date reads the clock. */}
-            <div className="ml-auto shrink-0">
+            {/*
+              One cluster, allowed to shrink. Two `shrink-0` boxes plus a long date ran
+              the header past the right edge of a phone — `min-w-0` is what lets the date
+              give way, and the chip itself shortens below `sm`.
+
+              The note carries the standing qualifications, one control rather than a
+              banner at the foot of the page; in the header it sits above every view it
+              qualifies. The date has its own boundary because resolving it reads the
+              clock.
+            */}
+            <div className="ml-auto flex min-w-0 items-center gap-1 sm:gap-3">
+              <DataNote />
+
               <Suspense fallback={<DateChipPlaceholder />}>
                 <DateChip params={params} />
               </Suspense>
@@ -91,7 +105,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
             widest child, which is how one wide table pushes the whole page sideways. */}
         <main className="flex min-w-0 flex-1 flex-col gap-6 px-4 py-6 sm:px-6">
           <section id="day-view" className="scroll-mt-24">
-            <Suspense fallback={<LoadingRegion />}>
+            <Suspense fallback={<DayViewSkeleton />}>
               <CorrelationView params={params} />
             </Suspense>
           </section>
@@ -101,7 +115,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
             chart wait on them would be the wrong trade.
           */}
           <section className="scroll-mt-24">
-            <Suspense fallback={<LoadingRegion label="Loading the range…" />}>
+            <Suspense fallback={<RangeViewsSkeleton />}>
               <RangeViews params={params} />
             </Suspense>
           </section>
@@ -111,20 +125,3 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
   );
 }
 
-/**
- * Says what is being waited for rather than spinning. Its height roughly matches the
- * loaded region so the page does not jump when the data arrives.
- */
-function LoadingRegion({ label = "Loading prices and weather…" }: { label?: string }) {
-  return (
-    <div
-      className="flex min-h-[var(--chart-min-height)] flex-col gap-4 rounded-card border border-line bg-surface p-6"
-      aria-busy="true"
-    >
-      <p className="text-fg-muted">{label}</p>
-      <div className="h-4 w-2/3 rounded-control bg-surface-subtle" />
-      <div className="h-4 w-1/2 rounded-control bg-surface-subtle" />
-      <div className="h-4 w-3/5 rounded-control bg-surface-subtle" />
-    </div>
-  );
-}

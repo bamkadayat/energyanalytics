@@ -68,6 +68,8 @@ function SegmentedLinks({
           <li key={option.key}>
             <Link
               href={option.href}
+              // A filter, not a destination: keep the scroll position.
+              scroll={false}
               // What tells a screen reader which option is active. The visual treatment
               // adds background and border on top, so selection is never colour alone.
               aria-current={option.selected ? "page" : undefined}

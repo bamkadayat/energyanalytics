@@ -28,16 +28,25 @@ export function ClosingCta() {
               Every number traces back to its source
             </h2>
 
+            {/*
+              Does not restate the join — the section above has just made that case, and
+              hearing it twice reads as a page with one thing to say. This says where the
+              numbers come from, which is the part still unsaid at this point.
+            */}
             <p className="max-w-xl text-pretty text-lg text-fg-inverse-muted">
-              Public day-ahead prices and public weather readings, joined on the hour.
-              Where a reading is missing it stays missing, and the page tells you so.
+              Prices from hvakosterstrommen.no, weather from Open-Meteo. Both are public,
+              and both are linked at the foot of this page.
             </p>
 
             <div className="mt-2">
               <Suspense
                 fallback={<SessionCtaPlaceholder size="lg" className="sm:w-48" />}
               >
-                <SessionCta size="lg" className="sm:min-w-48" />
+                <SessionCta
+                  size="lg"
+                  className="sm:min-w-48"
+                  signedOutLabel="Open the dashboard"
+                />
               </Suspense>
             </div>
           </div>

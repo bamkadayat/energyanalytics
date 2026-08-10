@@ -17,7 +17,7 @@ export function InsightsList({ insights }: { insights: Insight[] }) {
 
   return (
     <section aria-labelledby="observations-heading" className="flex flex-col gap-1">
-      <h3 id="observations-heading" className="px-1 pb-3 text-base font-semibold text-fg">
+      <h3 id="observations-heading" className="pb-3 text-base font-semibold text-fg">
         Observations
       </h3>
 

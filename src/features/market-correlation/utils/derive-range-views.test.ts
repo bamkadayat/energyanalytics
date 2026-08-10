@@ -117,9 +117,9 @@ describe("deriveDurationCurve", () => {
     const curve = deriveDurationCurve(range(100, (i) => i));
 
     expect(curve.median).toBe(49);
-    // Sorted descending, so p10 is near the expensive end.
-    expect(curve.p10).toBeGreaterThan(curve.median);
-    expect(curve.p90).toBeLessThan(curve.median);
+    // Sorted descending: the tenth of hours at the top of the range is the dear one.
+    expect(curve.expensiveTenth).toBeGreaterThan(curve.median);
+    expect(curve.cheapestTenth).toBeLessThan(curve.median);
   });
 
   it("keeps negative prices, which the Nordic market produces", () => {
@@ -135,8 +135,8 @@ describe("deriveDurationCurve", () => {
       prices: [],
       percentiles: [],
       median: 0,
-      p10: 0,
-      p90: 0,
+      expensiveTenth: 0,
+      cheapestTenth: 0,
       hours: 0,
     });
   });

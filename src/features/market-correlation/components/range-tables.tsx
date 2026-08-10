@@ -106,7 +106,7 @@ export function DurationCurveTable({ curve }: { curve: DurationCurve }) {
               Hours
             </th>
             <th scope="col" className="px-4 py-2 text-right font-medium text-fg-muted">
-              At or above ({PRICE_UNIT})
+              Price at or above ({PRICE_UNIT})
             </th>
           </tr>
         </thead>

@@ -3,7 +3,8 @@ import { connection } from "next/server";
 import { FiCalendar } from "react-icons/fi";
 import { hrefWith, type ViewParams } from "@/features/market-correlation/client";
 import { PRICE_AREA, WEATHER_LOCATION, type DaySelection } from "@/shared/config";
-import { formatOsloDate } from "@/shared/lib/format-oslo";
+import { formatOsloDate, formatOsloDateShort } from "@/shared/lib/format-oslo";
+import { Skeleton } from "@/shared/ui";
 import { resolveOsloDay } from "@/shared/lib/oslo-day";
 
 const DAYS: ReadonlyArray<{ value: DaySelection; label: string }> = [
@@ -33,12 +34,15 @@ export function DaySwitch({ params }: { params: ViewParams }) {
             <li key={day.value}>
               <Link
                 href={hrefWith(params, { day: day.value })}
+                // Changing the day re-renders the views in place; it is not a reason to
+                // send the reader back to the top of the page.
+                scroll={false}
                 aria-current={selected ? "page" : undefined}
                 // Fill plus weight, so selection is never carried by colour alone.
                 className={
                   selected
-                    ? "block rounded-pill bg-surface px-4 py-1.5 text-sm font-medium text-fg shadow-card"
-                    : "block rounded-pill px-4 py-1.5 text-sm text-fg-secondary hover:text-fg"
+                    ? "block rounded-pill bg-surface px-3 py-1.5 text-sm font-medium text-fg shadow-card sm:px-4"
+                    : "block rounded-pill px-3 py-1.5 text-sm text-fg-secondary hover:text-fg sm:px-4"
                 }
               >
                 {day.label}
@@ -59,7 +63,12 @@ export function DaySwitch({ params }: { params: ViewParams }) {
 export function ScopeLine() {
   return (
     <p className="hidden min-w-0 items-center gap-2 font-mono text-xs text-fg-muted sm:flex">
-      <span aria-hidden="true" className="size-1.5 shrink-0 rounded-pill bg-price-low" />
+      {/*
+        A neutral dot. In green it read as a live-status light, which is a claim this
+        line does not make — it names the scope of the data, it does not report a
+        connection.
+      */}
+      <span aria-hidden="true" className="size-1.5 shrink-0 rounded-pill bg-line-strong" />
       <span className="truncate">
         {PRICE_AREA.label} · {WEATHER_LOCATION.label}
       </span>
@@ -82,14 +91,28 @@ export function ScopeLine() {
 export async function DateChip({ params }: { params: ViewParams }) {
   await connection();
 
-  return <ChipShell>{formatOsloDate(resolveOsloDay(new Date(), params.day))}</ChipShell>;
+  const day = resolveOsloDay(new Date(), params.day);
+
+  return (
+    <ChipShell>
+      {/*
+        "mandag 10. august 2026" is a header's worth of text on a phone, and it was
+        pushing the row off the right edge. The weekday and the year are what a narrow
+        screen can afford to lose — the day and month are the answer to "which day is
+        this".
+      */}
+      <span className="sm:hidden">{formatOsloDateShort(day)}</span>
+      <span className="hidden sm:inline">{formatOsloDate(day)}</span>
+    </ChipShell>
+  );
 }
 
 /** Holds the chip's exact footprint while the date resolves, so the header cannot jump. */
 export function DateChipPlaceholder() {
   return (
     <ChipShell>
-      <span aria-hidden="true" className="inline-block h-4 w-36 rounded-control bg-surface-subtle" />
+      {/* The shared skeleton block, so this pulses like every other pending region. */}
+      <Skeleton className="h-4 w-16 sm:w-36" />
       <span className="sr-only">Resolving the date…</span>
     </ChipShell>
   );
@@ -97,7 +120,7 @@ export function DateChipPlaceholder() {
 
 function ChipShell({ children }: { children: React.ReactNode }) {
   return (
-    <p className="flex items-center gap-2 rounded-control border border-line bg-surface px-3 py-1.5 font-mono text-sm text-fg-secondary">
+    <p className="flex min-w-0 items-center gap-2 truncate rounded-control border border-line bg-surface px-2 py-1.5 font-mono text-xs text-fg-secondary sm:px-3 sm:text-sm">
       <FiCalendar aria-hidden="true" className="size-4 shrink-0 text-fg-muted" />
       {children}
     </p>

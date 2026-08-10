@@ -9,6 +9,11 @@ import { buttonClasses, type ButtonSize } from "@/shared/ui";
  * they do not need — a control should say exactly what it does, and "Login" is a lie to
  * someone already logged in.
  *
+ * The signed-out label varies by position, which is why it is a prop. In the navbar
+ * "Login" is what a visitor is looking for. In the hero and the closing band the button
+ * is the offer, and there the destination is the honest label — login is the gate on the
+ * way to it, not the thing being offered.
+ *
  * Both the navbar and the hero render this, so the two can never disagree about whether
  * you are signed in. Reading the session is request-time work, so each mount belongs
  * inside `<Suspense>`; that keeps the rest of the page in the prerendered shell.
@@ -16,9 +21,11 @@ import { buttonClasses, type ButtonSize } from "@/shared/ui";
 export async function SessionCta({
   size = "lg",
   className,
+  signedOutLabel = "Login",
 }: {
   size?: ButtonSize;
   className?: string;
+  signedOutLabel?: string;
 }) {
   const signedIn = await hasValidSession();
   const classes = buttonClasses({ variant: "inverse", size, className });
@@ -29,7 +36,7 @@ export async function SessionCta({
     </Link>
   ) : (
     <Link href="/login" className={classes}>
-      Login
+      {signedOutLabel}
     </Link>
   );
 }

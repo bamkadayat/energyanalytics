@@ -30,12 +30,14 @@ import { SpotlightCard } from "./spotlight-card";
  * "Read more" pointing nowhere.
  */
 
+/**
+ * Kept to one short line each, and parallel. What they share — the price curve beside
+ * them, the hour-for-hour join — is said once in the section intro, not three times.
+ */
 const DESCRIPTIONS: Record<WeatherMetricId, string> = {
-  wind: "Wind over Oslo on the same hourly timeline as day-ahead prices, for today or tomorrow.",
-  temperature:
-    "Hourly temperature beside the price curve, so you can see where the two happen to move together.",
-  solar:
-    "Shortwave radiation across daylight hours, next to what electricity cost in the same hour.",
+  wind: "Wind speed over Oslo, hour by hour.",
+  temperature: "Air temperature over Oslo, hour by hour.",
+  solar: "Shortwave radiation across the daylight hours.",
 };
 
 export async function MetricHighlights() {
@@ -50,10 +52,7 @@ export async function MetricHighlights() {
     <section id="how-it-works" className="scroll-mt-8 bg-page py-16 sm:py-24">
       <div className="mx-auto w-full max-w-content px-4 sm:px-6">
         <div className="flex max-w-2xl flex-col gap-4">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-fg-muted">
-            Three layers, one timeline
-          </p>
-
+          {/* The eyebrow said what the heading already says; the heading carries it. */}
           <h2 className="text-balance text-display font-semibold text-fg">
             The same 24 hours, three ways to read them
           </h2>
@@ -64,10 +63,8 @@ export async function MetricHighlights() {
             product that is actually hard.
           */}
           <p className="text-pretty text-fg-secondary">
-            Each view keeps the price curve in place and puts one weather reading beside
-            it, so you compare hours rather than charts. The two feeds are independent, so
-            they are matched on a normalised hour rather than by position — a day is 23 or
-            25 hours twice a year, and a missing reading stays missing.
+            One weather reading beside the price curve, matched hour for hour rather than
+            by position. A missing reading stays missing.
           </p>
         </div>
 

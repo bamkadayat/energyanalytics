@@ -1,12 +1,8 @@
 import { connection } from "next/server";
 import { getPrices, type PriceFetchResult } from "@/features/energy-prices";
 import { getWeather, type WeatherFetchResult } from "@/features/weather-forecast";
-import { WEATHER_LOCATION, WEATHER_METRICS } from "@/shared/config";
-import {
-  formatOsloDate,
-  formatOsloDateTime,
-  toDateTimeAttribute,
-} from "@/shared/lib/format-oslo";
+import { WEATHER_METRICS } from "@/shared/config";
+import { formatOsloDate } from "@/shared/lib/format-oslo";
 import { areTomorrowPricesExpected, resolveOsloDay } from "@/shared/lib/oslo-day";
 import type { Fetched } from "@/shared/lib/fetched";
 import { StatusMessage } from "@/shared/ui";
@@ -19,7 +15,6 @@ import { CheapestWindowCard } from "./cheapest-window-card";
 import { CorrelationChart } from "./correlation-chart";
 import { SummaryCards } from "./summary-cards";
 import { HourlyDataTable } from "./hourly-data-table";
-import { HourlyTable } from "./hourly-table";
 import { InsightsList } from "./insights-list";
 import { SeriesLegend } from "./series-legend";
 import { SourceStatus } from "./source-status";
@@ -104,7 +99,13 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
             reading of the chart, so putting them next to it beats making the reader
             scroll between the two.
           */}
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          {/*
+            Columns stay equal height, and the chart *grows into* the taller of the two
+            rather than the card padding the difference with empty white. `items-start`
+            was the other way to remove that white space, but it left the page with a
+            ragged bottom edge and a chart no bigger than its minimum.
+          */}
+          <div className="flex flex-col gap-6">
           <ViewCard
             title="Hour by hour"
             paramKey="view"
@@ -116,17 +117,7 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
                 metricId={aligned.metricId}
               />
             }
-            chart={
-              <>
-                <CorrelationChart series={toChartSeries(aligned)} />
-                {/*
-                  The table stays reachable *while the chart is showing*. The canvas is
-                  opaque to assistive technology, so the numbers must not depend on
-                  noticing the toggle — it is a convenience, not the only route.
-                */}
-                <HourlyTable aligned={aligned} day={day} />
-              </>
-            }
+            chart={<CorrelationChart series={toChartSeries(aligned)} />}
             table={
               <HourlyDataTable
                 metricId={aligned.metricId}
@@ -138,25 +129,32 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
                 }))}
               />
             }
-            chartCaption={
-              <>
-                Spot price (solid, left axis) against {metric.label.toLowerCase()}{" "}
-                (dashed, right axis) for {formatOsloDate(day)}, by hour in Oslo time. The
-                axes use independent scales, so crossings are not comparisons.
-              </>
-            }
-            tableCaption={
-              <>
-                The same hours as numbers. {formatOsloDate(day)}, Europe/Oslo time.
-              </>
-            }
           />
 
           {/*
             The rail beside the chart: what the chart says, then the one figure that is a
             decision rather than a reading.
           */}
-          <div className="flex flex-col gap-4">
+          {/*
+            Three arrangements, one for each amount of room:
+            - phone: one column, each card full width
+            - tablet and laptop, where the chart has gone full width above: the two cards
+              sit side by side, so a short card is not a full-width band of white
+            - `xl` and up: back to one column, because here they *are* the column beside
+              the chart
+
+            `items-start` so the shorter card keeps its own height rather than being
+            stretched to the taller one's.
+          */}
+          {/*
+            Stacked full width until `xl`, side by side from there. Two cards this dense
+            need a wide page to sit next to each other and still hold a sentence, which
+            `md` and `lg` do not have once the rail is subtracted.
+
+            `items-start` so the shorter card keeps its own height instead of being
+            stretched to the taller one's and padding the difference with white.
+          */}
+          <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
             <div className="rounded-card border border-line bg-surface p-4">
               <InsightsList insights={insights} />
             </div>
@@ -164,23 +162,12 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
             <CheapestWindowCard aligned={aligned} summary={summary} />
           </div>
           </div>
-
-          <StatusMessage tone="info" title="How to read this">
-            {WEATHER_LOCATION.label} weather is shown as a representative location within
-            the price area. Visual relationships are exploratory and do not demonstrate
-            causation. Prices exclude VAT, grid charges and other consumer costs.
-          </StatusMessage>
         </>
       ) : prices.status !== "not-published" ? (
         <StatusMessage tone="neutral" title="No data for this day">
           Neither prices nor weather returned any hours for {formatOsloDate(day)}.
         </StatusMessage>
       ) : null}
-
-      <Provenance
-        priceFetchedAt={prices.fetchedAt}
-        weatherFetchedAt={weather.fetchedAt}
-      />
     </div>
   );
 }
@@ -189,39 +176,3 @@ function settledOr<T>(outcome: PromiseSettledResult<T>, fallback: T): T {
   return outcome.status === "fulfilled" ? outcome.value : fallback;
 }
 
-/**
- * Where the numbers came from and when. Shown always, not only on success: knowing the
- * data is three hours old matters most when something looks wrong.
- */
-function Provenance({
-  priceFetchedAt,
-  weatherFetchedAt,
-}: {
-  priceFetchedAt: Date;
-  weatherFetchedAt: Date;
-}) {
-  return (
-    <footer className="flex min-w-0 flex-col gap-1 break-words border-t border-line pt-4 font-mono text-xs text-fg-muted">
-      <p>
-        Prices:{" "}
-        <a className="text-link underline underline-offset-2" href="https://www.hvakosterstrommen.no">
-          hvakosterstrommen.no
-        </a>
-        {" · retrieved "}
-        <time dateTime={toDateTimeAttribute(priceFetchedAt)}>
-          {formatOsloDateTime(priceFetchedAt)}
-        </time>
-      </p>
-      <p>
-        Weather:{" "}
-        <a className="text-link underline underline-offset-2" href="https://open-meteo.com">
-          open-meteo.com
-        </a>
-        {" · retrieved "}
-        <time dateTime={toDateTimeAttribute(weatherFetchedAt)}>
-          {formatOsloDateTime(weatherFetchedAt)}
-        </time>
-      </p>
-    </footer>
-  );
-}

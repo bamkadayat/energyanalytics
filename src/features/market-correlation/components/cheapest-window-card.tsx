@@ -84,7 +84,6 @@ function CoverageBar({
   label: string;
 }) {
   const filled = total === 0 ? 0 : (matched / total) * 100;
-  const complete = matched === total && total > 0;
 
   return (
     <div className="flex flex-col gap-2 border-t border-line pt-3">
@@ -93,9 +92,11 @@ function CoverageBar({
         className="h-1.5 w-full overflow-hidden rounded-pill bg-surface-subtle"
       >
         <div
-          // Full coverage reads as the good outcome; anything short of it stays neutral
-          // rather than being coloured as a warning, because a gap is normal.
-          className={`h-full rounded-pill ${complete ? "bg-price-low" : "bg-price-now"}`}
+          // One fill at every level of coverage. Turning the bar green at 24 of 24 made a
+          // full-width saturated rule the loudest thing in the column, to say what the
+          // sentence under it already says — and a gap is normal, so the two states do
+          // not need different colours in the first place.
+          className="h-full rounded-pill bg-price-now"
           style={{ width: `${filled}%` }}
         />
       </div>

@@ -27,6 +27,7 @@ export function ViewCard({
   initialMode,
   legend,
   chart,
+  chartMinHeight = "var(--chart-min-height)",
   table,
   chartCaption,
   tableCaption,
@@ -38,11 +39,15 @@ export function ViewCard({
   /** Series key, shown beside the title while the chart is up. */
   legend?: ReactNode;
   chart: ReactNode;
+  /** Floor for the chart slot. The heatmap needs a taller one: it has 24 rows to fit. */
+  chartMinHeight?: string;
   table: ReactNode;
-  chartCaption: ReactNode;
+  /** Optional: the day chart's axes are already named by the legend and the axis titles. */
+  chartCaption?: ReactNode;
   tableCaption?: ReactNode;
 }) {
   const [mode, setMode] = useState<ViewMode>(initialMode);
+  const caption = mode === "chart" ? chartCaption : (tableCaption ?? chartCaption);
 
   function select(next: ViewMode) {
     setMode(next);
@@ -83,29 +88,35 @@ export function ViewCard({
       </header>
 
       {/*
-        The chart sits on ink, the table on paper.
-        A canvas of thin coloured lines holds together far better against a dark ground —
-        the series separate, and the panel reads as an instrument rather than as an image
-        pasted into a document. A table is text, and text belongs on paper.
+        Chart and table share one ground.
+        The chart used to sit on ink, on the argument that thin coloured lines separate
+        better against dark. They do — but it made a single panel a different surface
+        from every card around it, and switching a card's own background when you press
+        Chart/Table reads as navigating rather than as toggling one view of one thing.
+        The series clear 3:1 on paper too, so nothing was traded for the consistency.
       */}
-      <div
-        className={
-          mode === "chart"
-            ? "flex flex-col gap-3 bg-surface-inverse px-4 pb-4 pt-2 text-fg-inverse"
-            : "flex flex-col gap-3 px-4 pb-4"
-        }
-      >
-        {mode === "chart" ? chart : table}
+      <div className="flex flex-1 flex-col gap-3 px-4 pb-4">
+        {mode === "chart" ? (
+          /*
+           * The chart fills whatever height the card ends up with — in a grid row beside
+           * a taller column, the alternative is a short chart above a block of empty
+           * white. The minimum keeps it readable when the card is the tall one.
+           *
+           * The inner box is absolutely positioned, and that is load-bearing rather than
+           * decorative. ECharts draws into an element sized `height: 100%`, and a
+           * percentage height resolves against the parent's *height*, not its
+           * `min-height` — so in any layout where the card is not stretched by a grid
+           * row, the chart resolves to zero and collapses to a sliver of overlapping
+           * axis labels. `inset-0` gives it a definite box in both cases.
+           */
+          <div className="relative flex-1" style={{ minHeight: chartMinHeight }}>
+            <div className="absolute inset-0">{chart}</div>
+          </div>
+        ) : (
+          table
+        )}
 
-        <p
-          className={
-            mode === "chart"
-              ? "text-pretty text-sm text-fg-inverse-muted"
-              : "text-pretty text-sm text-fg-muted"
-          }
-        >
-          {mode === "chart" ? chartCaption : (tableCaption ?? chartCaption)}
-        </p>
+        {caption ? <p className="text-pretty text-sm text-fg-muted">{caption}</p> : null}
       </div>
     </section>
   );

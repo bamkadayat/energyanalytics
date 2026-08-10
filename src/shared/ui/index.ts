@@ -5,6 +5,7 @@
 export { Button, buttonClasses } from "./button";
 export type { ButtonProps, ButtonSize, ButtonVariant } from "./button";
 export { LogoMark } from "./logo-mark";
+export { Skeleton, SkeletonRegion } from "./skeleton";
 export { StatusMessage } from "./status-message";
 export { Wordmark } from "./wordmark";
 export type { StatusMessageProps, StatusTone } from "./status-message";

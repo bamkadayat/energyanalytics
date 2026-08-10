@@ -27,6 +27,8 @@ Extracted from the components below. These are the defaults; deviate only with a
 | Icon stroke | `currentColor`, `strokeWidth 1.75` | inherits the text colour of its container |
 | Detail text | `text-sm` | secondary to a `font-medium` title |
 | Border | 1px, a `*-line` token | never a shadow for flat separation |
+| Card heading | `text-base font-semibold` | section heading one step up: `text-lg font-semibold` |
+| Colour | data only | series, swatches and the heatmap ramp. Chrome is navy/slate — a coloured fill on a card, pill, bar or banner has to be encoding something the words do not |
 
 **Never interpolate a class name.** `bg-${tone}-surface` produces no CSS, because
 Tailwind scans for whole strings — and with the default palette cleared it fails
@@ -162,10 +164,50 @@ a data point. Moving air, read as a series.
 
 ---
 
+## The range section ("The last N days")
+
+`range-views.tsx` — the summary line above the two range cards, and the wording both
+cards depend on.
+
+Both multi-column card grids keep **equal-height columns**, and the chart *grows into*
+the row rather than the card padding the difference with empty white: `ViewCard`'s chart
+slot is `flex-1` over a per-card `chartMinHeight` (the heatmap passes the taller
+`--chart-heatmap-height`, since it has 24 rows to fit), and every chart is
+`height: 100%`. `items-start` is the other way to remove that white space, and it was
+tried first — it leaves a ragged bottom edge and a chart no bigger than its minimum.
+
+- the summary is **three sentences, one fact each**: how much data, the median, then the
+  two tails. It was one sentence carrying all four, with "at or above" and "at or below"
+  a few words apart
+- the duration curve's x-axis name is a **finished sentence** — "Share of hours at or
+  above this price". Cut short at "at or above", it left the reader to guess above what,
+  which is the whole trick of a duration curve
+- `deriveDurationCurve` returns **`expensiveTenth` / `cheapestTenth`**, not `p10` / `p90`.
+  The array is sorted *descending*, so the value at 10 % is the dear end — the percentile
+  names read as the exact opposite of what they hold
+- the curve card is titled **"Hours sorted by price"**. "Price duration curve" is precise
+  to an energy analyst and opaque to everyone else; the domain term sits in the caption,
+  where it can be looked up rather than decoded
+- **the tooltip is a sentence** — "25% of hours cost 1,02 NOK/kWh or more". The default
+  pairing of an axis value and a number reads as a price *at* 25 % of something, which is
+  the one thing the axis is not
+- **the median is drawn on the chart**, dashed in `--chart-crosshair` with its value in
+  the label. A sorted curve has no landmarks of its own — no dates, no peaks in time — so
+  there is nothing to judge high or low against until one is given
+
+---
+
 ## Segmented link controls
 
 `src/features/market-correlation/components/view-controls.tsx` — day and metric
 selectors.
+
+**`scroll={false}` on every one of them.** Next's default is to keep the scroll position
+only while the Page element is still in the viewport; below that it scrolls to the top of
+it. A filter sitting far down the page — the range presets under the 30-day views — would
+therefore throw the reader back to the header on every press. These links change what is
+rendered in place, they are not destinations. The `#day-view` / range anchors in the rail
+keep the default, because moving the page is what they are for.
 
 **Links, not buttons.** The selection *is* the URL, so navigating is the whole
 interaction: they work before JavaScript loads and keep the back button meaningful. No
@@ -195,10 +237,11 @@ Sans for prose. Within a fixed single-family token system this is the one typogr
 distinction available, and it earns its place by marking which text is instrument
 readout and which is explanation.
 
-**Provenance footer** — `border-t border-line pt-4 font-mono text-xs text-fg-muted`, one
-line per source, each with a `<time dateTime>` carrying the machine-readable instant.
-Shown always, not only on success: knowing the data is three hours old matters most when
-something looks wrong.
+**Provenance footer — removed** (2026-08-10, on request). Two lines under the day view
+naming each source and when it was retrieved. The sources are still credited in the
+landing page footer; what went with it is the *freshness* signal, so nothing on the
+dashboard now says how old the numbers are. `cacheLife("hours")` makes that gap real —
+see the stale-data row in `ui-rules.md`'s state table, still unimplemented.
 
 **Loading region** — states what is being waited for rather than spinning, sized with
 `min-h-[var(--chart-min-height)]` so the page does not jump, and marked `aria-busy`.
@@ -257,9 +300,12 @@ full-width work area, which is the layout that reads as an application rather th
 - **sidebar** (`w-60`, sticky, full height) carries the brand, the filters and Logout.
   Every entry is a **real filter or a real anchor** — a rail of dead links looks like a
   dashboard and behaves like a mock-up
-- items are `rounded-control px-3 py-2`; active is a **soft fill plus a weight change**
-  (`bg-surface-rail-active font-medium`) and `aria-current`. The fill alone would be
-  colour carrying meaning on its own — the heavier label is the second channel
+- items are `rounded-control px-3 py-2`; active is a **fill, an inset ring and a weight
+  change** (`bg-surface-rail-active inset-ring-line-inverse-strong font-medium`) plus
+  `aria-current`. The fill alone would be colour carrying meaning on its own, and it is
+  only 1.19:1 against the rail — it was also the hover fill, so an unselected row under
+  the cursor looked selected. The ring (3.3:1) is what makes selection visible; hover
+  stays the fill alone
 - **metrics carry a colour swatch, not an icon.** A thermometer beside "Temperature"
   repeats the word; the swatch says what the label cannot — which line in the chart this
   is. Unit chips sit on the right (`border-line-inverse-strong`)
@@ -309,15 +355,22 @@ full-width work area, which is the layout that reads as an application rather th
   without the shape of the day. Six equal cards made the reader decide what mattered
 - the delta pill **carries its own sign** (`+` / `−`) rather than leaving the fill to say
   it: a red 47 % could mean either direction, and this is the figure most likely to be
-  acted on
+  acted on. Because the sign carries it, the pill itself is **neutral**
+  (`bg-surface-subtle`)
 - the four compact cards stay `p-3` with a `text-xl tabular-nums` value and a
   `text-[0.6875rem]` uppercase label, in a **2×2 grid at every width**. A single row would
   stretch each to the tall card's height and leave two thirds of it empty
-- cheapest and priciest carry a **left border** in `--price-low` / `--price-high`,
-  alongside a term that says the same thing in words
+- **all four cards are identical.** Cheapest and priciest used to carry a coloured left
+  border in `--price-low` / `--price-high`; that made two of the four look like a
+  different component and spent the loudest colours on the page saying what the terms
+  "Cheapest hour" and "Priciest hour" already say. A KPI strip reads as a strip when its
+  cards match
 - **`price-strip.tsx`** draws one bar per hour, scaled **from zero** — a floor at the day's
-  minimum would redraw a flat day as a dramatic one. The current, cheapest and priciest
-  hours are picked out; a missing hour keeps its slot as a 2px sliver rather than letting
+  minimum would redraw a flat day as a dramatic one. **Only the current hour is picked
+  out.** Filling the cheapest bar green and the priciest red put the two loudest colours
+  on the page inside a sparkline the width of a paragraph, and said nothing the bars did
+  not: the cheapest hour is the shortest bar and the priciest the tallest, by
+  construction. Height cannot show *where you are*, so that is the one hour with a fill; a missing hour keeps its slot as a 2px sliver rather than letting
   the bars close ranks. `aria-hidden`, because every figure in it is already text elsewhere
 
 ## Cheapest window card
@@ -369,9 +422,20 @@ left, a chart/table toggle on the right, content, then a caption.
   day switch, with an `aria-label` carrying the fuller description. The icon-only version
   it replaces made the reader decode a glyph to find the numbers
 - selection carries a fill **and** a weight change plus `aria-pressed`, never colour alone
-- in chart mode the body sits on **ink** (`bg-surface-inverse`), in table mode on paper. A
-  canvas of thin coloured lines separates far better against a dark ground and reads as an
-  instrument; a table is text, and text belongs on paper
+- the caption under the body is **optional** (`chartCaption?`). The day chart's axes are
+  already named with their units on the canvas and keyed by the legend in the header, so
+  a sentence repeating them was a third statement of the same thing
+- the chart slot is `relative flex-1` with a `min-height`, and the chart itself sits in an
+  `absolute inset-0` box. That is load-bearing: ECharts fills `height: 100%`, and a
+  percentage height resolves against the parent's *height*, never its `min-height` — so in
+  any layout where the card is not stretched by a grid row, the chart resolved to zero and
+  collapsed to a sliver of overlapping axis labels
+- **chart and table share one ground** (paper). The chart sat on ink for a while, on the
+  argument that thin coloured lines separate better against dark — they do, but it made a
+  single panel a different surface from every card around it, and swapping a card's
+  background on a Chart/Table press reads as navigating rather than toggling. The series
+  clear 3:1 on paper too, and the light chrome tokens are the tuned ones: on ink the grid
+  was `--chart-grid-inverse` at **1.19:1**, a gridline nobody could see
 - **`series-legend.tsx`** puts the key in the DOM rather than on the canvas, where it is
   selectable, readable by assistive technology, and survives the chart failing to mount.
   Its swatches are **line samples, solid and dashed**, so the legend teaches the
@@ -399,6 +463,95 @@ rather than optional.
   are `<th scope="col">`
 - Numeric cells: `text-right font-mono tabular-nums` so decimal points line up
 - Wrapped in `overflow-x-auto` so the table scrolls rather than the page
+- **eight rows, then "Show 8 more"** (and "Show fewer" once expanded), with a
+  `Showing 8 of 24 hours` count in `aria-live`. Twenty-four hours is not something anyone
+  pages through, so it is one control and a count rather than page numbers. Eight is
+  chosen to land the table at roughly the chart's height: pressing Chart/Table should
+  change what the card shows, not how much room it takes
+- **sorting runs over every hour, then the list is cut.** Sorting the visible slice would
+  answer "the cheapest of the eight you happen to be looking at"
+- **superseded:** `hourly-table.tsx` rendered a `<details>` disclosure under the day
+  chart, so the numbers were reachable without pressing anything. It was removed on
+  request — the Chart/Table toggle already reaches the same table, and the disclosure
+  duplicated it. The component is now unreferenced. The consequence to know: the toggle
+  is a `<button>`, so with JavaScript off the chart is the only representation. Making
+  the toggle a link on `?view=table` would restore the no-JS route, since the server
+  already renders from that param
+
+## Skeletons
+
+`shared/ui/skeleton.tsx` — `Skeleton` (one block) and `SkeletonRegion` (the wrapper that
+owns the announcement). `market-correlation/components/skeletons.tsx` composes them into
+`DayViewSkeleton`, `RangeViewsSkeleton` and `HoursTableSkeleton`.
+
+- **A skeleton mirrors the layout it stands in for** — same grid template, same card
+  count, same proportions. Three bars of unequal width in a tall empty card is not a
+  loading state, it is a broken one, and it costs a visible reflow when the data lands
+- one grey, one radius, one pulse, from the primitive. Skeletons had been written at each
+  call site, which is how they drifted
+- **blocks are `aria-hidden`; the region owns a single `role="status"`** with an `sr-only`
+  label. A dozen empty boxes announced one by one is worse than silence
+- the label names *what* is being waited for. The dashboard's two waits differ by an order
+  of magnitude — today's day view against ninety cached price requests — and knowing which
+  one you are in is the point
+- **the pulse stops under `prefers-reduced-motion`.** A loading state is exactly when
+  someone sensitive to motion is already waiting and watching the screen
+- `loading.tsx` files mirror the **shell** (rail, header, then the region skeletons), and
+  `/dashboard/hours` needs **its own**: `loading.tsx` cascades, so without one a visitor
+  navigating to the table would watch a KPI row and two charts resolve into a table
+
+---
+
+## The hours table (`/dashboard/hours`)
+
+`hours-table.tsx` — every hour of the last 90 days (~2,160 rows) in one scrollable table,
+reached from the rail's **All hours** entry.
+
+- **Only the visible window is in the DOM** (`useVirtualizer`): roughly 25 rows mounted at
+  any scroll position, whatever the page holds. The `tbody` is as tall as the whole page
+  of rows and each drawn row is positioned into it, so the scrollbar describes the data
+  rather than the mounted subset
+- **sorting and filtering run over the whole set**, then the virtualizer draws what
+  survives. Sorting a page would answer "the cheapest of the hundred you are looking at"
+- **`aria-rowcount` on the table, `aria-rowindex` on every row.** Virtualization normally
+  costs a screen-reader user the table — the rows are absent and the ones present misstate
+  their position. These two attributes are what put the count and the position back
+- the virtualized layout needs `display: grid` on the table elements, which **drops their
+  implicit roles** in several browsers, so `role` is written on each one explicitly
+- **the scroll container is focusable** (`tabIndex`). With the rows virtualized there is
+  nothing inside to tab to, so without it there is no way to scroll without a pointer
+- height is `--table-height`, a viewport clamp (`clamp(24rem, 68vh, 56rem)`) — the view is
+  about the size of the dataset, so it takes the device's height rather than a fixed one.
+  `SCROLLER_HEIGHT` in the component mirrors it as the pre-measurement estimate
+- controls are a **search box, a "only hours with a price" checkbox and a page size**
+  (100/500/1000), with `1–100 of 2,160 hours` in `aria-live`
+- rows are **primitives from the server** — epoch milliseconds and a pre-formatted label,
+  never `Date` objects. A few thousand `Intl` calls before the first paint is the cost of
+  formatting on the client
+
+---
+
+## The data note
+
+`src/app/dashboard/_components/data-note.tsx` — the standing qualifications (Oslo as a
+representative point, exploratory not causal, prices exclude VAT and grid charges),
+behind an info control in the page header.
+
+- it was a full-width banner at the foot of the day view. Nothing about it changes
+  between renders and none of it is news, so a banner spent the weight of an alert on a
+  permanent footnote — but `ui-rules.md` still requires the non-causation statement
+  wherever the data is shown, so it has to stay *reachable*
+- **a button, not a `title` and not hover-only.** Hover text is unreachable on a
+  touchscreen and awkward on a keyboard. This opens on click, Enter and Space, closes on
+  Escape or a click outside, and reports state through `aria-expanded` /`aria-controls`
+- the panel is a **sibling of the trigger** and `role="note"`, so a screen reader meets
+  the text immediately after the control that announced it
+- anchored under the trigger and right-aligned (`absolute right-0 top-full`), never
+  floated to the middle of the screen; `w-screen max-w-sm` keeps it readable on a phone
+- in the header it sits above every view it qualifies, which is nearer the chart than the
+  foot of the page ever was
+
+---
 
 ## Session call to action
 

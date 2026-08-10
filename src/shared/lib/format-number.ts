@@ -29,6 +29,23 @@ const percentFormatter = new Intl.NumberFormat(APP_LOCALE, {
   maximumFractionDigits: 0,
 });
 
+/**
+ * Whole counts — hours, days, rows. Grouped, and in the **app locale** like every other
+ * number on the page.
+ *
+ * The locale matters more than it looks: `nb-NO` uses a comma as its *decimal* separator,
+ * so a count formatted as `en` renders "2,160 hours" on a page where "0,564" means
+ * nought-point-five-six-four. The two are read differently by the same reader, inches
+ * apart. `nb-NO` groups with a space instead, which cannot be mistaken for a decimal.
+ */
+const countFormatter = new Intl.NumberFormat(APP_LOCALE, {
+  maximumFractionDigits: 0,
+});
+
+export function formatCount(value: number): string {
+  return countFormatter.format(value);
+}
+
 /** Renders a missing value as an em dash rather than as a number. */
 export const MISSING_VALUE = "—";
 
