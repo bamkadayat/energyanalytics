@@ -944,21 +944,18 @@ photograph of the region the data describes.
   sit on `--surface-inverse`, and the global `--focus` is `--navy-900` — the same colour,
   so the default ring was invisible against its own background. Any focusable placed on a
   dark surface needs this; the bento cards already carried it, these were missed
-- **trimmed to the minimum that still explains itself.** The card said several things
-  three times: the hour had a stat column *and* the crosshair chip; the two series were
-  named by the pills, by the stat labels, and again by a footer legend. Gone are the hour
-  column and the whole footer — legend and the "Real market data" label with it
-- **the legend's one unique fact moved rather than died.** Only it said which colour was
-  which line, so that became a short rule on the stat labels, which already existed. The
-  row went; the mapping did not
-- **no dated "Example day" line.** It went in a later pass, taking the date and the hour
-  with it, so the header is the metric switch alone. Two consequences to know before
-  trusting the card to explain itself: the two figures no longer state *when* they are
-  from, and the hour now exists only inside the `aria-hidden` SVG as the crosshair chip,
-  so a screen reader does not get it at all. The day is still fixed (`PREVIEW_DAY`) and
-  the values are still real — the card just no longer says which day
-- the SVG is `aria-hidden` — the two remaining figures are its text alternative, which is
-  why they are the part that cannot be trimmed away
+- **stripped to the metric switch and the chart.** It has lost, in order: a footer legend
+  and "Real market data" label, a dedicated hour column, the dated "Example day" line, and
+  finally the two-figure stat strip. Nothing on the card now states a value
+- **the SVG's `aria-hidden` now rests on a different argument.** It was hidden because the
+  stat strip carried the same values as text; with that gone, it is hidden because it is
+  **decorative** — a shape, with no figure a reader is expected to take from it. That is a
+  legitimate reason and needs no alternative, but it is a weaker claim than the card used
+  to make, and it only holds while the card promises nothing numeric
+- **do not carry that reasoning to the dashboard.** There the table and the text summary
+  are required alternatives to the chart, not optional ones
+- the day is still fixed (`PREVIEW_DAY`) and the geometry still comes from real prices —
+  the card simply no longer says so in words
 
 ## Hero visual (removed)
 
