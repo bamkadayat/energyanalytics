@@ -37,6 +37,13 @@ export function ChartToolbar({
             <li key={preset.key}>
               <Link
                 href={preset.href}
+                /*
+                 * Stay where the reader is. This toolbar sits far down the page, so the
+                 * Page element is out of the viewport and Next's default is to scroll to
+                 * the top of it — changing a filter would throw the chart you are
+                 * looking at off screen.
+                 */
+                scroll={false}
                 aria-current={preset.selected ? "page" : undefined}
                 // Fill plus weight, so selection is never carried by colour alone.
                 className={

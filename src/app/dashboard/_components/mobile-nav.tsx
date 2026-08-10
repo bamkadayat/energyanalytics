@@ -5,7 +5,7 @@ import { FiLogOut, FiMenu, FiX } from "react-icons/fi";
 import { logout } from "@/features/auth";
 import type { ViewParams } from "@/features/market-correlation/client";
 import { Wordmark } from "@/shared/ui";
-import { RailContent } from "./rail-content";
+import { RailContent, type RailContentProps } from "./rail-content";
 
 /**
  * The rail as an off-canvas drawer, below `lg`.
@@ -19,7 +19,13 @@ import { RailContent } from "./rail-content";
  * navigates client-side, so without it the panel would stay open over the page you just
  * asked for.
  */
-export function MobileNav({ params }: { params: ViewParams }) {
+export function MobileNav({
+  params,
+  active,
+}: {
+  params: ViewParams;
+  active?: RailContentProps["active"];
+}) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   return (
@@ -74,7 +80,7 @@ export function MobileNav({ params }: { params: ViewParams }) {
               }
             }}
           >
-            <RailContent params={params} />
+            <RailContent params={params} active={active} />
           </nav>
 
           {/*

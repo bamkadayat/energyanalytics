@@ -46,7 +46,6 @@ export function SummaryCards({
           value={formatPrice(summary.cheapestHour?.value)}
           unit={PRICE_UNIT}
           note={summary.cheapestHour ? formatOsloTime(summary.cheapestHour.at) : undefined}
-          accent="low"
         />
 
         <Card
@@ -54,7 +53,6 @@ export function SummaryCards({
           value={formatPrice(summary.priciestHour?.value)}
           unit={PRICE_UNIT}
           note={summary.priciestHour ? formatOsloTime(summary.priciestHour.at) : undefined}
-          accent="high"
         />
 
         <Card
@@ -122,8 +120,6 @@ function PriceNowCard({
       <PriceStrip
         aligned={aligned}
         currentIndex={indexOf(aligned, summary.currentHour?.at)}
-        cheapestIndex={indexOf(aligned, summary.cheapestHour?.at)}
-        priciestIndex={indexOf(aligned, summary.priciestHour?.at)}
       />
     </section>
   );
@@ -134,7 +130,9 @@ function PriceNowCard({
  *
  * The pill carries the sign explicitly rather than relying on colour: a red 47 % could
  * mean either direction, and this is the one figure on the page a reader is most likely
- * to act on.
+ * to act on. Since the sign is doing the work, the pill is **neutral** — a green or red
+ * fill here was the third place on the screen saying "cheap" or "dear" in colour, and
+ * spending the palette on chrome is what leaves nothing left for the chart.
  */
 function ComparisonLine({ summary }: { summary: DaySummary }) {
   const average = summary.averageNokPerKwh;
@@ -150,13 +148,7 @@ function ComparisonLine({ summary }: { summary: DaySummary }) {
   return (
     <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-fg-secondary">
       {difference === null ? null : (
-        <span
-          className={`rounded-pill px-2 py-0.5 font-mono text-xs tabular-nums ${
-            difference >= 0
-              ? "bg-price-high-surface text-error-fg"
-              : "bg-price-low-surface text-success-fg"
-          }`}
-        >
+        <span className="rounded-pill bg-surface-subtle px-2 py-0.5 font-mono text-xs tabular-nums text-fg-secondary">
           {difference >= 0 ? "+" : "−"}
           {formatPercentDifference(difference)}
         </span>
@@ -180,33 +172,30 @@ function indexOf(aligned: AlignedHours, at: Date | undefined): number {
   return aligned.hours.findIndex((hour) => hour.getTime() === at.getTime());
 }
 
+/**
+ * Four identical cards.
+ *
+ * The cheapest and priciest cards used to carry a coloured left edge, which made two of
+ * the four look like a different component and spent the loudest colours on the page on
+ * something the words "Cheapest hour" and "Priciest hour" already say. A KPI strip reads
+ * as a strip when its cards match.
+ */
 function Card({
   term,
   value,
   unit,
   note,
-  accent,
 }: {
   term: string;
   value: string;
   unit: string;
   note?: string;
-  /** Tints the left edge. Always alongside a term that says the same thing in words. */
-  accent?: "low" | "high";
 }) {
   const missing = value === MISSING_VALUE;
 
   return (
     // Denser than a content card: a KPI strip is scanned, not read.
-    <div
-      className={`flex flex-col gap-1 rounded-card border border-l-2 bg-surface p-3 ${
-        accent === "low"
-          ? "border-line border-l-price-low"
-          : accent === "high"
-            ? "border-line border-l-price-high"
-            : "border-line"
-      }`}
-    >
+    <div className="flex flex-col gap-1 rounded-card border border-line bg-surface p-3">
       <dt className="truncate font-mono text-[0.6875rem] uppercase tracking-wider text-fg-muted">
         {term}
       </dt>

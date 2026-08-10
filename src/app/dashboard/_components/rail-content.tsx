@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { hrefWith, type ViewParams } from "@/features/market-correlation/client";
 import {
+  HOURS_TABLE_DAYS,
   WEATHER_METRICS,
   WEATHER_METRIC_IDS,
   type WeatherMetricId,
@@ -19,7 +20,13 @@ import {
  * meant two controls for one piece of state and two places to look when the wrong day was
  * showing. It now lives in the header, once.
  */
-export function RailContent({ params }: { params: ViewParams }) {
+export interface RailContentProps {
+  params: ViewParams;
+  /** Which route is showing, so the one entry that is a route can be marked current. */
+  active?: "day" | "hours";
+}
+
+export function RailContent({ params, active = "day" }: RailContentProps) {
   return (
     <>
       <Group label="Weather metric">
@@ -34,10 +41,28 @@ export function RailContent({ params }: { params: ViewParams }) {
       </Group>
 
       <Group label="Views">
-        {/* In-page anchors, so a long dashboard stays navigable without scrolling. */}
-        <RailLink href="#day-view" label="Hour by hour" />
+        {/*
+          Anchors carry `/dashboard` in front of the hash, not just `#day-view`. From
+          `/dashboard/hours` a bare hash would look for an element on the page you are
+          already on and do nothing.
+        */}
+        <RailLink href={`/dashboard${hrefWith(params, {})}#day-view`} label="Hour by hour" />
         {/* The badge is live data — the range currently loaded — not decoration. */}
-        <RailLink href="#range-heading" label="Range views" badge={`${params.range}d`} />
+        <RailLink
+          href={`/dashboard${hrefWith(params, {})}#range-heading`}
+          label="Range views"
+          badge={`${params.range}d`}
+        />
+        {/*
+          A route, not an anchor: the only entry in the rail that leaves the page. Its
+          badge is the span it loads, so the two range entries read on the same scale.
+        */}
+        <RailLink
+          href="/dashboard/hours"
+          label="All hours"
+          badge={`${HOURS_TABLE_DAYS}d`}
+          selected={active === "hours"}
+        />
       </Group>
     </>
   );
@@ -75,10 +100,20 @@ function MetricLink({
     <li>
       <Link
         href={href}
+        // Swapping the metric redraws the views in place. The anchors below this list are
+        // the links that are *meant* to move the page.
+        scroll={false}
         aria-current={selected ? "page" : undefined}
+        /*
+         * Selected and hover must not look alike. The active fill is only 1.19:1 against
+         * the rail, so on its own it barely registers — and it was also the hover fill,
+         * which left an unselected row under the cursor looking like the selected one.
+         * Selection now adds an inset ring in `--line-inverse-strong` (3.3:1 against the
+         * rail), and hover is the fill alone.
+         */
         className={
           selected
-            ? "flex items-center gap-3 rounded-control bg-surface-rail-active px-3 py-2 text-sm font-medium text-fg-inverse"
+            ? "flex items-center gap-3 rounded-control bg-surface-rail-active px-3 py-2 text-sm font-medium text-fg-inverse inset-ring inset-ring-line-inverse-strong"
             : "flex items-center gap-3 rounded-control px-3 py-2 text-sm text-fg-inverse-muted hover:bg-surface-rail-active hover:text-fg-inverse"
         }
       >
@@ -100,16 +135,25 @@ function RailLink({
   href,
   label,
   badge,
+  selected = false,
 }: {
   href: string;
   label: string;
   badge?: string;
+  /** Only the entries that are their own route can be current. Anchors never are. */
+  selected?: boolean;
 }) {
   return (
     <li>
       <Link
         href={href}
-        className="flex items-center gap-3 rounded-control px-3 py-2 text-sm text-fg-inverse-muted hover:bg-surface-rail-active hover:text-fg-inverse"
+        aria-current={selected ? "page" : undefined}
+        // Same treatment as a selected metric: fill, ring and weight, never colour alone.
+        className={
+          selected
+            ? "flex items-center gap-3 rounded-control bg-surface-rail-active px-3 py-2 text-sm font-medium text-fg-inverse inset-ring inset-ring-line-inverse-strong"
+            : "flex items-center gap-3 rounded-control px-3 py-2 text-sm text-fg-inverse-muted hover:bg-surface-rail-active hover:text-fg-inverse"
+        }
       >
         <span className="flex-1 truncate">{label}</span>
         {badge ? (

@@ -115,13 +115,14 @@ export function PriceHeatmapChart({ heatmap }: { heatmap: PriceHeatmap }) {
   }, [tokens, heatmap]);
 
   if (option === null) {
-    return <div className="min-h-[var(--chart-min-height)]" aria-hidden="true" />;
+    return <div className="h-full min-h-[var(--chart-min-height)]" aria-hidden="true" />;
   }
 
   return (
     <ReactECharts
       opts={{ renderer: "canvas" }}
-      style={{ height: "var(--chart-heatmap-height)", width: "100%" }}
+      // Fills the card. The slot in `view-card.tsx` carries the minimum.
+      style={{ height: "100%", width: "100%" }}
       notMerge
       option={option}
     />

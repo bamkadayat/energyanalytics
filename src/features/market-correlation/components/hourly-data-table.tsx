@@ -19,6 +19,7 @@ import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { PRICE_UNIT, WEATHER_METRICS, type WeatherMetricId } from "@/shared/config";
 import { formatMetricValue, formatPrice, MISSING_VALUE } from "@/shared/lib/format-number";
 import { formatOsloTime } from "@/shared/lib/format-oslo";
+import { Button } from "@/shared/ui";
 
 export interface HourRow {
   hour: Date;
@@ -27,6 +28,15 @@ export interface HourRow {
 }
 
 const columnHelper = createColumnHelper<HourRow>();
+
+/**
+ * How many rows show before the reader asks for more.
+ *
+ * Chosen so the table lands at roughly the chart's height: switching Chart/Table should
+ * change what the card shows, not how much room it takes on the page.
+ */
+const INITIAL_ROWS = 8;
+const ROWS_PER_STEP = 8;
 
 /**
  * The hourly table, made sortable with TanStack Table.
@@ -52,6 +62,7 @@ export function HourlyDataTable({
 }) {
   const metric = WEATHER_METRICS[metricId];
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [visibleRows, setVisibleRows] = useState(INITIAL_ROWS);
 
   const columns = useMemo(
     () => [
@@ -92,8 +103,18 @@ export function HourlyDataTable({
     sortDescFirst: true,
   });
 
+  /*
+   * Sort over every hour, then cut. Sorting only the visible slice would answer "the
+   * cheapest of the eight you happen to be looking at", which is not the question the
+   * column heading offers to answer.
+   */
+  const sortedRows = table.getRowModel().rows;
+  const shownRows = sortedRows.slice(0, visibleRows);
+  const remaining = sortedRows.length - shownRows.length;
+
   return (
-    <div className="overflow-x-auto rounded-control border border-line">
+    <div className="flex flex-col gap-3">
+      <div className="overflow-x-auto rounded-control border border-line">
       <table className="w-full border-collapse text-sm">
         <caption className="px-4 py-3 text-left text-xs text-fg-muted">
           {caption} {MISSING_VALUE} marks an hour with no reading — not a value of zero.
@@ -142,7 +163,7 @@ export function HourlyDataTable({
         </thead>
 
         <tbody>
-          {table.getRowModel().rows.map((row) => {
+          {shownRows.map((row) => {
             const cells = row.getVisibleCells();
 
             return (
@@ -171,6 +192,37 @@ export function HourlyDataTable({
           })}
         </tbody>
       </table>
+      </div>
+
+      {/*
+        A count and one control, rather than page numbers. Twenty-four hours is not a
+        data set anyone pages through — the reader wants the first few, or all of them.
+        `aria-live` announces the new total, because pressing a button and having rows
+        appear silently below the viewport is invisible to a screen reader.
+      */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p aria-live="polite" className="font-mono text-xs text-fg-muted">
+          Showing {shownRows.length} of {sortedRows.length} hours
+        </p>
+
+        {remaining > 0 ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setVisibleRows((current) =>
+                Math.min(sortedRows.length, current + ROWS_PER_STEP),
+              )
+            }
+          >
+            Show {Math.min(ROWS_PER_STEP, remaining)} more
+          </Button>
+        ) : sortedRows.length > INITIAL_ROWS ? (
+          <Button variant="outline" size="sm" onClick={() => setVisibleRows(INITIAL_ROWS)}>
+            Show fewer
+          </Button>
+        ) : null}
+      </div>
     </div>
   );
 }

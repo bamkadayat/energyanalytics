@@ -4,9 +4,14 @@ import type { AlignedHours } from "../types";
  * The whole day as one bar per hour, under the current price.
  *
  * It answers "is this hour cheap?" in the only way a single number cannot — by showing
- * what it is cheap *relative to*. Three hours are picked out: the one you are in, the
- * day's cheapest and the day's priciest. Each of those is also stated as text in a card
- * beside the strip, so nothing here is the only route to a fact.
+ * what it is cheap *relative to*.
+ *
+ * **One mark, not three.** The strip used to fill the cheapest bar green and the priciest
+ * red, which put the two loudest colours on the page inside a sparkline the width of a
+ * paragraph — and told the reader nothing the bars did not: the cheapest hour is the
+ * shortest bar and the priciest is the tallest, by construction. Both are also stated as
+ * text in the cards beside it. What height cannot show is *where you are*, so that is the
+ * one hour that gets a fill.
  *
  * `aria-hidden`, deliberately. Twenty-four bars announced one by one is noise, and every
  * figure it shows is already in the cards above it and the hourly table below. This is
@@ -15,13 +20,9 @@ import type { AlignedHours } from "../types";
 export function PriceStrip({
   aligned,
   currentIndex,
-  cheapestIndex,
-  priciestIndex,
 }: {
   aligned: AlignedHours;
   currentIndex: number;
-  cheapestIndex: number;
-  priciestIndex: number;
 }) {
   const prices = aligned.nokPerKwh;
   const present = prices.filter((price): price is number => price !== null);
@@ -42,11 +43,9 @@ export function PriceStrip({
       {prices.map((price, index) => (
         <span
           key={aligned.hours[index].getTime()}
-          className={`min-w-0 flex-1 rounded-[2px] ${toneOf(index, {
-            currentIndex,
-            cheapestIndex,
-            priciestIndex,
-          })}`}
+          className={`min-w-0 flex-1 rounded-[2px] ${
+            index === currentIndex ? "bg-price-now" : "bg-price-bar"
+          }`}
           style={{
             // A gap gets a sliver rather than nothing, so a missing hour still occupies
             // its place in the day instead of the bars silently closing ranks.
@@ -56,22 +55,4 @@ export function PriceStrip({
       ))}
     </div>
   );
-}
-
-function toneOf(
-  index: number,
-  marks: { currentIndex: number; cheapestIndex: number; priciestIndex: number },
-): string {
-  // The current hour wins a tie: "where am I" is the question the strip is under.
-  if (index === marks.currentIndex) {
-    return "bg-price-now";
-  }
-  if (index === marks.cheapestIndex) {
-    return "bg-price-low";
-  }
-  if (index === marks.priciestIndex) {
-    return "bg-price-high";
-  }
-
-  return "bg-price-bar";
 }

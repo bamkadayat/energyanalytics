@@ -2,7 +2,7 @@ import { connection } from "next/server";
 import { getPriceRange } from "@/features/energy-prices";
 import { getWeatherRange } from "@/features/weather-forecast";
 import { PRICE_AREA, PRICE_UNIT, RANGE_DAY_OPTIONS } from "@/shared/config";
-import { formatPrice } from "@/shared/lib/format-number";
+import { formatCount, formatPrice } from "@/shared/lib/format-number";
 import { formatOsloDateShort } from "@/shared/lib/format-oslo";
 import { osloDaysBack } from "@/shared/lib/oslo-day";
 import { StatusMessage } from "@/shared/ui";
@@ -69,14 +69,20 @@ export async function RangeViews({ params }: { params: ViewParams }) {
     <section className="flex min-w-0 flex-col gap-4" aria-labelledby="range-heading">
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <h2 id="range-heading" className="text-lg font-medium text-fg">
+          <h2 id="range-heading" className="text-lg font-semibold text-fg">
             The last {params.range} days
           </h2>
+          {/*
+            Three sentences, one fact each. It was one sentence carrying the count, the
+            median and both tails, with "at or above" and "at or below" a few words
+            apart — which is a lot to hold while working out which end is which.
+          */}
           <p className="text-sm text-fg-muted">
-            {curve.hours.toLocaleString("en")} priced hours across {daysLoaded} days in{" "}
-            {PRICE_AREA.label}. Median {formatPrice(curve.median)} {PRICE_UNIT}, with the
-            most expensive tenth of hours at or above {formatPrice(curve.p10)} and the
-            cheapest tenth at or below {formatPrice(curve.p90)}.
+            {formatCount(curve.hours)} priced hours across {daysLoaded} days in{" "}
+            {PRICE_AREA.label}. Half the hours cost more than{" "}
+            {formatPrice(curve.median)} {PRICE_UNIT} and half cost less. The dearest tenth
+            cost {formatPrice(curve.expensiveTenth)} or more; the cheapest tenth cost{" "}
+            {formatPrice(curve.cheapestTenth)} or less.
           </p>
         </div>
 
@@ -107,6 +113,7 @@ export async function RangeViews({ params }: { params: ViewParams }) {
         paramKey="heatmap"
         initialMode={params.heatmap}
         chart={<PriceHeatmapChart heatmap={heatmap} />}
+        chartMinHeight="var(--chart-heatmap-height)"
         table={<HeatmapTable heatmap={heatmap} />}
         chartCaption={
           <>
@@ -123,16 +130,23 @@ export async function RangeViews({ params }: { params: ViewParams }) {
       />
 
       <ViewCard
-        title="Price duration curve"
+        /*
+         * Named for what it shows, not for what the technique is called. "Price duration
+         * curve" is precise to an energy analyst and opaque to everyone else; the domain
+         * term is in the caption, where it can be looked up rather than decoded.
+         */
+        title="Hours sorted by price"
         paramKey="curve"
         initialMode={params.curve}
         chart={<DurationCurveChart curve={curve} />}
         table={<DurationCurveTable curve={curve} />}
         chartCaption={
           <>
-            Every hour sorted from most to least expensive. Read it as &ldquo;this share
-            of hours cost at least this much&rdquo;. Drag the slider or scroll to zoom
-            into the expensive shoulder.
+            A price duration curve: every hour in the range sorted from most expensive to
+            least, so the bottom axis is a share of hours and <strong>not</strong> a
+            timeline. At 25 %, a quarter of all hours cost at least the price beside it —
+            the steeper the left end, the more the range was driven by a few costly hours.
+            Drag or scroll to zoom.
           </>
         }
         tableCaption={
