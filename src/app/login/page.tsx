@@ -53,8 +53,7 @@ export default async function LoginPage() {
             <div className="flex flex-col gap-2">
               <h1 className="text-3xl font-semibold text-fg">Login</h1>
               <p className="text-pretty text-fg-muted">
-                The {PRICE_AREA.label} dashboard is password protected. Enter the shared
-                password to continue.
+                Enter the shared password to open the {PRICE_AREA.code} dashboard.
               </p>
             </div>
           </div>
