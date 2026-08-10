@@ -14,11 +14,13 @@ import { alignPriceAndWeather } from "../utils/align-hours";
 import { toChartSeries } from "../utils/to-chart-series";
 import { deriveDaySummary } from "../utils/derive-summary";
 import { deriveInsights } from "../utils/derive-insights";
-import type { ViewParams } from "../utils/view-params";
+import { hrefWith, type ViewParams } from "../utils/view-params";
 import { CorrelationChart } from "./correlation-chart";
 import { SummaryCards } from "./summary-cards";
+import { HourlyDataTable } from "./hourly-data-table";
 import { HourlyTable } from "./hourly-table";
 import { InsightsList } from "./insights-list";
+import { ChartToolbar } from "./chart-toolbar";
 import { SourceStatus } from "./source-status";
 import { ViewCard } from "./view-card";
 
@@ -80,7 +82,21 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <h2 className="text-lg font-medium text-fg">{formatOsloDate(day)}</h2>
+      {/*
+        The date moved from a floating heading into the toolbar's period chip: a heading
+        above a card whose own header says "Hour by hour" meant two titles for one thing.
+      */}
+      <ChartToolbar
+        label="Day"
+        presets={[
+          { key: "today", label: "Today", selected: params.day === "today" },
+          { key: "tomorrow", label: "Tomorrow", selected: params.day === "tomorrow" },
+        ].map((option) => ({
+          ...option,
+          href: hrefWith(params, { day: option.key as "today" | "tomorrow" }),
+        }))}
+        period={formatOsloDate(day)}
+      />
 
       <SourceStatus
         prices={prices}
@@ -114,7 +130,17 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
                 <HourlyTable aligned={aligned} day={day} />
               </>
             }
-            table={<HourlyTable aligned={aligned} day={day} standalone />}
+            table={
+              <HourlyDataTable
+                metricId={aligned.metricId}
+                caption={`Hourly spot price and ${metric.label.toLowerCase()} for ${formatOsloDate(day)}, in Europe/Oslo time.`}
+                rows={aligned.hours.map((hour, index) => ({
+                  hour,
+                  nokPerKwh: aligned.nokPerKwh[index] ?? null,
+                  metricValue: aligned.metricValues[index] ?? null,
+                }))}
+              />
+            }
             chartCaption={
               <>
                 Spot price (solid, left axis) against {metric.label.toLowerCase()}{" "}
