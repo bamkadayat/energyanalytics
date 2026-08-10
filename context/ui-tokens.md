@@ -103,6 +103,7 @@ the token name, so `--color-text-primary` would have produced `text-text-primary
 | `--line` | `border-line` | `--slate-300` | dividers, card borders |
 | `--line-strong` | `border-line-strong` | `--slate-500` | control borders |
 | `--line-selected` | `border-line-selected` | `--navy-900` | selected control |
+| `--line-inverse` | `border-line-inverse` | `--navy-800` | hairlines **on dark surfaces** |
 | `--focus` | `outline-focus` | `--navy-900` | focus ring |
 
 Renamed from `--color-border-*` / `--color-focus-ring`, which would have produced

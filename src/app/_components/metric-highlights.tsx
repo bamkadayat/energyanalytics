@@ -131,7 +131,7 @@ function MetricCardBody({
         </h3>
 
         {/* The unit belongs in the chrome, not repeated inside the stat sentence. */}
-        <span className="shrink-0 rounded-control border border-line-strong px-2 py-0.5 font-mono text-[0.6875rem] uppercase text-fg-inverse-muted">
+        <span className="shrink-0 rounded-control border border-line-inverse px-2 py-0.5 font-mono text-[0.6875rem] uppercase text-fg-inverse-muted">
           {metric.unit}
         </span>
       </div>
@@ -161,7 +161,7 @@ function MetricCardBody({
         {/* Fills with the accent on hover, rather than nudging sideways. */}
         <span
           aria-hidden="true"
-          className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-pill border border-line-strong transition-colors duration-200 group-hover:border-transparent group-hover:text-fg"
+          className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-pill border border-line-inverse transition-colors duration-200 group-hover:border-transparent group-hover:text-fg"
         >
           <span
             className="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"

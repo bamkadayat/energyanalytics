@@ -59,7 +59,7 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
   const active = WEATHER_METRICS[metric];
 
   return (
-    <div className="overflow-hidden rounded-card border border-line-strong bg-navy-deep text-fg-inverse">
+    <div className="overflow-hidden rounded-bento border border-line-inverse bg-navy-deep text-fg-inverse">
       <header className="flex flex-wrap items-center justify-between gap-3 p-3">
         <ul className="flex gap-1 rounded-pill bg-surface-inverse p-1">
           {WEATHER_METRIC_IDS.map((id) => (
@@ -88,7 +88,7 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
         </p>
       </header>
 
-      <dl className="grid grid-cols-3 border-y border-line-strong">
+      <dl className="grid grid-cols-3 border-y border-line-inverse">
         <Stat term="Hour" value={chart.highlight?.hourLabel ?? "—"} unit="" />
         <Stat
           term="Spot price"
@@ -104,7 +104,7 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
 
       <PreviewSvg chart={chart} metric={metric} />
 
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line-strong px-4 py-3 font-mono text-[0.6875rem] text-fg-inverse-muted">
+      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line-inverse px-4 py-3 font-mono text-[0.6875rem] text-fg-inverse-muted">
         <span className="flex flex-wrap items-center gap-4">
           <Key className="bg-fg-inverse" label="Spot price" />
           <Key className={SWATCHES[metric]} label={active.label} />
@@ -118,7 +118,7 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
 
 function Stat({ term, value, unit }: { term: string; value: string; unit: string }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1 border-r border-line-strong px-4 py-3 last:border-r-0">
+    <div className="flex min-w-0 flex-col gap-1 border-r border-line-inverse px-4 py-3 last:border-r-0">
       <dt className="truncate font-mono text-[0.6875rem] uppercase tracking-wider text-fg-inverse-muted">
         {term}
       </dt>

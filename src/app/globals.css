@@ -83,6 +83,12 @@
   --line: var(--slate-300);
   --line-strong: var(--slate-500);
   --line-selected: var(--navy-900);
+  /*
+   * Hairline for dark surfaces. The neutral line tokens are slate, which reads as bright
+   * grey against navy and pulls the eye to the frame instead of the content. A navy a
+   * step above the fill separates without announcing itself.
+   */
+  --line-inverse: var(--navy-800);
   --focus: var(--navy-900);
 
   /* ---- 2. Semantic: actions ---- */
@@ -199,6 +205,7 @@
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-line-selected: var(--line-selected);
+  --color-line-inverse: var(--line-inverse);
   --color-focus: var(--focus);
 
   --color-action-primary: var(--action-primary);
