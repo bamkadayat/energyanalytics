@@ -167,9 +167,10 @@ a data point. Moving air, read as a series.
 - **`short` drops "Nordic" from the *visible* name only** — the full name stays in an
   `sr-only` span, because an abbreviation that is only ever spoken as the abbreviation is
   how a product ends up with two names. Used by the dashboard rail, where the full name
-  wraps at 240px, and by the **landing navbar**, where the shorter lockup sits better
-  against the "Log in" link opposite it. The footer keeps the full name, which is where a
-  visitor looks for what the product is actually called
+  wraps at 240px, and by the landing **navbar and footer**, where the shorter lockup reads
+  better. That leaves the full name visible nowhere on the landing page — it survives in
+  the `sr-only` spans, the `<title>`, and the login card, which is exactly the trade
+  `short` exists to make
 - `src/app/icon.svg` is the same drawing with the navy pinned, since a favicon has no
   inherited colour to take
 
