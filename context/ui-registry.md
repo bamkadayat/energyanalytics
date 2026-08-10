@@ -748,39 +748,6 @@ Three CTAs now share one page. They are all the same component with the same lab
 they cannot disagree about the session — but they are not interchangeable: the navbar is a
 **text link**, while the hero and this band are **pills**. One page, one primary action.
 
-## "How it's built"
-
-`src/app/_components/how-its-built.tsx` — four decisions, on `bg-surface` between the
-metric cards and the closing band.
-
-- **placed after the cards, not before.** A reader should have seen what the thing does
-  before being told how it holds together
-- **`bg-surface`, so the page alternates ground**: navy hero → `bg-page` cards → white here
-  → `bg-page` closing. Bordered top and bottom rather than shadowed
-- **no colour.** The restraint pass established that colour on these pages encodes data;
-  this section has none, so it is navy and slate like the rest of the chrome
-- each item is a **claim checkable against the repository** — the hour-join, gaps staying
-  gaps, server-side derivation, the solid/dashed constraint — not a capability list. A
-  claim that can be verified is worth more than one that cannot
-- **a counted mono index (`01`–`04`)** above each heading, in the eyebrow style used across
-  the dashboard. Without it the section was four grey blocks under a hairline — no entry
-  point, and no signal they are a set meant to be read in order. `aria-hidden`, since a
-  screen reader already gets the ordinal from the list
-- **the index uses `tracking-wider`, not the eyebrow's `0.18em`.** That tracking is tuned
-  for uppercase words; on a two-character number it opens a gap wide enough that `01` reads
-  as `0 1` — two glyphs rather than one figure
-- **headings are held under ~30 characters**, which is a layout constraint rather than a
-  style preference. The items sit in a plain grid, so a heading wrapping to two lines in
-  one column drops that column's body a line below its neighbours' and the row stops
-  reading as a row. "Joined on the hour, never by index" did exactly that; the qualifier
-  moved into the body, where it has room
-- **bodies are held to roughly one length** for the same reason. At four columns the
-  measure is ~30 characters, and the first draft's 40-word entries set as a ragged wall
-- body copy is `--fg-secondary`, not `--fg-muted` — the latter is for labels, units and
-  captions
-- `sm:grid-cols-2` before `lg:grid-cols-4`: at four columns on a tablet each item is a word
-  wide and the body text sets as a ladder
-
 ## Open Graph image
 
 `src/app/opengraph-image.tsx` — the link preview card, 1200×630.
@@ -872,7 +839,34 @@ metric, on a `bg-page` section.
 
 ## Landing hero band
 
-`src/app/page.tsx` — the navy band holding the headline, the CTAs and the preview card.
+`src/app/page.tsx` — the band holding the headline, the CTAs and the preview card, over a
+photograph of the region the data describes.
+
+- **`public/hero.png` as the background**, through `next/image` with `fill` and
+  `priority`. Not a CSS `background-image`: the source is a 2.7 MB PNG and `next/image`
+  serves a resized WebP/AVIF instead — **28 KB at 640w, 196 KB at 1920w**, measured. A
+  landing page whose argument is speed cannot ship the original, and `priority` also
+  preloads it, since it is the LCP element
+- **`alt=""` — decorative.** It shows the region the data covers but carries nothing the
+  headline does not, and a description of scenery announced before the product name is
+  noise
+- **`isolate` on the band.** The photograph and its scrim sit at `-z-10`; without a new
+  stacking context they drop behind the page background rather than behind this band's
+  content. `bg-surface-inverse` stays underneath, so the hero is the same navy while the
+  image loads and if it never arrives
+- **The scrim is load-bearing, not styling.** Measured against the asset: the brightest
+  pixel under the text area is pure white, so these are true worst cases —
+
+  | scrim | `--fg-inverse` | `--fg-inverse-muted` |
+  | --- | --- | --- |
+  | 80% | 10.18:1 | 6.24:1 |
+  | 75% | 8.45:1 | 5.18:1 |
+
+  The gradient bottoms out at **75%**, and the muted paragraph fails first. Do not lighten
+  it without re-measuring — AA wants 4.5:1 there, leaving 0.68 in hand. Re-measure if the
+  image is swapped
+- `bg-linear-to-r`, not `bg-gradient-to-r`: this is Tailwind 4, where the utility was
+  renamed. The v3 name emits nothing
 
 - **One pill, one text link.** The primary is `SessionCta` (`inverse`, `lg`); the secondary
   is "How the data is joined" as **text plus a right arrow**, not a second pill. It was
@@ -934,31 +928,36 @@ metric, on a `bg-page` section.
   sit on `--surface-inverse`, and the global `--focus` is `--navy-900` — the same colour,
   so the default ring was invisible against its own background. Any focusable placed on a
   dark surface needs this; the bento cards already carried it, these were missed
-- the SVG is `aria-hidden` — the stat strip above it carries the same values as text
+- **trimmed to the minimum that still explains itself.** The card said several things
+  three times: the hour had a stat column *and* the crosshair chip; the two series were
+  named by the pills, by the stat labels, and again by a footer legend. Gone are the hour
+  column and the whole footer — legend and the "Real market data" label with it
+- **the legend's one unique fact moved rather than died.** Only it said which colour was
+  which line, so that became a short rule on the stat labels, which already existed. The
+  row went; the mapping did not
+- **the hour moved into the "Example day" line**, which was already setting the scene, so
+  the figure appears once in small type instead of twice with one of them the largest text
+  on the card
+- the SVG is `aria-hidden` — the two remaining figures are its text alternative, which is
+  why they are the part that cannot be trimmed away
 
-## Hero visual
+## Hero visual (removed)
 
-`src/app/_components/hero-visual.tsx` — decorative, `aria-hidden`, in a
-`aspect-[4/3] rounded-card border border-line-strong` panel.
+`src/app/_components/hero-visual.tsx` — an inline offshore wind scene, decorative and
+`aria-hidden`, with a `videoSrc` hook for swapping in a licensed clip.
 
-Renders a looping `<video>` when `videoSrc` is passed, and otherwise an inline offshore
-wind scene: three turbines at different depths with rotating blades and vortex wakes, a
-perspective sea grid, drifting wind ticks and a service vessel crossing the horizon.
-**Pass a video by dropping a licensed clip into `public/` and setting `videoSrc`;
-nothing else changes.**
+**Deleted 2026-08-10.** It had been unreferenced since `HeroPreview` replaced it in the
+colour-restraint pass — 237 lines of animated SVG that nothing rendered, still documented
+here as though it were live. It is recoverable from git history if the hero ever wants a
+decorative treatment again; what it was worth keeping for is recorded below.
 
-- SVG gradients and fills take `var(--token)`, so the visual follows the palette rather
-  than pinning colours past the ESLint guard
-- depth is carried by three consistent signals: size, position relative to the horizon,
-  and rotation speed. Nearer turbines are larger, lower and faster
+- depth was carried by three consistent signals: size, position relative to the horizon,
+  and rotation speed. Nearer turbines larger, lower and faster
 - rotors need `transform-box: view-box` on the animated group so `transform-origin`
   resolves in SVG user units — without it the blades orbit the bounding box and wobble
-- keyframes live in `globals.css`; the global `prefers-reduced-motion` rule collapses
-  them, so no per-component media query is needed
-- it depicts nothing resembling data — a decorative price curve would put fabricated
-  market figures on the marketing page of a tool premised on not fabricating them
-
----
+- it depicted nothing resembling data. A decorative price curve would have put fabricated
+  market figures on the marketing page of a tool premised on not fabricating them — the
+  same reasoning that later removed the login card's curve
 
 ## Not yet established
 

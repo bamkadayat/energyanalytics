@@ -6,6 +6,7 @@ import {
   toPreviewChart,
 } from "@/features/market-correlation";
 import {
+  APP_LOCALE,
   PREVIEW_DAY,
   PREVIEW_HOUR_INDEX,
   PRICE_UNIT,
@@ -76,64 +77,90 @@ export async function HeroPreview({ metric = "solar" }: { metric?: WeatherMetric
           ))}
         </ul>
 
+        {/*
+          The hour moved up here, into the line that already sets the scene. It had a
+          whole stat column of its own while the crosshair chip states it a second time
+          four inches below — the same figure twice, one of them in the card's largest
+          type.
+        */}
         <p className="font-mono text-[0.6875rem] uppercase tracking-wider text-fg-inverse-muted">
-          Example day · {PREVIEW_DAY.day}.{PREVIEW_DAY.month}.{PREVIEW_DAY.year}
+          Example day{" "}
+          <span lang={APP_LOCALE}>
+            · {PREVIEW_DAY.day}.{PREVIEW_DAY.month}.{PREVIEW_DAY.year}
+            {chart.highlight ? ` · ${chart.highlight.hourLabel}:00` : ""}
+          </span>
         </p>
       </header>
 
-      <dl className="grid grid-cols-3 border-y border-line-inverse">
-        <Stat term="Hour" value={chart.highlight?.hourLabel ?? "—"} unit="" />
+      {/*
+        Two figures, not three. These are also the chart's text alternative — the SVG is
+        `aria-hidden` — so they are the one part of the card that cannot be trimmed to
+        nothing.
+      */}
+      <dl className="grid grid-cols-2 border-y border-line-inverse">
         <Stat
           term="Spot price"
           value={formatPrice(chart.highlight?.price)}
           unit={PRICE_UNIT}
+          swatch="bg-fg-inverse"
         />
         <Stat
           term={active.label}
           value={formatMetricValue(chart.highlight?.metricValue)}
           unit={active.unit}
+          swatch={SWATCHES[metric]}
         />
       </dl>
 
       <PreviewSvg chart={chart} metric={metric} />
-
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line-inverse px-4 py-3 font-mono text-[0.6875rem] text-fg-inverse-muted">
-        <span className="flex flex-wrap items-center gap-4">
-          <Key className="bg-fg-inverse" label="Spot price" />
-          <Key className={SWATCHES[metric]} label={active.label} />
-        </span>
-        {/*
-          Says what it is. The shape is what happened, not an illustration of it — the
-          header above already dates the day, so this does not repeat it.
-        */}
-        <span>Real market data</span>
-      </footer>
     </div>
   );
 }
 
-function Stat({ term, value, unit }: { term: string; value: string; unit: string }) {
+/**
+ * A figure, with the line key folded into its label.
+ *
+ * The card used to carry a footer legend naming both series a third time — after the
+ * metric pills and after these labels. Deleting it outright would have lost the one thing
+ * it alone said: which colour is which line. So that moved here, onto labels that already
+ * existed, and the row went.
+ */
+function Stat({
+  term,
+  value,
+  unit,
+  swatch,
+}: {
+  term: string;
+  value: string;
+  unit: string;
+  swatch: string;
+}) {
   return (
     <div className="flex min-w-0 flex-col gap-1 border-r border-line-inverse px-4 py-3 last:border-r-0">
-      <dt className="truncate font-mono text-[0.6875rem] uppercase tracking-wider text-fg-inverse-muted">
+      <dt className="flex items-center gap-2 truncate font-mono text-[0.6875rem] uppercase tracking-wider text-fg-inverse-muted">
+        <span aria-hidden="true" className={`h-0.5 w-3 shrink-0 ${swatch}`} />
         {term}
       </dt>
       <dd className="flex items-baseline gap-1.5">
-        <span className="font-mono text-xl font-semibold tabular-nums">{value}</span>
+        {/*
+          `lang` on the figure itself. The document is English but every number is
+          formatted `nb-NO`, where a comma is the decimal separator — an English screen
+          reader voices "1,024" as *one thousand and twenty-four* when the value is
+          1.024 NOK/kWh. Marking the run (WCAG 2.2 §3.1.2) makes it read as the number it
+          is. It goes on the number alone: the unit beside it is English.
+        */}
+        <span
+          lang={APP_LOCALE}
+          className="font-mono text-xl font-semibold tabular-nums"
+        >
+          {value}
+        </span>
         {unit ? (
           <span className="text-xs text-fg-inverse-muted">{unit}</span>
         ) : null}
       </dd>
     </div>
-  );
-}
-
-function Key({ className, label }: { className: string; label: string }) {
-  return (
-    <span className="flex items-center gap-2">
-      <span aria-hidden="true" className={`h-0.5 w-4 ${className}`} />
-      {label}
-    </span>
   );
 }
 

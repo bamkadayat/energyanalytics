@@ -230,7 +230,7 @@ other radius.
 | `--shadow-popover` | `shadow-popover` | tooltips, menus |
 | `--container-content` | `max-w-content` | `72rem` page max width |
 | `--text-display` | `text-display` | `clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem)` |
-| `--text-hero` | `text-hero` | `clamp(2.5rem, 1.6rem + 4.4vw, 4.5rem)` — landing headline only |
+| `--text-hero` | `text-hero` | `clamp(2.25rem, 1.5rem + 3.6vw, 3.75rem)` — landing headline only |
 | `--font-sans` / `--font-mono` | `font-sans` / `font-mono` | Geist / Geist Mono |
 | `--chart-min-height` | `min-h-[var(--chart-min-height)]` | `clamp(18rem, 40vh, 28rem)` |
 

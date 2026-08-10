@@ -10,6 +10,7 @@ import {
   type PreviewChart,
 } from "@/features/market-correlation";
 import {
+  APP_LOCALE,
   DEFAULT_WEATHER_METRIC,
   PREVIEW_DAY,
   WEATHER_METRICS,
@@ -45,11 +46,19 @@ export async function MetricHighlights() {
   const hasData = prices.status === "ok";
 
   return (
-    <section id="how-it-works" className="scroll-mt-8 bg-page py-16 sm:py-24">
+    /* Named so landmark navigation can reach it — an unnamed `<section>` is generic. */
+    <section
+      id="how-it-works"
+      aria-labelledby="how-it-works-heading"
+      className="scroll-mt-8 bg-page py-16 sm:py-24"
+    >
       <div className="mx-auto w-full max-w-content px-4 sm:px-6">
         <div className="flex max-w-2xl flex-col gap-4">
           {/* The eyebrow said what the heading already says; the heading carries it. */}
-          <h2 className="text-balance text-display font-semibold text-fg">
+          <h2
+            id="how-it-works-heading"
+            className="text-balance text-display font-semibold text-fg"
+          >
             The same 24 hours, three ways to read them
           </h2>
 
@@ -133,9 +142,24 @@ function MetricCardBody({
 
       {stats ? (
         <p className="font-mono text-xs leading-relaxed text-fg-inverse-muted">
-          {stats.max === null
-            ? "No readings for this day"
-            : `${formatMetricValue(stats.min)}–${formatMetricValue(stats.max)} · peak ${stats.peakHourLabel} · ${readingCount(stats)}`}
+          {stats.max === null ? (
+            "No readings for this day"
+          ) : (
+            /*
+              Built from parts rather than one template string, so `lang` can sit on the
+              `nb-NO` figures alone. The document is English; an English screen reader
+              voices "0,4" as *nought comma four* or worse, when the value is 0.4 m/s.
+              The words between them — "peak", "of", "hours" — stay English, which is why
+              this cannot be one `lang` on the paragraph.
+            */
+            <>
+              <span lang={APP_LOCALE}>
+                {formatMetricValue(stats.min)}–{formatMetricValue(stats.max)}
+              </span>{" "}
+              · peak <span lang={APP_LOCALE}>{stats.peakHourLabel}</span> ·{" "}
+              {readingCount(stats)}
+            </>
+          )}
         </p>
       ) : null}
 
