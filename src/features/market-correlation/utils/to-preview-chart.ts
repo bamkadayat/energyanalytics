@@ -20,6 +20,11 @@ export interface PreviewChart {
   priceArea: string;
   /** Path for the weather metric. Empty when the metric has no readings. */
   metricLine: string;
+  /** The metric path closed into an area, for consumers that fill under it. */
+  metricArea: string;
+  /** Inner bounds of the plot. Consumers drawing their own geometry must respect these. */
+  plotLeft: number;
+  plotRight: number;
   ticks: Array<{ x: number; label: string }>;
   highlight: {
     x: number;
@@ -36,6 +41,15 @@ const HEIGHT = 200;
 const PAD_TOP = 12;
 const PAD_BOTTOM = 18;
 
+/**
+ * Horizontal inset, so the first and last hour are not drawn on the viewBox edge.
+ *
+ * Without it the midnight tick sat at `x=0` with `text-anchor: middle`, and half the
+ * glyph fell outside the viewBox — "00" rendered as "0". The curves ran into both edges
+ * the same way, which read as a chart that had been cropped rather than drawn.
+ */
+const PAD_X = 12;
+
 export function toPreviewChart(
   aligned: AlignedHours,
   hourLabels: string[],
@@ -50,12 +64,16 @@ export function toPreviewChart(
       priceLine: "",
       priceArea: "",
       metricLine: "",
+      metricArea: "",
+      plotLeft: PAD_X,
+      plotRight: WIDTH - PAD_X,
       ticks: [],
       highlight: null,
     };
   }
 
-  const xAt = (index: number) => (index / Math.max(1, count - 1)) * WIDTH;
+  const xAt = (index: number) =>
+    PAD_X + (index / Math.max(1, count - 1)) * (WIDTH - PAD_X * 2);
   const priceY = scaler(aligned.nokPerKwh);
   const metricY = scaler(aligned.metricValues);
 
@@ -65,13 +83,21 @@ export function toPreviewChart(
     .filter((_, index) => index % 3 === 0);
 
   const priceLine = smoothPath(aligned.nokPerKwh, xAt, priceY);
+  const metricLine = smoothPath(aligned.metricValues, xAt, metricY);
+
+  /** Closes a line back along the baseline, within the plot rather than the viewBox. */
+  const toArea = (line: string) =>
+    line === "" ? "" : `${line} L${WIDTH - PAD_X},${HEIGHT} L${PAD_X},${HEIGHT} Z`;
 
   return {
     width: WIDTH,
     height: HEIGHT,
     priceLine,
-    priceArea: priceLine === "" ? "" : `${priceLine} L${WIDTH},${HEIGHT} L0,${HEIGHT} Z`,
-    metricLine: smoothPath(aligned.metricValues, xAt, metricY),
+    priceArea: toArea(priceLine),
+    metricLine,
+    metricArea: toArea(metricLine),
+    plotLeft: PAD_X,
+    plotRight: WIDTH - PAD_X,
     ticks,
     highlight:
       highlightIndex < 0 || highlightIndex >= count
