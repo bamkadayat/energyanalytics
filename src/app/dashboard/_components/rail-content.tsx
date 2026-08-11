@@ -19,6 +19,15 @@ export interface RailContentProps {
   active?: "day" | "hours";
 }
 
+/**
+ * Entries in the "Views" group below, for the loading skeleton to reserve.
+ *
+ * Declared beside the list it counts so the two are edited together — the skeleton used
+ * to hardcode this, where a fourth view would have left it a row short with nothing to
+ * catch it. `shell-skeleton.test.tsx` asserts the count against the rendered rail.
+ */
+export const RAIL_VIEW_COUNT = 3;
+
 export function RailContent({ params, active = "day" }: RailContentProps) {
   return (
     <>

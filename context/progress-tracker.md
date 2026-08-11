@@ -80,6 +80,34 @@ hero band.
 - `bg-linear-to-r`, not the v3 `bg-gradient-to-r` — this is Tailwind 4 and the old name
   emits nothing. Verified against the compiled stylesheet.
 
+### 2026-08-11 — The loading skeletons had drifted from the shell
+
+Both `loading.tsx` files hand-copy the dashboard shell — unavoidably, since the rail and
+header read `searchParams` and a loading file receives none. A copy drifts, and these had.
+
+- **Neither reserved the rail's logout row**, and neither gave the nav `flex-1`. So the
+  foot of the rail arrived somewhere it had not been reserved, and the rail's bottom
+  section appeared from nothing.
+- **Neither header was `sticky top-0 z-30`**, though both real ones are — a non-sticky
+  placeholder resolving into a sticky bar shifts the page under a reader already scrolling.
+- **`/dashboard` omitted `ScopeLine` entirely**, so an element appeared mid-header on
+  arrival, and stood one block in for the note *and* the date chip.
+- **`/dashboard/hours` reserved a 32px circle** where `DataNote` is a labelled pill from
+  `sm` — visibly wider on arrival.
+
+Fixed by extracting `RailSkeleton` / `HeaderSkeleton` / `DataNoteSkeleton` into
+`_components/shell-skeleton.tsx`, so the two routes share one copy instead of two. The
+date chip now reuses `DateChipPlaceholder`, the real placeholder the header already uses,
+so that footprint cannot be wrong by construction.
+
+Rail row counts are **derived** — `WEATHER_METRIC_IDS.length` and a `RAIL_VIEW_COUNT`
+exported beside the list it counts — where they were the literal `[3, 3]`. A fourth metric
+would have left the skeleton a row short with nothing to catch it.
+
+`shell-skeleton.test.tsx` compares the copy against `RailContent` itself: same row count,
+logout row present, nav able to grow, same width/height/breakpoint. Three of its five tests
+fail against the previous version.
+
 ### 2026-08-11 — Logout did nothing in production
 
 Reported as "logged out but I can still reach the dashboard". It was real, it was
