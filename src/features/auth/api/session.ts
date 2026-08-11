@@ -12,25 +12,51 @@ import {
 
 export { SESSION_COOKIE } from "../utils/session-cookie";
 
+/**
+ * The cookie's attributes, defined once and used by **both** writes.
+ *
+ * They have to match exactly. A browser identifies a cookie by name, domain and path, so
+ * a removal that does not carry the same attributes is not recognised as removing
+ * anything — and for a `__Host-` prefixed name the rules are stricter still: the browser
+ * rejects *any* `Set-Cookie` for it that lacks `Secure` or sets a path other than `/`.
+ *
+ * That is not hypothetical. This module used `cookies().delete(name)` to log out, which
+ * emits `Set-Cookie: __Host-ea_session=; Path=/; Expires=<epoch>` — no `Secure`. In
+ * production the browser refused it, the session cookie survived, and logging out did
+ * nothing. Development was unaffected, because the name is unprefixed there.
+ */
+const SESSION_COOKIE_OPTIONS = {
+  // Not readable from JavaScript, so an XSS bug cannot walk off with the session.
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  // `lax` still sends the cookie on top-level navigation into the dashboard, while
+  // withholding it from cross-site form posts.
+  sameSite: "lax",
+  path: "/",
+} as const;
+
 export async function createSession(now: number = Date.now()): Promise<void> {
   const expiresAt = now + SESSION_DURATION_MS;
   const store = await cookies();
 
   store.set(SESSION_COOKIE, createSessionToken(getAuthSecret(), expiresAt), {
-    // Not readable from JavaScript, so an XSS bug cannot walk off with the session.
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    // `lax` still sends the cookie on top-level navigation into the dashboard, while
-    // withholding it from cross-site form posts.
-    sameSite: "lax",
-    path: "/",
+    ...SESSION_COOKIE_OPTIONS,
     expires: new Date(expiresAt),
   });
 }
 
+/**
+ * Clears the session by overwriting it with an already-expired cookie carrying the same
+ * attributes — not by `delete()`, for the reason above.
+ */
 export async function destroySession(): Promise<void> {
   const store = await cookies();
-  store.delete(SESSION_COOKIE);
+
+  store.set(SESSION_COOKIE, "", {
+    ...SESSION_COOKIE_OPTIONS,
+    expires: new Date(0),
+    maxAge: 0,
+  });
 }
 
 /**

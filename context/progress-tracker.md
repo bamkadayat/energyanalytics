@@ -80,6 +80,38 @@ hero band.
 - `bg-linear-to-r`, not the v3 `bg-gradient-to-r` — this is Tailwind 4 and the old name
   emits nothing. Verified against the compiled stylesheet.
 
+### 2026-08-11 — Logout did nothing in production
+
+Reported as "logged out but I can still reach the dashboard". It was real, it was
+production-only, and no test covered it.
+
+**Cause.** `destroySession` used `cookies().delete(name)`. Next implements that as
+`set({ name, value: "", expires: epoch })` with *no other options*, and its
+`normalizeCookie` adds only `path: "/"` — so the emitted header carried no `Secure`. The
+production cookie is `__Host-` prefixed, and the browser refuses **any** `Set-Cookie` for
+a `__Host-` name that lacks `Secure`. The deletion was discarded and the session survived.
+Development never showed it: the name is unprefixed there, so the same header is accepted.
+
+Captured against a real `next start`, before and after:
+
+```
+BEFORE  Set-Cookie: __Host-ea_session=; Path=/; Expires=<epoch>
+AFTER   Set-Cookie: __Host-ea_session=; Path=/; Expires=<epoch>; Max-Age=0; Secure; HttpOnly; SameSite=lax
+```
+
+**Fix.** One `SESSION_COOKIE_OPTIONS` shared by both writes, and logout overwrites with an
+expired cookie rather than calling `delete()`. The bug existed because create and destroy
+were written independently and drifted; they cannot now.
+
+**What was *not* broken**, checked first rather than assumed: the proxy, the per-route
+`hasValidSession` checks, and the token itself. `/dashboard` and `/dashboard/hours` both
+307 to `/login` with no cookie, verified against the production build.
+
+**Coverage.** `session.ts` had no test at all — `session-token.test.ts` proved the token
+and stopped there. New `session.test.ts` asserts that clearing replays every security
+attribute the write used, and that the `__Host-` prefix and `secure` move together. Four
+of its five tests fail against the old implementation, which is the point.
+
 ### 2026-08-10 — The landing page ends on the metric cards
 
 Both sections that followed them are gone: the closing CTA band earlier, and now the "How
