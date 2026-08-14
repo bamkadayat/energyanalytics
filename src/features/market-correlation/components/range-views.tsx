@@ -1,8 +1,7 @@
 import { connection } from "next/server";
 import { getPriceRange } from "@/features/energy-prices";
 import { getWeatherRange } from "@/features/weather-forecast";
-import { PRICE_AREA, PRICE_UNIT, RANGE_DAY_OPTIONS } from "@/shared/config";
-import { formatCount, formatPrice } from "@/shared/lib/format-number";
+import { PRICE_UNIT, RANGE_DAY_OPTIONS } from "@/shared/config";
 import { formatOsloDateShort } from "@/shared/lib/format-oslo";
 import { osloDaysBack } from "@/shared/lib/oslo-day";
 import { StatusMessage } from "@/shared/ui";
@@ -62,20 +61,18 @@ export async function RangeViews({ params }: { params: ViewParams }) {
   return (
     <section className="flex min-w-0 flex-col gap-4" aria-labelledby="range-heading">
       <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1">
-          <h2 id="range-heading" className="text-lg font-semibold text-fg">
-            The last {params.range} days
-          </h2>
-          {/* Three sentences, one fact each. One carrying all four was a lot to hold. */}
-          {/* A reading measure. The cards keep the full width; a chart uses the room. */}
-          <p className="max-w-[700px] text-sm text-fg-muted">
-            {formatCount(curve.hours)} priced hours across {daysLoaded} days in{" "}
-            {PRICE_AREA.label}. Half the hours cost more than{" "}
-            {formatPrice(curve.median)} {PRICE_UNIT} and half cost less. The dearest tenth
-            cost {formatPrice(curve.expensiveTenth)} or more; the cheapest tenth cost{" "}
-            {formatPrice(curve.cheapestTenth)} or less.
-          </p>
-        </div>
+        {/*
+          The heading alone (2026-08-14, on request). The paragraph under it gave the
+          priced-hour count, the area, the median and the two tenths in prose.
+
+          Those figures are still reachable: both charts below carry a table alternative
+          (`DurationCurveTable`, `HourSpreadTable`) through `ViewCard`'s toggle, and the
+          duration curve draws its median as a labelled `markLine`. What is gone is the
+          prose *restatement*, not the numbers.
+        */}
+        <h2 id="range-heading" className="text-lg font-semibold text-fg">
+          The last {params.range} days
+        </h2>
 
         <ChartToolbar
           label="Range length"

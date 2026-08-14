@@ -7,9 +7,9 @@
  * to mount at all.
  *
  * Each swatch is a **line sample, not a dot**: solid for the price, dashed for the metric.
- * That distinction is the one ui-tokens.md calls load-bearing — the four series colours
- * sit at near-identical luminance and separate by hue alone, so anyone who cannot use hue
- * reads the chart by line style. A round swatch would teach the wrong key.
+ * That distinction is the one ui-tokens.md calls load-bearing. The chart is two tones of
+ * navy, so hue does not separate the series at all — line style does, and this legend is
+ * where a reader learns to read it. A round swatch would teach the wrong key.
  */
 export function SeriesLegend({
   priceLabel,

@@ -1,6 +1,5 @@
-import { WEATHER_METRIC_IDS } from "@/shared/config";
 import { Skeleton } from "@/shared/ui";
-import { RAIL_VIEW_COUNT } from "./rail-content";
+import { railGroupRows, type RailContentProps } from "./rail-content";
 
 /**
  * The dashboard shell's placeholders, shared by `/dashboard` and `/dashboard/hours`.
@@ -21,8 +20,11 @@ import { RAIL_VIEW_COUNT } from "./rail-content";
  * fourth weather metric would have left the skeleton a row short with nothing to catch
  * it — the same silent-drift problem as the copied shell itself.
  */
-const RAIL_GROUPS = [WEATHER_METRIC_IDS.length, RAIL_VIEW_COUNT] as const;
-export function RailSkeleton() {
+export function RailSkeleton({ active }: { active?: RailContentProps["active"] }) {
+  // Derived from the rail itself, and now route-dependent: `/dashboard/hours` drops the
+  // metric group, so reserving it there would resolve into a visibly shorter rail.
+  const railGroups = railGroupRows(active);
+
   return (
     <aside
       aria-hidden="true"
@@ -37,7 +39,7 @@ export function RailSkeleton() {
         the foot of the rail arrives somewhere different from where it was reserved.
       */}
       <div className="flex flex-1 flex-col gap-7 px-3 py-5">
-        {RAIL_GROUPS.map((rows, group) => (
+        {railGroups.map((rows, group) => (
           <div key={group} className="flex flex-col gap-1">
             {/* The group label is `pb-2` under a `text-xs` line, not a gap. */}
             <div className="mx-3 mb-2 h-3 w-24 rounded-control bg-surface-rail-active" />

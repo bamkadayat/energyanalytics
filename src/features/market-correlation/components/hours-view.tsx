@@ -1,8 +1,7 @@
 import { connection } from "next/server";
 import { getPriceRange } from "@/features/energy-prices";
 import { getWeatherRange } from "@/features/weather-forecast";
-import { HOURS_TABLE_DAYS, PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
-import { formatCount } from "@/shared/lib/format-number";
+import { HOURS_TABLE_DAYS } from "@/shared/config";
 import { formatOsloDateShort, formatOsloDateTime } from "@/shared/lib/format-oslo";
 import { osloDaysBack } from "@/shared/lib/oslo-day";
 import { StatusMessage } from "@/shared/ui";
@@ -44,22 +43,21 @@ export async function HoursView() {
     );
   }
 
-  const priced = rows.filter((row) => row.price !== null).length;
-
   return (
     <div className="flex min-w-0 flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold text-fg">
-          Every hour, {formatOsloDateShort(days[0])} – {formatOsloDateShort(days[days.length - 1])}
-        </h2>
+      {/*
+        The heading alone (2026-08-14, on request). The paragraph under it stated the row
+        count, the area and location, how many hours carried a price, and that sorting
+        runs over the whole set.
 
-        <p className="text-sm text-fg-muted">
-          {formatCount(rows.length)} hours of {PRICE_AREA.label} spot prices and{" "}
-          {WEATHER_LOCATION.label} weather, joined on the hour.{" "}
-          {formatCount(priced)} carry a price. Sorting and filtering run over the
-          whole set; only the rows on screen are drawn.
-        </p>
-      </div>
+        Nothing required went with it: `data-note.tsx` in the header carries both
+        disclosures `ui-rules.md` mandates — Oslo as a representative location within NO1,
+        and prices excluding VAT and grid charges — and the table states its own
+        `1–100 of 2,160 hours` in an `aria-live` region.
+      */}
+      <h2 className="text-lg font-semibold text-fg">
+        Every hour, {formatOsloDateShort(days[0])} – {formatOsloDateShort(days[days.length - 1])}
+      </h2>
 
       <div className="rounded-card border border-line bg-surface p-4">
         <HoursTable rows={rows} />

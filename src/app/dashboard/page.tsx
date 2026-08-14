@@ -14,7 +14,6 @@ import {
   DateChip,
   DateChipPlaceholder,
   DaySwitch,
-  ScopeLine,
 } from "./_components/header-controls";
 import { MobileNav } from "./_components/mobile-nav";
 import { DataNote } from "./_components/data-note";
@@ -62,8 +61,6 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
             </h1>
 
             <DaySwitch params={params} />
-
-            <ScopeLine />
 
             {/*
               One cluster with `min-w-0`, so the date gives way rather than running the

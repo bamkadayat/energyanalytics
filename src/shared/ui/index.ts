@@ -4,7 +4,11 @@
  */
 export { Button, buttonClasses } from "./button";
 export type { ButtonProps, ButtonSize, ButtonVariant } from "./button";
+export { Field, fieldInputClasses } from "./field";
+export type { FieldControl, FieldProps, FieldSize } from "./field";
 export { LogoMark } from "./logo-mark";
+export { PasswordField } from "./password-field";
+export type { PasswordFieldProps } from "./password-field";
 export { Skeleton, SkeletonRegion } from "./skeleton";
 export { StatusMessage } from "./status-message";
 export { Wordmark } from "./wordmark";

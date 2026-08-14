@@ -26,13 +26,6 @@ export default function DashboardLoading() {
           <Skeleton className="h-9 w-44 shrink-0 rounded-pill" />
 
           {/*
-            `ScopeLine`, which the previous version omitted entirely — so the header
-            resolved with an extra element in the middle. It is `hidden sm:flex`, and so
-            is this.
-          */}
-          <Skeleton className="hidden h-4 w-44 sm:block" />
-
-          {/*
             The same cluster the header builds: the note and the date, not one block
             standing in for both. `DateChipPlaceholder` is the real placeholder the page
             already uses for this chip, so its footprint cannot be wrong.

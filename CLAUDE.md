@@ -41,7 +41,7 @@ before writing routing, data-fetching, caching, or metadata code.
   in a JS config. Dark mode is `prefers-color-scheme`-driven, redefining the
   `--background` / `--foreground` CSS variables.
 - **Fonts** load via `next/font/google` in `app/layout.tsx` and are exposed as CSS
-  variables (`--font-geist-sans`, `--font-geist-mono`) that the `@theme` block consumes.
+  variables (`--font-inter`, `--font-geist-mono`) that the `@theme` block consumes.
 - `@/*` is aliased to the repo root. TypeScript is `strict`.
 - ESLint uses flat config (`eslint.config.mjs`) composing `eslint-config-next/core-web-vitals`
   and `eslint-config-next/typescript`.

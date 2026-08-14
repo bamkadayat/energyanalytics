@@ -145,7 +145,7 @@ control boundary, and the hairline is nowhere near it.
 | Token | Utility | Value | Use for |
 | --- | --- | --- | --- |
 | `--price-bar` | `bg-price-bar` | `--navy-100` | an ordinary hour in the price strip |
-| `--price-now` | `bg-price-now` | `--navy-900` | the hour you are in |
+| `--price-now` | `bg-price-now` | `--navy-800` | the hour you are in, and the coverage bar |
 
 Two tones, not six. The cheapest and priciest hours briefly had their own green and red;
 that spent the loudest colours on the page inside a sparkline, to say what the bar heights
@@ -198,20 +198,24 @@ qualifier and provenance notes.
 
 | Token | Value | Series |
 | --- | --- | --- |
-| `--chart-price` | `#2563eb` | spot price — solid line, left axis |
-| `--chart-price-fill` | `rgb(37 99 235 / 14%)` | restrained area fill under price |
-| `--chart-wind` | `#0f766e` | wind speed — dashed, right axis |
-| `--chart-temperature` | `#c2410c` | temperature — dashed, right axis |
-| `--chart-solar` | `#a16207` | solar radiation — dashed, right axis |
+| `--chart-price` | `--navy-800` | spot price — solid line, left axis |
+| `--chart-price-fill` | `rgb(22 32 74 / 6%)` | restrained area fill under price |
+| `--chart-wind` | `--navy-500` | wind speed — dashed, right axis |
+| `--chart-temperature` | `--navy-500` | temperature — dashed, right axis |
+| `--chart-solar` | `--navy-500` | solar radiation — dashed, right axis |
 | `--chart-missing` | `--slate-500` | gaps — never rendered as zero |
 | `--chart-grid` | `--slate-200` | grid lines |
 | `--chart-axis` | `--slate-600` | axis labels (text: 4.5:1) |
 | `--chart-crosshair` | `--slate-700` | crosshair |
 | `--chart-tooltip-surface` / `--chart-tooltip-fg` | `--navy-900` / `--white` | tooltip |
 
-### Heatmap ramp
+### Heatmap ramp (removed)
 
-`--heat-0` … `--heat-5`: `#eef2fb` · `#cfdcf6` · `#9dbaee` · `#5b8ae0` · `#2563eb` ·
+**These tokens no longer exist.** The heatmap became a boxplot on 2026-08-10 and the ramp
+went with it; nothing in `globals.css` defines `--heat-*` and nothing consumes it. Kept
+for the reasoning, which applies to any sequential scale added later.
+
+`--heat-0` … `--heat-5` were: `#eef2fb` · `#cfdcf6` · `#9dbaee` · `#5b8ae0` · `#2563eb` ·
 `#16357f`.
 
 A **single-hue sequential scale, ordered by lightness.** Sequential data has to read as
@@ -219,19 +223,43 @@ A **single-hue sequential scale, ordered by lightness.** Sequential data has to 
 colour blindness. A rainbow scale looks livelier and communicates nothing ordered — the
 same reasoning that keeps the series palette honest about relying on line style.
 
-`--heat-4` is `--chart-price`, so the heatmap and the price line agree on what "high"
-looks like.
+`--heat-4` was `--chart-price`, so the heatmap and the price line agreed on what "high"
+looked like.
 
 Only the five series colors are bridged to utilities (`bg-chart-price`, …), for DOM
 legend swatches and table keys. The chart itself reads layer 2 via `getComputedStyle`.
 
-> **The one real risk in this palette.** All four series clear 3:1 against `--surface`
-> (4.92–5.47:1) but sit at *near-identical luminance*, so they separate by **hue alone** —
-> price vs. wind is ~1.06:1 against each other, and the closest pair under simulated
-> deuteranopia and protanopia. This is acceptable only because price renders as a solid
-> area and the weather metric as a dashed line on a separate axis. **That distinction is
-> load-bearing accessibility, not styling.** Two solid lines would break "never rely on
-> color alone." Enforce it in `ui-rules.md`.
+**Two tones, both navy** (2026-08-14, on request). The three metric tokens resolve to the
+same value on purpose: `correlation-chart.tsx` and `series-legend.tsx` look the colour up
+as `--chart-${metricId}`, so keeping the names is what allows a metric to be
+re-differentiated later without touching either component.
+
+This is safe because **only two series are ever drawn at once** — price plus the one
+selected metric. The four hues existed because the metric varies, not because four lines
+coexist.
+
+| Pair | Ratio | Needs |
+| --- | --- | --- |
+| price (`--navy-800`) vs `--surface` | 15.68:1 | 3:1 |
+| metric (`--navy-500`) vs `--surface` | 5.65:1 | 3:1 |
+| metric vs price | 2.77:1 | — |
+| metric vs `--chart-grid` | 4.59:1 | — |
+
+Price was `--navy-900` for a few hours on 2026-08-14 and was lightened a step on request —
+near-black read as too heavy for a line drawn across a whole card. That trade cost
+series-vs-series separation (3.30:1 → 2.77:1) and is **not** a WCAG threshold: two data
+lines only have to be told apart, and solid vs dashed is what does that. What matters is
+the surface ratio, and both clear 3:1 with room.
+
+Still **better than the palette it replaced**, which cleared 3:1 against `--surface`
+(4.92–5.47:1) but sat at near-identical luminance and separated by hue alone — price vs.
+wind was ~1.06:1 against each other, and the closest pair under simulated deuteranopia and
+protanopia.
+
+> **The solid-vs-dashed distinction matters more now, not less.** It was already
+> load-bearing when hue was a redundant fourth signal; with hue gone, line style plus the
+> separate axis and the text legend are what carry the distinction. **Never collapse the
+> line styles.** Enforced in `ui-rules.md`.
 
 ---
 
@@ -240,23 +268,29 @@ legend swatches and table keys. The chart itself reads layer 2 via `getComputedS
 | Token | Utility | Value |
 | --- | --- | --- |
 | `--radius-control` | `rounded-control` | `0.5rem` — **inputs only**: text fields, textareas, selects |
-| `--radius-card` | `rounded-card` | `0.75rem` — cards, panels, banners |
-| `--radius-pill` | `rounded-pill` | `9999px` — **every button**, plus chips and segmented controls |
+| `--radius-card` | `rounded-card` | `0.5rem` — cards, panels, banners |
+| `--radius-pill` | `rounded-pill` | `9999px` — buttons by default, plus chips and segmented controls |
+| `--radius-tight` | `rounded-tight` | `0.375rem` (6px) — the login submit button only |
 
 **Radius is assigned by role, not by taste.** The split is *controls you press* versus
-*controls you type into*: buttons and button-like links are always `rounded-pill`, and
+*controls you type into*: buttons and button-like links are `rounded-pill` by default, and
 inputs are always `rounded-control`. A pill-shaped text field reads as a tag or a search
 chip, and long values sit awkwardly against the curve.
 
 This is enforced in code, not by convention — `shared/ui/button.tsx` is the only place
-button styling is written, and a test asserts every variant emits `rounded-pill` and no
-other radius.
-| `--shadow-card` | `shadow-card` | subtle two-stop card elevation |
-| `--shadow-popover` | `shadow-popover` | tooltips, menus |
+button styling is written, and the radius comes from a `radius` prop with two named
+values, not from a free `className`. Tests assert a button emits **exactly one** radius
+class, that `pill` is the default, and that `tight` is opt-in.
+
+**`tight` is a deliberate, enumerable exception** (added 2026-08-14, on request), not a
+reopening of per-call-site styling. A raw `rounded-[6px]` at the call site would sit
+alongside the module's own radius class and resolve by CSS source order rather than by
+which was written last — a named option keeps the set of possible radii greppable.
+| `--shadow-popover` | `shadow-popover` | tooltips, menus — the only shadow in the system |
 | `--container-content` | `max-w-content` | `72rem` page max width |
 | `--text-display` | `text-display` | `clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem)` |
 | `--text-hero` | `text-hero` | `clamp(2.25rem, 1.5rem + 3.6vw, 3.75rem)` — landing headline only |
-| `--font-sans` / `--font-mono` | `font-sans` / `font-mono` | Geist / Geist Mono |
+| `--font-sans` / `--font-mono` | `font-sans` / `font-mono` | Inter / Geist Mono |
 | `--chart-min-height` | `min-h-[var(--chart-min-height)]` | `clamp(18rem, 40vh, 28rem)` |
 
 **Spacing has no custom tokens by design.** Tailwind's default `0.25rem` scale *is* the

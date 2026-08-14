@@ -51,8 +51,8 @@ export default function Error({
           ) : null}
         </StatusMessage>
 
-        <Link href="/" className={buttonClasses({ variant: "outline" })}>
-          Back to the overview
+        <Link href="/dashboard" className={buttonClasses({ variant: "outline" })}>
+          Go to dashboard
         </Link>
       </div>
     </div>

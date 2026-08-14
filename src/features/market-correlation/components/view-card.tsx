@@ -185,7 +185,7 @@ function ToggleButton({
       aria-pressed={selected}
       className={
         selected
-          ? "rounded-pill bg-surface px-4 py-1.5 text-sm font-medium text-fg shadow-card"
+          ? "rounded-pill bg-surface px-4 py-1.5 text-sm font-medium text-fg"
           : "rounded-pill px-4 py-1.5 text-sm text-fg-secondary hover:text-fg"
       }
     >

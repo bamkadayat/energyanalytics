@@ -6,18 +6,17 @@ import {
   formatPrice,
 } from "@/shared/lib/format-number";
 import type { AlignedHours } from "../types";
-import {
-  deriveEveningComparison,
-  EVENING_FROM,
-  EVENING_UNTIL,
-  type DaySummary,
-} from "./derive-summary";
+import { type DaySummary } from "./derive-summary";
 
 /**
- * Three. The one that falls off first — the weather peak — is already its own KPI card,
- * and it still appears when a price observation is missing.
+ * Two (2026-08-14, on request; was three).
+ *
+ * The two that show are the cheapest and priciest hour. The weather peak is the one that
+ * falls off — it is already its own KPI card — but it stays in the list below, because
+ * missing inputs omit an observation rather than hedge it: on a day with no price data it
+ * is what fills the space instead of leaving the section empty.
  */
-const MAX_INSIGHTS = 3;
+const MAX_INSIGHTS = 2;
 
 export interface Insight {
   id: string;
@@ -70,18 +69,6 @@ export function deriveInsights(
     });
   }
 
-  const evening = deriveEveningComparison(aligned, summary);
-  if (evening !== null) {
-    insights.push({
-      id: "evening",
-      /* Bare hours: "17:00–21:00" wraps in a chip this size. UNTIL is exclusive. */
-      hour: `${pad(EVENING_FROM)}–${pad(EVENING_UNTIL - 1)}`,
-      text: `Evening hours average ${formatPrice(
-        evening.eveningAverage,
-      )} ${PRICE_UNIT}${against(evening.eveningAverage, evening.dayAverage)}.`,
-    });
-  }
-
   if (summary.metricPeakHour !== null) {
     insights.push({
       id: "metric-peak",
@@ -105,8 +92,4 @@ function against(value: number, average: number | null): string {
   const direction = difference >= 0 ? "above" : "below";
 
   return `, ${formatPercentDifference(difference)} ${direction} the daily average`;
-}
-
-function pad(hour: number): string {
-  return String(hour).padStart(2, "0");
 }

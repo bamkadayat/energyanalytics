@@ -86,13 +86,23 @@ export function HourSpreadChart({ spread }: { spread: HourSpread }) {
           type: "boxplot",
           // A gap stays a gap: an hour the range never priced draws nothing.
           data: spread.boxes.map((box) => box ?? null) as BoxplotSeriesOption["data"],
+          /*
+           * 1px at rest, matching the line charts (2026-08-14). With the shared fill now
+           * at 6% the box is outline-led rather than a filled block — which is the point,
+           * and the median still reads because the border is navy-800 on white.
+           */
           itemStyle: {
             color: tokens["--chart-price-fill"],
             borderColor: tokens["--chart-price"],
-            borderWidth: 1.5,
+            borderWidth: 1,
           },
+          /*
+           * Hover still steps up, just from a thinner base. It has to stay a *visible*
+           * step: the emphasis border is the only feedback that a box is the one being
+           * read, since the tooltip sits away from it.
+           */
           emphasis: {
-            itemStyle: { borderColor: tokens["--chart-price"], borderWidth: 2.5 },
+            itemStyle: { borderColor: tokens["--chart-price"], borderWidth: 2 },
           },
           boxWidth: [8, 40] as [number, number],
         },

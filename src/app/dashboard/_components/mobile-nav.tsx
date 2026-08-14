@@ -29,7 +29,7 @@ export function MobileNav({
       <button
         type="button"
         onClick={() => dialogRef.current?.showModal()}
-        aria-label="Open filters"
+        aria-label="Open menu"
         className="flex size-9 items-center justify-center rounded-control border border-line text-fg-secondary hover:bg-surface-subtle lg:hidden"
       >
         <FiMenu aria-hidden="true" className="size-5" />
@@ -37,7 +37,7 @@ export function MobileNav({
 
       <dialog
         ref={dialogRef}
-        aria-label="Dashboard filters"
+        aria-label="Dashboard menu"
         /*
          * `<dialog>` centres itself by default; these reset it to a full-height panel
          * pinned left. `backdrop:` styles the ::backdrop pseudo-element.
@@ -67,7 +67,7 @@ export function MobileNav({
             <button
               type="button"
               onClick={() => dialogRef.current?.close()}
-              aria-label="Close filters"
+              aria-label="Close menu"
               className="flex size-9 items-center justify-center rounded-control text-fg-inverse-muted hover:bg-surface-rail-active hover:text-fg-inverse"
             >
               <FiX aria-hidden="true" className="size-5" />
@@ -76,7 +76,13 @@ export function MobileNav({
 
           {/* Any link inside navigates, so close the drawer behind it. */}
           <nav
-            aria-label="Dashboard filters"
+            /*
+             * "Dashboard", not "Dashboard menu" — the `<dialog>` wrapping this already
+             * carries that name, and repeating it makes a screen reader announce the same
+             * words twice on the way in. Matches the desktop rail's nav, which is the same
+             * content at a wider viewport.
+             */
+            aria-label="Dashboard"
             className="flex flex-1 flex-col gap-7 overflow-y-auto p-3"
             onClick={(event) => {
               if ((event.target as HTMLElement).closest("a")) {
@@ -88,7 +94,7 @@ export function MobileNav({
           </nav>
 
           {/*
-            Logout sits with the filters here, as it does in the desktop rail, rather than
+            Logout sits in the menu here, as it does in the desktop rail, rather than
             competing for space in a phone header.
           */}
           <div className="border-t border-line-inverse p-3">

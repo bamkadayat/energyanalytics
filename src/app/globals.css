@@ -133,16 +133,41 @@
 
   /*
    * ---- 2. Semantic: data visualization ----
-   * Every series clears 3:1 against --surface, but they do NOT clear 3:1 against each
-   * other: all four sit at near-identical luminance, so the palette separates by hue
-   * alone. Price/wind is the closest pair. The solid-area vs dashed-line distinction in
-   * ui-rules.md is therefore load-bearing accessibility, not decoration.
+   * Two tones, both navy (2026-08-14, on request): the chart is white and the primary,
+   * like the rest of the app.
+   *
+   * This is safe because **only two series are ever drawn at once** — the price plus the
+   * one selected metric. The four hues that used to live here existed because the
+   * *metric* varies, not because four lines coexist. Price and metric are already told
+   * apart by solid vs dashed, left vs right axis, different units, and a text legend that
+   * names both, so hue was the fourth signal, not the only one.
+   *
+   * Price is navy-800 rather than navy-900 (2026-08-14, on request — near-black read as
+   * too heavy for a line drawn across a whole card). It still clears 15.68:1 against the
+   * surface. The cost is series-vs-series separation, which drops from 3.30:1 to 2.77:1
+   * against the metric line — acceptable because that is not a WCAG threshold: two data
+   * lines only need to be told apart, and solid vs dashed is what does it.
+   *
+   * The fill went 14% → 6% in the same pass, after the strokes had already come down to
+   * 1px. Across a full-width card the wash carries more visual weight than the line does,
+   * so it was what still read as "thick" once the stroke was at its floor. It stays a
+   * fill rather than going to zero: price having one and the metric not is a channel
+   * separating them, alongside solid/dashed and the two axes.
+   *
+   * The old palette separated by hue alone at near-identical luminance, which is why
+   * ui-rules.md calls the solid/dashed distinction load-bearing. That distinction matters
+   * *more* now, not less. Never collapse the line styles.
+   *
+   * The three metric tokens deliberately resolve to the same value rather than being
+   * collapsed into one: `correlation-chart.tsx` and `series-legend.tsx` both look the
+   * colour up as `--chart-${metricId}`, and keeping the names is what lets a metric be
+   * re-differentiated later without touching either component.
    */
-  --chart-price: #2563eb;
-  --chart-price-fill: rgb(37 99 235 / 14%);
-  --chart-wind: #0f766e;
-  --chart-temperature: #c2410c;
-  --chart-solar: #a16207;
+  --chart-price: var(--navy-800);
+  --chart-price-fill: rgb(22 32 74 / 6%);
+  --chart-wind: var(--navy-500);
+  --chart-temperature: var(--navy-500);
+  --chart-solar: var(--navy-500);
   --chart-missing: var(--slate-500);
   --chart-grid: var(--slate-200);
   --chart-axis: var(--slate-600);
@@ -162,7 +187,17 @@
    * show is where you are, so that is the only hour that earns a fill.
    */
   --price-bar: var(--navy-100);
-  --price-now: var(--navy-900);
+  /*
+   * navy-800, matching `--chart-price` (2026-08-14). These are the same fact drawn two
+   * ways — the price series in a chart and the current hour in a strip — and at navy-900
+   * this was the darkest mark left on the dashboard once the chart lightened. The
+   * coverage bar on the cheapest-window card reads as a solid rule at full width, which
+   * is where it showed most.
+   *
+   * Still far clear of `--price-bar` (navy-100), which is what has to stay obvious: the
+   * strip's whole job is showing *which* hour you are on.
+   */
+  --price-now: var(--navy-800);
 
   /*
    * ---- 2. Semantic: bento cards ----
@@ -282,8 +317,8 @@
   --color-price-bar: var(--price-bar);
   --color-price-now: var(--price-now);
 
-  /* Typography. Geist is wired up as a CSS variable in layout.tsx. */
-  --font-sans: var(--font-geist-sans);
+  /* Typography. Inter and Geist Mono are wired up as CSS variables in layout.tsx. */
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -296,12 +331,18 @@
  */
 @theme {
   --radius-control: 0.5rem;
-  --radius-card: 0.75rem;
+  /* 8px. Cards carry a light radius and a border — no elevation. */
+  --radius-card: 0.5rem;
   --radius-pill: 9999px;
+  /* 6px. The login button opts into this; every other button stays a pill. */
+  --radius-tight: 0.375rem;
   /* Bento panels sit between a card and a container: 20px. */
   --radius-bento: 1.25rem;
 
-  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.06), 0 1px 3px 0 rgb(15 23 42 / 0.1);
+  /*
+   * Only overlays get a shadow. Cards and selected segments are separated by border and
+   * fill alone, so nothing in the page grid floats above the page.
+   */
   --shadow-popover: 0 8px 24px -4px rgb(15 23 42 / 0.18);
 
   --container-content: 72rem;
@@ -379,23 +420,6 @@
  * focus ring is --focus (near-black navy) and was invisible against the navy hero. A
  * variant that sets --btn-ring-color now gets a visible focus ring too.
  */
-/*
- * Entrance motion for the landing page.
- *
- * Pure CSS, so the page needs no client JavaScript and stays fully prerendered. Load
- * animations run on a delay set per element; scroll reveals are driven by
- * `animation-timeline: view()`.
- */
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(1.25rem);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
 
 @layer components {
   /*
@@ -514,39 +538,6 @@
     .drawer::backdrop {
       transition: none;
       translate: 0 0;
-    }
-  }
-
-  /* On load. `both` holds the start state through the delay, so nothing flashes first. */
-  .animate-enter {
-    animation: rise-in 700ms cubic-bezier(0.22, 0.7, 0.2, 1) both;
-    animation-delay: var(--enter-delay, 0ms);
-  }
-
-  /*
-   * On scroll — guarded, because the hidden start state must never apply where the
-   * timeline is unsupported. Outside @supports the element is simply visible, so
-   * Firefox and older browsers get the content rather than a blank space.
-   */
-  @supports (animation-timeline: view()) {
-    .animate-reveal {
-      animation: rise-in linear both;
-      animation-timeline: view();
-      animation-range: entry 5% cover 28%;
-    }
-  }
-
-  /*
-   * The base-layer reduced-motion rule shortens animation-duration, which a
-   * scroll-driven animation ignores entirely — its progress comes from the timeline, not
-   * from time. So both are switched off explicitly here.
-   */
-  @media (prefers-reduced-motion: reduce) {
-    .animate-enter,
-    .animate-reveal {
-      animation: none;
-      opacity: 1;
-      transform: none;
     }
   }
 

@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { ViewParams } from "@/features/market-correlation/client";
-import { RailContent } from "./rail-content";
+import { RAIL_VIEW_COUNT, RailContent } from "./rail-content";
 import { RailSkeleton } from "./shell-skeleton";
 
 /**
@@ -35,6 +35,20 @@ describe("rail skeleton", () => {
       skeleton.container.querySelector(".flex-1")?.querySelectorAll(".h-9").length ?? 0;
 
     expect(railRowCount(real.container)).toBeGreaterThan(0);
+    expect(reserved).toBe(railRowCount(real.container));
+  });
+
+  it("reserves the shorter rail on /dashboard/hours", () => {
+    // The metric group is not drawn there — the hours table shows all three metrics as
+    // columns and ignores `params.metric`. Reserving it anyway would resolve into a
+    // visibly shorter rail, which is the drift the test above exists to catch.
+    const real = render(<RailContent params={PARAMS} active="hours" />);
+    const skeleton = render(<RailSkeleton active="hours" />);
+
+    const reserved =
+      skeleton.container.querySelector(".flex-1")?.querySelectorAll(".h-9").length ?? 0;
+
+    expect(railRowCount(real.container)).toBe(RAIL_VIEW_COUNT);
     expect(reserved).toBe(railRowCount(real.container));
   });
 

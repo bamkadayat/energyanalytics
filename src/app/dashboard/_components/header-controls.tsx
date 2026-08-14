@@ -2,7 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { FiCalendar } from "react-icons/fi";
 import { hrefWith, type ViewParams } from "@/features/market-correlation/client";
-import { PRICE_AREA, WEATHER_LOCATION, type DaySelection } from "@/shared/config";
+import { type DaySelection } from "@/shared/config";
 import { formatOsloDate, formatOsloDateShort } from "@/shared/lib/format-oslo";
 import { Skeleton } from "@/shared/ui";
 import { resolveOsloDay } from "@/shared/lib/oslo-day";
@@ -36,7 +36,7 @@ export function DaySwitch({ params }: { params: ViewParams }) {
                 // Fill plus weight, so selection is never carried by colour alone.
                 className={
                   selected
-                    ? "block rounded-pill bg-surface px-3 py-1.5 text-sm font-medium text-fg shadow-card sm:px-4"
+                    ? "block rounded-pill bg-surface px-3 py-1.5 text-sm font-medium text-fg sm:px-4"
                     : "block rounded-pill px-3 py-1.5 text-sm text-fg-secondary hover:text-fg sm:px-4"
                 }
               >
@@ -47,19 +47,6 @@ export function DaySwitch({ params }: { params: ViewParams }) {
         })}
       </ul>
     </nav>
-  );
-}
-
-/** The price area and the point the weather is measured at — never buried in a footnote. */
-export function ScopeLine() {
-  return (
-    <p className="hidden min-w-0 items-center gap-2 font-mono text-xs text-fg-muted sm:flex">
-      {/* Neutral: in green it read as a live-status light, which this does not claim. */}
-      <span aria-hidden="true" className="size-1.5 shrink-0 rounded-pill bg-line-strong" />
-      <span className="truncate">
-        {PRICE_AREA.label} · {WEATHER_LOCATION.label}
-      </span>
-    </p>
   );
 }
 
@@ -96,11 +83,22 @@ export function DateChipPlaceholder() {
   );
 }
 
+/*
+ * A `<div>`, not a `<p>`.
+ *
+ * `DateChipPlaceholder` puts a `Skeleton` in here, and `Skeleton` is a `<div>` — which is
+ * not valid inside a `<p>`. The browser closes the paragraph before the div, so the server
+ * HTML and the client tree disagree and React reports a hydration error.
+ *
+ * Fixed here rather than by making `Skeleton` a `<span>`: this is a chip holding a date
+ * and an icon, not a paragraph of prose, so `<p>` was the wrong element regardless. The
+ * classes already say `flex`, so nothing about the layout changes.
+ */
 function ChipShell({ children }: { children: React.ReactNode }) {
   return (
-    <p className="flex min-w-0 items-center gap-2 truncate rounded-control border border-line bg-surface px-2 py-1.5 font-mono text-xs text-fg-secondary sm:px-3 sm:text-sm">
+    <div className="flex min-w-0 items-center gap-2 truncate rounded-control border border-line bg-surface px-2 py-1.5 font-mono text-xs text-fg-secondary sm:px-3 sm:text-sm">
       <FiCalendar aria-hidden="true" className="size-4 shrink-0 text-fg-muted" />
       {children}
-    </p>
+    </div>
   );
 }

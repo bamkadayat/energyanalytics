@@ -14,7 +14,7 @@ import { APP_LOCALE } from "@/shared/config";
 /**
  * Three decimals: Norwegian spot prices sit near 1 NOK/kWh but individual hours can fall
  * below 0.01, and rounding those to two decimals would render several distinct hours as
- * an identical "0,01".
+ * an identical "0.01".
  */
 const priceFormatter = new Intl.NumberFormat(APP_LOCALE, {
   minimumFractionDigits: 2,
@@ -33,10 +33,11 @@ const percentFormatter = new Intl.NumberFormat(APP_LOCALE, {
  * Whole counts — hours, days, rows. Grouped, and in the **app locale** like every other
  * number on the page.
  *
- * The locale matters more than it looks: `nb-NO` uses a comma as its *decimal* separator,
- * so a count formatted as `en` renders "2,160 hours" on a page where "0,564" means
- * nought-point-five-six-four. The two are read differently by the same reader, inches
- * apart. `nb-NO` groups with a space instead, which cannot be mistaken for a decimal.
+ * Every formatter here shares `APP_LOCALE` for exactly one reason: a page that groups
+ * thousands one way and separates decimals another is unreadable. Under `nb-NO` that
+ * meant "2 160 hours" beside "0,564"; under `en-GB` it means "2,160" beside "0.564". Each
+ * is internally consistent — mixing them is what breaks, which is why no formatter in
+ * this file ever hardcodes a locale of its own.
  */
 const countFormatter = new Intl.NumberFormat(APP_LOCALE, {
   maximumFractionDigits: 0,
