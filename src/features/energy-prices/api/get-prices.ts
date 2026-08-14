@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import { API_BASE_URL, PRICE_AREA } from "@/shared/config";
+import { API_BASE_URL, CACHE_PROFILE, PRICE_AREA } from "@/shared/config";
 import { fetchJson } from "@/shared/lib/fetch-json";
 import { pricePathFor, type OsloDay } from "@/shared/lib/oslo-day";
 import { withFetchedAt, type Fetched } from "@/shared/lib/fetched";
@@ -19,7 +19,7 @@ export async function getSettledPrices(
   day: OsloDay,
 ): Promise<Fetched<PriceFetchResult>> {
   "use cache";
-  cacheLife("hours");
+  cacheLife(CACHE_PROFILE.pricesSettled);
 
   return withFetchedAt(toPriceResult(await fetchJson(priceUrl(day))));
 }
@@ -39,7 +39,7 @@ export async function getPendingPrices(
   day: OsloDay,
 ): Promise<Fetched<PriceFetchResult>> {
   "use cache";
-  cacheLife("minutes");
+  cacheLife(CACHE_PROFILE.pricesPending);
 
   return withFetchedAt(toPriceResult(await fetchJson(priceUrl(day))));
 }

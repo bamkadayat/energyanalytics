@@ -12,8 +12,6 @@ export { alignPriceAndWeather } from "./utils/align-hours";
 export { deriveHourRows } from "./utils/derive-hour-rows";
 export type { HourRecord } from "./utils/derive-hour-rows";
 export { toChartSeries } from "./utils/to-chart-series";
-export { summariseMetric, toPreviewChart } from "./utils/to-preview-chart";
-export type { MetricPreviewStats, PreviewChart } from "./utils/to-preview-chart";
 export { deriveDaySummary, deriveEveningComparison } from "./utils/derive-summary";
 export { deriveInsights } from "./utils/derive-insights";
 export { deriveDurationCurve } from "./utils/derive-range-views";
@@ -33,7 +31,6 @@ export {
 } from "./components/skeletons";
 export { RangeViews } from "./components/range-views";
 export { ViewCard } from "./components/view-card";
-export { ViewControls } from "./components/view-controls";
 export {
   hrefWith,
   parseViewParams,

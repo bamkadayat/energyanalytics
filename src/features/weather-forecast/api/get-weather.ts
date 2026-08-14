@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache";
 import {
   API_BASE_URL,
+  CACHE_PROFILE,
   WEATHER_LOCATION,
   WEATHER_METRICS,
   WEATHER_METRIC_IDS,
@@ -42,7 +43,7 @@ export async function getWeather(
   day: OsloDay,
 ): Promise<Fetched<WeatherFetchResult>> {
   "use cache";
-  cacheLife("hours");
+  cacheLife(CACHE_PROFILE.weather);
 
   return withFetchedAt(toWeatherResult(await fetchJson(weatherUrl(day))));
 }
@@ -59,7 +60,7 @@ export async function getWeatherRange(
   to: OsloDay,
 ): Promise<Fetched<WeatherFetchResult>> {
   "use cache";
-  cacheLife("hours");
+  cacheLife(CACHE_PROFILE.weather);
 
   return withFetchedAt(toWeatherResult(await fetchJson(weatherUrl(from, to))));
 }
