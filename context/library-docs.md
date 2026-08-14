@@ -18,9 +18,12 @@ already been decided. Where they conflict, this file wins.
 | `eslint` + `eslint-config-next` | 9 / 16.3.0 | installed |
 | `react-icons` | 5.7.0 | installed |
 | `server-only` | 0.0.1 | installed |
-| `echarts` + `echarts-for-react` | — | **required, not yet installed** |
-| `date-fns` (+ timezone support) | — | **required, not yet installed** |
-| test runner (Vitest + RTL, Playwright) | — | **required, not yet installed** |
+| `echarts` + `echarts-for-react` | 6.1.0 / 3.0.6 | installed |
+| `date-fns` + `@date-fns/tz` | 4.4.0 / 1.5.0 | installed |
+| `@tanstack/react-table` | 8.21.3 | installed |
+| `@tanstack/react-virtual` | 3.14.9 | installed |
+| `vitest` + RTL + `jsdom` | 4.1.10 / 16.3.2 | installed — `pnpm test` |
+| Playwright | — | not installed; no e2e layer yet |
 
 Package manager is **pnpm**. Do not use npm or yarn.
 
@@ -165,6 +168,30 @@ the DOM has to hold a screenful.
   ones misreport their position, so the table carries `aria-rowcount` and every row an
   `aria-rowindex`. The grid-display layout the virtualizer needs also drops the implicit
   table roles, so each element restates its role explicitly.
+
+---
+
+## Figma Make via MCP
+
+Pulls design context from a Make project into the agent, so a prototype is extended
+rather than reimplemented. Needs an MCP client that supports **resources**.
+
+1. Give the agent a Make project link.
+2. It lists the project's files.
+3. Approve the ones to fetch.
+
+Then ask for what you need — *"take the popup's behaviour and styles from this Make file
+and apply them to our popup component"*.
+
+Project rules:
+
+- **Reuse before generating.** Ask for Make's existing component code and map it onto
+  what `shared/ui` already has; a second `Button` is a regression, not a feature.
+- **Tokens win.** Translate Make values to `ui-tokens.md` tokens. Never paste a hex or a
+  raw Tailwind colour — see `ui-rules.md`.
+- **Nothing lands unexamined.** Fetched code is a starting point; it still meets
+  `code-standards.md`, the a11y bar, and the build gate.
+- Record anything reused in `ui-registry.md`, as with any other component.
 
 ---
 
