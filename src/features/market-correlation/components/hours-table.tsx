@@ -16,7 +16,7 @@ import {
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useMemo, useRef, useState } from "react";
 import { FiChevronDown, FiChevronUp, FiSearch } from "react-icons/fi";
-import { PRICE_UNIT, WEATHER_METRICS } from "@/shared/config";
+import { PRICE_UNIT, WEATHER_METRICS, WEATHER_METRIC_IDS } from "@/shared/config";
 import {
   formatCount,
   formatMetricValue,
@@ -89,27 +89,17 @@ export function HoursTable({ rows }: { rows: HourRecord[] }) {
         cell: (info) => formatPrice(info.getValue()),
         sortUndefined: "last",
       }),
-      columnHelper.accessor((row) => present(row.temperature), {
-        id: "temperature",
-        header: `${WEATHER_METRICS.temperature.label} (${WEATHER_METRICS.temperature.unit})`,
-        size: 150,
-        cell: (info) => formatMetricValue(info.getValue()),
-        sortUndefined: "last",
-      }),
-      columnHelper.accessor((row) => present(row.wind), {
-        id: "wind",
-        header: `${WEATHER_METRICS.wind.label} (${WEATHER_METRICS.wind.unit})`,
-        size: 150,
-        cell: (info) => formatMetricValue(info.getValue()),
-        sortUndefined: "last",
-      }),
-      columnHelper.accessor((row) => present(row.solar), {
-        id: "solar",
-        header: `${WEATHER_METRICS.solar.label} (${WEATHER_METRICS.solar.unit})`,
-        size: 160,
-        cell: (info) => formatMetricValue(info.getValue()),
-        sortUndefined: "last",
-      }),
+      // `HourRecord` keys the metrics by `WeatherMetricId`, so a fourth metric is a
+      // config change rather than a fourth near-identical block here.
+      ...WEATHER_METRIC_IDS.map((id) =>
+        columnHelper.accessor((row) => present(row[id]), {
+          id,
+          header: `${WEATHER_METRICS[id].label} (${WEATHER_METRICS[id].unit})`,
+          size: 160,
+          cell: (info) => formatMetricValue(info.getValue()),
+          sortUndefined: "last",
+        }),
+      ),
     ],
     [],
   );
