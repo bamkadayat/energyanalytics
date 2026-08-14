@@ -788,7 +788,7 @@ ink, no filled surface**, with the back link outside the card.
 - **the demo-password note is untinted.** It first used the `info` family, which put a pale
   blue block on a page with no other colour; the restraint pass had already removed exactly
   that from the dashboard's standing note. It is separated by a rule, like the sources
-  beneath it, with the password boxed in `--line-strong` and `select-all` — a reviewer
+  beneath it, with the password boxed in `--line-strong` and `select-all` — a visitor
   copies it rather than retyping, and a bare word in a sentence gives them nothing to aim
   at
 - the note renders **only when `DEMO_PASSWORD_HINT` is set**, and that is deliberately a

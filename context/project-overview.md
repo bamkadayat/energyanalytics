@@ -2,7 +2,7 @@
 
 ## Project: Nordic Power & Weather Explorer
 
-Build a polished, single-page energy analytics prototype for a StormGeo frontend interview. The page combines Norwegian day-ahead electricity prices with hourly Oslo weather forecasts and demonstrates strong TypeScript architecture, data visualization, performance, accessibility, and pragmatic engineering.
+Build a polished energy analytics prototype as a frontend showcase. The app combines Norwegian day-ahead electricity prices with hourly Oslo weather forecasts and demonstrates strong TypeScript architecture, data visualization, performance, accessibility, and pragmatic engineering.
 
 This is an exploratory visualization. It may show that weather and price values move together at particular times, but it must never claim that one caused the other.
 
@@ -363,6 +363,6 @@ A change is complete only when:
 - dependencies and final diff have been reviewed
 - documentation is updated when architecture or domain assumptions change
 
-## Interview-Demo Principle
+## Showcase Principle
 
-This prototype should demonstrate thoughtful decisions, not artificial complexity. When presenting it, explain the user problem, the API differences, timestamp alignment, feature boundaries, accessibility alternatives, failure handling, and the trade-offs behind caching and visualization choices.
+This prototype should demonstrate thoughtful decisions, not artificial complexity. What it sets out to show: the user problem, the API differences, timestamp alignment, feature boundaries, accessibility alternatives, failure handling, and the trade-offs behind caching and visualization choices.
