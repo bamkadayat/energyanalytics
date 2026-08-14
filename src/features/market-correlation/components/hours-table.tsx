@@ -43,27 +43,19 @@ const PAGE_SIZES = [100, 500, 1000] as const;
 const columnHelper = createColumnHelper<HourRecord>();
 
 /**
- * Reads a numeric column, turning a gap into `undefined`.
- *
- * TanStack's `sortUndefined` recognises **only** `undefined`; a `null` falls through to
- * the default comparator, where it behaves as zero — a missing temperature sorting
- * between -8 °C and 4 °C. `"last"` applies before the descending inversion, so gaps stay
- * at the end whichever way the column points.
+ * TanStack's `sortUndefined` recognises only `undefined`. A `null` falls through to the
+ * default comparator and behaves as zero — a missing temperature sorting between -8 and 4.
  */
 function present(value: number | null): number | undefined {
   return value ?? undefined;
 }
 
 /**
- * A few thousand hours as one scrollable table.
+ * A few thousand hours as one scrollable table. Only the visible window is mounted;
+ * sorting and filtering still run over the whole set, not the page.
  *
- * - **Rendering:** only the visible window is mounted (`useVirtualizer`), ~25 rows.
- * - **Sorting and filtering:** run over the whole set, not the page — sorting a page
- *   would answer "the cheapest of the hundred you are looking at".
- * - **Semantics:** virtualized rows are absent and misstate their position, so
- *   `aria-rowcount` and `aria-rowindex` put both back.
- *
- * The grid-display layout drops the implicit table roles, so each is written explicitly.
+ * `aria-rowcount`/`aria-rowindex` restore what virtualization takes from a screen reader,
+ * and the grid-display layout drops the implicit table roles, so each `role` is explicit.
  */
 export function HoursTable({ rows }: { rows: HourRecord[] }) {
   const [sorting, setSorting] = useState<SortingState>([{ id: "at", desc: true }]);
@@ -136,8 +128,7 @@ export function HoursTable({ rows }: { rows: HourRecord[] }) {
     getScrollElement: () => scroller.current,
     estimateSize: () => ROW_HEIGHT,
     overscan: OVERSCAN,
-    // Assumed until measured: `offsetHeight` is 0 before layout, and without a fallback
-    // rect the first render decides the viewport is empty and draws nothing.
+    // `offsetHeight` is 0 before layout; without this the first render draws nothing.
     initialRect: { width: 900, height: SCROLLER_HEIGHT },
   });
 
@@ -149,19 +140,11 @@ export function HoursTable({ rows }: { rows: HourRecord[] }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end gap-3">
-        {/*
-          Sizing lives on the wrapper rather than as a `className` prop on `Field`. How
-          wide this sits in the toolbar is the toolbar's business; letting callers pass
-          classes into the primitive is how the three spellings of a text field got here.
-        */}
+        {/* Sizing on the wrapper: how wide this sits is the toolbar's business, not `Field`'s. */}
         <div className="min-w-0 flex-1 sm:max-w-xs">
           <Field label="Find an hour" size="sm">
             {(control) => (
               <>
-                {/*
-                  The shell is a flex row, so the icon is simply the first child — no
-                  `absolute` placement and no `pl-9` on the input to clear it.
-                */}
                 <FiSearch
                   aria-hidden="true"
                   className="size-4 shrink-0 text-fg-muted"
@@ -174,12 +157,7 @@ export function HoursTable({ rows }: { rows: HourRecord[] }) {
                     setSearch(event.target.value);
                     table.setPageIndex(0);
                   }}
-                  /*
-                    Examples that actually match. The filter is a substring test against
-                    the pre-formatted label (`10 Aug, 14:00`), so the previous
-                    `10.08, 14:00, august…` offered two examples that returned nothing —
-                    the label has never contained either `10.08` or a full month name.
-                  */
+                  /* Must match the label format — the filter is a substring test against it. */
                   placeholder="10 Aug, 14:00…"
                   className={fieldInputClasses}
                 />

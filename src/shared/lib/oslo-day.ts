@@ -20,15 +20,12 @@ export interface OsloDay {
 }
 
 /**
- * Every zone-aware operation in the app goes through this module.
+ * Every zone-aware operation goes through this module. Nothing elsewhere may call
+ * `new Date()` on a naive string, read `getHours()` off a plain Date, or assume a day is
+ * 24 hours — all three depend on the server's zone, which is not Europe/Oslo.
  *
- * The point is that nothing anywhere else may call `new Date()` on a naive string, read
- * `getHours()` off a plain Date, or assume a day is 24 hours long. All three quietly
- * depend on the *server's* local zone, which is not Europe/Oslo in any deployment we
- * control.
- *
- * Every function takes the current instant as an argument rather than reading a clock,
- * so behaviour is reproducible in tests.
+ * Functions take the instant as an argument rather than reading a clock, so tests are
+ * reproducible.
  */
 
 /** The calendar date an instant falls on, in Oslo. */

@@ -13,17 +13,9 @@ import {
 export { SESSION_COOKIE } from "../utils/session-cookie";
 
 /**
- * The cookie's attributes, defined once and used by **both** writes.
- *
- * They have to match exactly. A browser identifies a cookie by name, domain and path, so
- * a removal that does not carry the same attributes is not recognised as removing
- * anything — and for a `__Host-` prefixed name the rules are stricter still: the browser
- * rejects *any* `Set-Cookie` for it that lacks `Secure` or sets a path other than `/`.
- *
- * That is not hypothetical. This module used `cookies().delete(name)` to log out, which
- * emits `Set-Cookie: __Host-ea_session=; Path=/; Expires=<epoch>` — no `Secure`. In
- * production the browser refused it, the session cookie survived, and logging out did
- * nothing. Development was unaffected, because the name is unprefixed there.
+ * Used by both writes, and they must match exactly. A `__Host-` cookie is rejected by the
+ * browser unless every `Set-Cookie` for it carries `Secure` and `Path=/` — which is why
+ * logout overwrites rather than calling `delete()`, whose output omits `Secure`.
  */
 const SESSION_COOKIE_OPTIONS = {
   // Not readable from JavaScript, so an XSS bug cannot walk off with the session.
@@ -45,10 +37,7 @@ export async function createSession(now: number = Date.now()): Promise<void> {
   });
 }
 
-/**
- * Clears the session by overwriting it with an already-expired cookie carrying the same
- * attributes — not by `delete()`, for the reason above.
- */
+/** Overwrites with an expired cookie carrying the same attributes — see above. */
 export async function destroySession(): Promise<void> {
   const store = await cookies();
 
@@ -59,20 +48,11 @@ export async function destroySession(): Promise<void> {
   });
 }
 
-/**
- * The authoritative check.
- *
- * Next's docs are explicit that Proxy must not be treated as a session-management or
- * authorization layer — it runs before the request completes and is meant for optimistic
- * redirects. Anything actually protecting data has to verify here, in the route.
- */
+/** The authoritative check. Proxy only does optimistic redirects; routes verify here. */
 export async function hasValidSession(nowOverride?: number): Promise<boolean> {
   /*
-   * `connection()` before reading the clock. Under Cache Components a bare `Date.now()`
-   * fails the prerender with `blocking-prerender-current-time`, and `instant = false`
-   * explicitly does *not* clear synchronous-IO errors — only `connection()`, `use cache`
-   * or a client component do. This is correct for a protected route anyway: there is
-   * nothing here worth prerendering.
+   * Under Cache Components a bare `Date.now()` fails the prerender, and `instant = false`
+   * does not clear synchronous-IO errors — only `connection()` does.
    */
   if (nowOverride === undefined) {
     await connection();

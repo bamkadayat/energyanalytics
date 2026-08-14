@@ -3,19 +3,12 @@ import { APP_LOCALE } from "@/shared/config";
 /**
  * Number formatting for display.
  *
- * Values are formatted for the locale but **units are never folded in** — the caller
- * places the unit, so a number can never end up rendered without one. This app carries
- * three different units across two axes, and a bare figure is a domain bug waiting to
- * happen.
- *
- * Formatters are built once; they are called per hour in the table.
+ * Units are never folded in — the caller places them, so a figure cannot be rendered
+ * without one. Every formatter shares `APP_LOCALE`: grouping thousands one way and
+ * decimals another on the same page is what makes numbers unreadable.
  */
 
-/**
- * Three decimals: Norwegian spot prices sit near 1 NOK/kWh but individual hours can fall
- * below 0.01, and rounding those to two decimals would render several distinct hours as
- * an identical "0.01".
- */
+/** Three decimals: spot prices sit near 1 NOK/kWh but individual hours fall below 0.01. */
 const priceFormatter = new Intl.NumberFormat(APP_LOCALE, {
   minimumFractionDigits: 2,
   maximumFractionDigits: 3,
@@ -29,16 +22,7 @@ const percentFormatter = new Intl.NumberFormat(APP_LOCALE, {
   maximumFractionDigits: 0,
 });
 
-/**
- * Whole counts — hours, days, rows. Grouped, and in the **app locale** like every other
- * number on the page.
- *
- * Every formatter here shares `APP_LOCALE` for exactly one reason: a page that groups
- * thousands one way and separates decimals another is unreadable. Under `nb-NO` that
- * meant "2 160 hours" beside "0,564"; under `en-GB` it means "2,160" beside "0.564". Each
- * is internally consistent — mixing them is what breaks, which is why no formatter in
- * this file ever hardcodes a locale of its own.
- */
+/** Whole counts — hours, days, rows. Grouped. */
 const countFormatter = new Intl.NumberFormat(APP_LOCALE, {
   maximumFractionDigits: 0,
 });

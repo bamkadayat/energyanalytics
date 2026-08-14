@@ -1,12 +1,8 @@
 /**
  * Single source of stable application configuration.
  *
- * Everything here is read through this module — no coordinate, area code, timezone,
- * or base URL literal may appear inside a feature. See context/architecture.md §9.
- *
- * Both providers are public and unauthenticated, so there are no secrets today. This
- * module stays the single door anyway, so that remains true by construction if one is
- * ever added.
+ * No coordinate, area code, timezone or base URL literal may appear inside a feature —
+ * see context/architecture.md §9.
  */
 
 /** IANA zone used for fetching, day selection, labels, and timestamp alignment. */
@@ -15,15 +11,10 @@ export const APP_TIME_ZONE = "Europe/Oslo" as const;
 /**
  * Locale for number and date formatting. Units always stay explicit alongside.
  *
- * `en-GB`, not `nb-NO` (2026-08-14). The interface is written in English and the document
- * is `lang="en"`, so Norwegian numerals were a genuine misreading risk rather than a
- * stylistic one: `1,322` NOK/kWh is *one point three two two*, but a screen reader in an
- * `en` document announces it as one thousand three hundred and twenty-two.
- *
- * `en-GB` rather than `en-US` because these formatters also produce every hour label in
- * the app. `en-US` renders `02:00 PM` where the market — and the rest of this interface —
- * says `14:00`. `en-GB` keeps 24-hour time and day-first dates, and only the separators
- * change: `1.322` and `2,160`.
+ * Must stay an `en-*` locale to match `lang="en"`: under `nb-NO`, `1,322` NOK/kWh is
+ * *one point three two two* but an English screen reader says one thousand three hundred
+ * and twenty-two. `en-GB` over `en-US` because these formatters also produce every hour
+ * label, and `en-US` renders `02:00 PM` where the market says `14:00`.
  */
 export const APP_LOCALE = "en-GB" as const;
 
@@ -64,10 +55,6 @@ export interface WeatherMetric {
   readonly unit: string;
 }
 
-/**
- * The only weather variables this app requests. Requesting more would inflate the
- * payload for data the interface never shows.
- */
 export const WEATHER_METRICS: Readonly<Record<WeatherMetricId, WeatherMetric>> = {
   wind: {
     id: "wind",
@@ -92,16 +79,13 @@ export const WEATHER_METRICS: Readonly<Record<WeatherMetricId, WeatherMetric>> =
 export const WEATHER_METRIC_IDS = Object.keys(WEATHER_METRICS) as WeatherMetricId[];
 
 /**
- * Query parameters that pin Open-Meteo's response to the contract this app assumes.
- * All three were verified against the live API.
+ * Pins Open-Meteo's response to the contract this app assumes. Dropping any of these
+ * changes the data silently:
  *
- * - `wind_speed_unit=ms`: Open-Meteo answers **km/h** by default. Without this, every
- *   wind reading would be ~3.6x too large while labelled "m/s" — a wrong chart that
- *   looks entirely plausible.
- * - `timeformat=unixtime`: the default returns naive local strings ("2026-08-09T00:00")
- *   whose zone lives in a separate field, which `new Date()` would silently read in the
- *   server's zone. Epoch seconds are unambiguous.
- * - `timezone`: makes `start_date`/`end_date` mean an Oslo calendar day.
+ * - `wind_speed_unit`: the default is km/h, so readings would be ~3.6x too large under an
+ *   "m/s" label
+ * - `timeformat`: the default is a naive local string whose zone lives in another field
+ * - `timezone`: makes `start_date`/`end_date` mean an Oslo calendar day
  */
 export const WEATHER_REQUEST_PARAMS = {
   timezone: APP_TIME_ZONE,
@@ -114,31 +98,18 @@ export const DEFAULT_WEATHER_METRIC: WeatherMetricId = "wind";
 /** Price unit shown throughout. Excludes VAT, grid charges, and other consumer costs. */
 export const PRICE_UNIT = "NOK/kWh" as const;
 
-/**
- * How many days of history the range views cover.
- *
- * 30 days is 720 hourly points — enough for the weekly shape to be visible in the
- * heatmap and for the duration curve to mean something, while staying one Open-Meteo
- * request and 30 cached price requests.
- */
+/** Days of history the range views cover — 720 hourly points. */
 export const RANGE_DAYS = 30;
 
 /**
- * Selectable range lengths, in days.
- *
- * Capped at 60 deliberately. The price API is one request per day, so a 90-day option
- * would fire 90 parallel requests at one host on a cold cache — a rate-limit risk for a
- * view nobody asked for. 60 days is still 1,440 hourly points.
+ * Selectable range lengths, in days. Capped at 60: the price API is one request per day,
+ * so a 90-day option would fire 90 parallel requests at one host on a cold cache.
  */
 export const RANGE_DAY_OPTIONS = [7, 14, 30, 60] as const;
 
 /**
- * Span of the hour-by-hour table at `/dashboard/hours` — about 2,200 rows.
- *
- * Ninety days rather than the range views' 60 because this view exists to be *large*:
- * sorting, filtering and scrolling only become interesting past a few thousand rows.
- * Open-Meteo serves the whole span in one request; prices are one request per day, all
- * cached, so the cost is paid once per day and shared with the range views below 60.
+ * Span of the hour-by-hour table at `/dashboard/hours` — about 2,200 rows. Larger than
+ * the range views because sorting and filtering only get interesting past a few thousand.
  */
 export const HOURS_TABLE_DAYS = 90;
 
@@ -149,18 +120,16 @@ export type DaySelection = "today" | "tomorrow";
 export const DEFAULT_DAY: DaySelection = "today";
 
 /**
- * Hour (in APP_TIME_ZONE) after which tomorrow's day-ahead prices are normally
- * published. Before this, an empty response means "not published yet" rather than an
- * error — the distinction drives both the UI state and the cache lifetime below.
+ * Hour (in APP_TIME_ZONE) after which tomorrow's day-ahead prices are normally published.
+ * Before it, an empty response means "not published yet" rather than an error.
  */
 export const TOMORROW_PRICES_PUBLISHED_HOUR = 13;
 
 /**
- * `cacheLife` profiles, keyed by what is being cached rather than by provider.
+ * `cacheLife` profiles, keyed by what is cached rather than by provider.
  *
- * `pricesPending` is deliberately the shortest: caching a not-yet-published miss for
- * hours would hide prices that appear moments later. Never reuse `pricesSettled` for
- * a pending day.
+ * `pricesPending` is the shortest on purpose: caching a not-yet-published miss for hours
+ * would hide prices that appear moments later. Never reuse `pricesSettled` for it.
  */
 export const CACHE_PROFILE = {
   weather: "hours",

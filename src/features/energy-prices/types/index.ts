@@ -13,15 +13,10 @@ export interface RawEnergyPrice {
 }
 
 /**
- * One validated hour of day-ahead spot price.
+ * One validated hour of day-ahead spot price. Narrower than the raw shape — EUR and the
+ * exchange rate are dropped at the boundary rather than shipped to the client.
  *
- * Deliberately narrower than the raw shape: the interface only ever renders NOK/kWh, so
- * EUR and the exchange rate are dropped at the boundary rather than shipped to the
- * client. `nokPerKwh` carries its unit in the name — this app handles three different
- * units across two axes, and a bare `value` is a latent domain bug.
- *
- * These are day-ahead spot prices. They exclude VAT, grid charges, and other consumer
- * costs, which the UI must state wherever prices appear.
+ * Excludes VAT and grid charges, which the UI must state wherever prices appear.
  */
 export interface EnergyPrice {
   /** Absolute instant the hour begins. Zone handling belongs to formatting/alignment. */
@@ -32,12 +27,8 @@ export interface EnergyPrice {
 }
 
 /**
- * Outcome of parsing a provider payload.
- *
- * An empty array is a successful parse with zero prices, **not** an error — for tomorrow
- * before publication the provider legitimately returns nothing. Distinguishing "no prices
- * yet" from "the payload was malformed" is the caller's job, and it needs both arms to do
- * it.
+ * An empty array is a successful parse with zero prices, not an error — before
+ * publication the provider legitimately returns nothing.
  */
 export type ParsePricesResult =
   | { ok: true; data: ParsedPrices }
