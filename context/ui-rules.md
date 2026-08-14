@@ -34,10 +34,11 @@ hard rules, not preferences.
 - **Spot price:** solid line, restrained area fill (`--chart-price-fill`), **left** axis,
   `NOK/kWh`.
 - **Weather metric:** **dashed** line, **right** axis, its own unit.
-- **The solid/dashed distinction is load-bearing accessibility.** All four series colors
-  sit at near-identical luminance and separate by hue alone (see the audit in
-  `ui-tokens.md`). Two solid lines would violate "never rely on color alone." Never
-  "simplify" the line styles.
+- **The solid/dashed distinction is load-bearing accessibility.** The chart is two tones
+  of navy (2026-08-14), so hue no longer separates the series at all — line style, the
+  separate axis, the differing units and the text legend are the whole of it. Two solid
+  lines would violate "never rely on color alone." Never "simplify" the line styles.
+  This mattered when the palette had four hues; it matters more now.
 - Both axes labelled with name **and** unit. Dual axes must never imply direct
   comparability — independent scales, obviously distinct.
 - Axis-triggered crosshair tooltip showing both values at the same timestamp.
@@ -104,14 +105,18 @@ Target WCAG 2.2 AA. Beyond the token-level contrast already verified:
 - Mobile layout first, enhanced upward. Controls stay operable at 200% zoom and at narrow
   widths.
 - Page width capped with `max-w-content`; spacing from Tailwind's default scale.
-- **Every button is `rounded-pill`.** Never style a button inline — import
+- **Buttons are `rounded-pill` by default.** Never style a button inline — import
   `Button` or `buttonClasses` from `shared/ui`. That module is the only place button
-  styling exists, and a test pins the radius, so consistency survives new authors.
+  styling exists, and tests pin the radius, so consistency survives new authors.
+  The one exception is the `radius="tight"` option (6px), used by the login submit button
+  and nothing else. Choose it by name; never reach for a `className` radius, which would
+  collide with the module's own and resolve by CSS source order.
 - `rounded-control` is for **inputs**: text fields, textareas, selects. The distinction
   is controls you press versus controls you type into.
-- `rounded-card` for cards, panels and banners. No other radii.
-- `shadow-card` for elevation, `shadow-popover` for overlays. Prefer a border to a shadow
-  for flat separation.
+- `rounded-card` for cards, panels and banners — a light 8px radius. No other radii.
+- **Cards carry no shadow.** Separation is border plus fill; there is no `shadow-card`
+  token. `shadow-popover` is for overlays that genuinely float above the page (menus,
+  tooltips) and is the only shadow in the system.
 
 ---
 

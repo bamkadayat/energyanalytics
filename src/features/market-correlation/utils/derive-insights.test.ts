@@ -104,34 +104,27 @@ describe("deriveInsights", () => {
     }
   });
 
-  it("compares the evening to the daily average without asserting a reason", () => {
+  it("never states an evening comparison", () => {
+    // Removed 2026-08-14. `deriveEveningComparison` still exists for other callers, so
+    // this pins that the list does not reach for it again.
     const aligned = day(
       Array.from({ length: 24 }, (_, hour) => (hour >= 17 && hour < 22 ? 2 : 1)),
     );
+    const combined = insightsFor(aligned)
+      .map((i) => i.text)
+      .join(" ");
 
-    const evening = insightsFor(aligned).find((i) => i.id === "evening");
-
-    expect(evening?.hour).toBe("17–21");
-    expect(evening?.text).toMatch(/evening hours/i);
-    expect(evening?.text).toMatch(/above the daily average/i);
-  });
-
-  it("says below when the evening is cheaper", () => {
-    const aligned = day(
-      Array.from({ length: 24 }, (_, hour) => (hour >= 17 && hour < 22 ? 0.5 : 2)),
-    );
-
-    expect(insightsFor(aligned).find((i) => i.id === "evening")?.text).toMatch(
-      /below the daily average/i,
-    );
+    expect(insightsFor(aligned).map((i) => i.id)).not.toContain("evening");
+    expect(combined).not.toMatch(/evening/i);
   });
 
   it("reports the metric peak with its own label and unit", () => {
-    const aligned = day([1, 2, 3], [4.4, 9.1, 2.2]);
+    // No prices, so the peak is not crowded out by the two price observations.
+    const aligned = day([null, null, null], [4.4, 9.1, 2.2]);
 
     expect(insightsFor(aligned).find((i) => i.id === "metric-peak")?.hour).toBe("01:00");
     expect(insightsFor(aligned).find((i) => i.id === "metric-peak")?.text).toMatch(
-      /wind speed peaks at 9,1 m\/s/i,
+      /wind speed peaks at 9\.1 m\/s/i,
     );
   });
 
@@ -144,8 +137,8 @@ describe("deriveInsights", () => {
     expect(ids).toContain("cheapest");
   });
 
-  it("stops at three, dropping the peak the KPI strip already states", () => {
-    // A full day produces four candidates: cheapest, priciest, evening, metric peak.
+  it("stops at two, dropping the peak the KPI strip already states", () => {
+    // A full day produces three candidates: cheapest, priciest, metric peak.
     const aligned = day(
       Array.from({ length: 24 }, (_, hour) => (hour >= 17 && hour < 22 ? 2 : 1)),
       Array.from({ length: 24 }, (_, hour) => hour),
@@ -153,14 +146,15 @@ describe("deriveInsights", () => {
 
     const ids = insightsFor(aligned).map((i) => i.id);
 
-    expect(ids).toEqual(["cheapest", "priciest", "evening"]);
+    expect(ids).toEqual(["cheapest", "priciest"]);
   });
 
-  it("keeps the peak when a price observation is missing", () => {
-    // Too short for an evening window, so there is room for the weather line.
-    const aligned = day([1, 2, 3], [4.4, 9.1, 2.2]);
+  it("keeps the peak when the price observations are missing", () => {
+    // The cap drops the peak only when there are two price observations ahead of it.
+    // With none, it fills the space rather than leaving the section empty.
+    const aligned = day([null, null, null], [4.4, 9.1, 2.2]);
 
-    expect(insightsFor(aligned).map((i) => i.id)).toContain("metric-peak");
+    expect(insightsFor(aligned).map((i) => i.id)).toEqual(["metric-peak"]);
   });
 
   it("returns nothing at all for an empty day", () => {

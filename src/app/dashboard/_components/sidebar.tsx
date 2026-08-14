@@ -36,7 +36,7 @@ export function DashboardSidebar({
       </div>
 
       <nav
-        aria-label="Dashboard filters"
+        aria-label="Dashboard"
         className="flex flex-1 flex-col gap-7 overflow-y-auto px-3 py-5"
       >
         <RailContent params={params} active={active} />

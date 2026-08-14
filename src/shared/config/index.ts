@@ -12,8 +12,20 @@
 /** IANA zone used for fetching, day selection, labels, and timestamp alignment. */
 export const APP_TIME_ZONE = "Europe/Oslo" as const;
 
-/** Locale for number and date formatting. Units always stay explicit alongside. */
-export const APP_LOCALE = "nb-NO" as const;
+/**
+ * Locale for number and date formatting. Units always stay explicit alongside.
+ *
+ * `en-GB`, not `nb-NO` (2026-08-14). The interface is written in English and the document
+ * is `lang="en"`, so Norwegian numerals were a genuine misreading risk rather than a
+ * stylistic one: `1,322` NOK/kWh is *one point three two two*, but a screen reader in an
+ * `en` document announces it as one thousand three hundred and twenty-two.
+ *
+ * `en-GB` rather than `en-US` because these formatters also produce every hour label in
+ * the app. `en-US` renders `02:00 PM` where the market — and the rest of this interface —
+ * says `14:00`. `en-GB` keeps 24-hour time and day-first dates, and only the separators
+ * change: `1.322` and `2,160`.
+ */
+export const APP_LOCALE = "en-GB" as const;
 
 /** Price area covered by the first release. */
 export const PRICE_AREA = {

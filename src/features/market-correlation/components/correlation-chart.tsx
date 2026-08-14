@@ -150,9 +150,19 @@ function buildOption(series: ChartSeries, palette: ChartPalette): EChartsOption 
         yAxisIndex: 0,
         data: series.prices as Array<number | null>,
         showSymbol: false,
-        // Solid, with a restrained fill. Together with the dashed metric line below this
-        // is what stops the chart depending on colour alone — see ui-tokens.md.
-        lineStyle: { color: palette.price, width: 2, type: "solid" },
+        /*
+         * Solid, with a restrained fill. Together with the dashed metric line below this
+         * is what stops the chart depending on colour alone — see ui-tokens.md.
+         *
+         * 1 rather than 2 (2026-08-14, on request, via 1.5): at navy-800 across a
+         * full-width card the heavier strokes read as bulk. 1 is the floor — below it
+         * canvas renders sub-pixel and the line thins inconsistently across the width.
+         *
+         * The metric line below moved with it. Thinning only this one would leave the
+         * dashed secondary series visually outweighing the primary, which inverts what
+         * the chart is about.
+         */
+        lineStyle: { color: palette.price, width: 1, type: "solid" },
         itemStyle: { color: palette.price },
         areaStyle: { color: palette.priceFill },
         // Gaps stay gaps. Connecting across them would invent data.
@@ -164,7 +174,8 @@ function buildOption(series: ChartSeries, palette: ChartPalette): EChartsOption 
         yAxisIndex: 1,
         data: series.metricValues as Array<number | null>,
         showSymbol: false,
-        lineStyle: { color: palette.metric, width: 2, type: "dashed" },
+        // Matches the price line's weight; see the note there for why they move together.
+        lineStyle: { color: palette.metric, width: 1, type: "dashed" },
         itemStyle: { color: palette.metric },
         connectNulls: false,
       },

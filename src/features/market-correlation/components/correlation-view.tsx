@@ -122,26 +122,17 @@ export async function CorrelationView({ params }: { params: ViewParams }) {
           />
 
           {/*
-            The rail beside the chart: what the chart says, then the one figure that is a
-            decision rather than a reading.
-          */}
-          {/*
-            Three arrangements, one for each amount of room:
-            - phone: one column, each card full width
-            - tablet and laptop, where the chart has gone full width above: the two cards
-              sit side by side, so a short card is not a full-width band of white
-            - `xl` and up: back to one column, because here they *are* the column beside
-              the chart
+            What the chart says, then the one figure that is a decision rather than a
+            reading. Stacked until `xl`, side by side from there — `md` and `lg` are not
+            wide enough once the rail is subtracted.
 
-            `items-start` so the shorter card keeps its own height rather than being
-            stretched to the taller one's.
+            The two cards share a row height. This carried `xl:items-start` until
+            2026-08-14, on the argument that a short card should keep its own height
+            rather than be padded with white; capping the observations at two made the
+            mismatch the more visible of the two problems, so the row stretches now.
+            Grid's default `stretch` does it — there is no utility to add.
           */}
-          {/*
-            Stacked until `xl`, side by side from there — `md` and `lg` are not wide
-            enough once the rail is subtracted. `items-start` so the shorter card is not
-            stretched to its neighbour and padded with white.
-          */}
-          <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
+          <div className="grid gap-4 xl:grid-cols-2">
             <div className="rounded-card border border-line bg-surface p-4">
               <InsightsList insights={insights} />
             </div>

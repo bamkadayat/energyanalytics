@@ -13,12 +13,16 @@ import {
 export default function HoursLoading() {
   return (
     <div className="flex min-h-screen bg-page">
-      <RailSkeleton />
+      <RailSkeleton active="hours" />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <HeaderSkeleton>
-          {/* The `h1` — "All hours" plus a scope line that only appears from `sm`. */}
-          <Skeleton className="h-6 w-24 shrink-0 sm:w-56" />
+          {/*
+            The `h1` — "All hours", plus "90 days" from `sm`. `sm:w-56` reserved room for
+            the longer `· NO1 · Europe/Oslo` this header used to carry; leaving it there
+            would make the header visibly narrow as the skeleton resolved.
+          */}
+          <Skeleton className="h-6 w-24 shrink-0 sm:w-36" />
 
           {/*
             `DataNote`, which is a labelled pill from `sm` — the previous version reserved
@@ -29,7 +33,10 @@ export default function HoursLoading() {
           </div>
         </HeaderSkeleton>
 
-        <main className="flex min-w-0 flex-1 flex-col gap-6 px-4 py-6 sm:px-6">
+        {/* `gap-2` and a back-link row, matching the real `main` above the heading. */}
+        <main className="flex min-w-0 flex-1 flex-col gap-2 px-4 py-6 sm:px-6">
+          <Skeleton className="h-5 w-24" />
+
           <HoursTableSkeleton />
         </main>
       </div>

@@ -98,7 +98,8 @@ and a component per element would be the same rule copied three times.
 
 | Variant | Use |
 | --- | --- |
-| `primary` | the main action (sign in) |
+| `primary` | the main action |
+| `primary-soft` | `primary` with rest and hover fills swapped — the login submit button |
 | `secondary` | supporting action on a light surface |
 | `outline` | low-emphasis action (sign out, retry) |
 | `inverse` | on `--surface-inverse` — a white pill against navy |
@@ -144,12 +145,87 @@ taller than its neighbour.
 > a peer of the primary. The variant is kept, defined and tested for the next
 > two-actions-on-navy case; delete it if none arrives.
 
-**Every variant is `rounded-pill`**, and a test asserts it — buttons had previously
-drifted between `rounded-pill` and `rounded-control` because each was styled at its call
-site. Every variant also carries a `disabled:` treatment, so a disabled button never
-still looks pressable.
+**`primary-soft` runs the interaction one direction.** It rests at
+`--action-primary-hover` (navy-800) and *darkens* to `--action-primary` (navy-900) under
+the cursor, pressing to `--action-primary-active` (navy-950) — 800 → 900 → 950. `primary`
+lightens on hover and then darkens on press, which is the same three tokens in a
+non-monotonic order. Contrast does not decide between them: white clears **15.68:1** on
+navy-800 and **18.67:1** on navy-900, both far past AA. Added 2026-08-14 on request, for
+the login submit button.
+
+**Every variant is `rounded-pill` by default**, and a test asserts it — buttons had
+previously drifted between `rounded-pill` and `rounded-control` because each was styled at
+its call site. Every variant also carries a `disabled:` treatment, so a disabled button
+never still looks pressable.
+
+| Radius | Value | Use |
+| --- | --- | --- |
+| `pill` | `9999px` | default — every button |
+| `tight` | `0.375rem` (6px) | the login submit button, and nothing else |
+
+`tight` was added 2026-08-14 on request. It is a **named option, not a `className`
+override**: two radius classes in one string resolve by CSS source order rather than by
+which was written last, so an escape hatch that looked like `rounded-[6px]` would be
+silently unpredictable. Tests assert a button emits exactly one radius class, that `pill`
+is the default, and that `tight` is opt-in — so the set of radii a button can have stays
+enumerable.
 
 ---
+
+## Text fields
+
+`src/shared/ui/field.tsx` — the **only** place text-field styling is written, for the
+same reason `button.tsx` exists. Import `Field`, and `fieldInputClasses` for the bare
+input inside it; never write the chrome inline.
+
+Fields had drifted into three spellings, because each was styled where it was used:
+
+| Where | Border | Ring |
+| --- | --- | --- |
+| login password | `border-line-strong` | `focus-within` |
+| hours-table search | `border-line` | `focus-visible` |
+| earlier login (superseded) | `border-line` on `bg-surface-subtle` | absolute `FiLock`, `pl-10` |
+
+**`border-line-strong` is the one that survives, and not by preference.** A control's
+boundary has to clear 3:1 to be a boundary; the hairline `--line` token does not. The
+search field was genuinely under-contrast — unifying fixed it rather than splitting the
+difference.
+
+- `Field` owns the label, the bordered shell, the error paragraph, and the identifier all
+  three have to agree on. The control arrives through a **render prop** receiving
+  `{ id, "aria-describedby", "aria-invalid" }` — spread it: `<input {...control} />`.
+  A plain-children sandwich would leave every caller to re-derive that wiring, which is
+  the duplication the module exists to remove
+- **the error prop is also the invalid state.** Passing `error` sets `aria-invalid`, so
+  the two can never disagree
+- **labels are sentence case**, not the mono uppercase micro-caps used elsewhere. That
+  treatment marks instrument readouts — timestamps, price areas, units. A field label is
+  prose, and dressing it as a readout made a form read as a column header
+- the shell is a **flex row**, so a leading icon is simply the first child. No `absolute`
+  placement, no `pl-9` on the input to clear it
+- the input contributes no chrome: the shell owns the border and the ring, and the input's
+  own outline is suppressed so two rings do not nest
+- **layout stays outside.** `Field` takes no `className`; width and flex belong to the
+  parent. Letting callers pass classes in is how the three spellings arrived
+
+| Size | Padding | Use |
+| --- | --- | --- |
+| `sm` | `px-3 py-2 text-sm` | dense chrome — a table toolbar, beside checkboxes |
+| `md` | `px-3 py-2.5` | default; a control someone came to the page to use |
+
+`PasswordField` (`src/shared/ui/password-field.tsx`) composes `Field` and **owns its own
+visibility state**. Nothing outside the control reads that flag, so lifting it into a
+caller-side hook would hand every form a piece of state to thread through and forget to
+reset. Owning it is what makes the component droppable into any form with no wiring.
+
+- **Show/Hide is a real toggle**: `aria-pressed` says which way it is set, the visible
+  word says what pressing it does. Different questions, both answered
+- it is **bare text, not a bordered chip.** A second boxed control inside the field's own
+  box read as a button competing with the submit, when all it does is change how one field
+  renders
+- it keeps its **own `focus-visible` ring**, because without a border the shell's
+  `focus-within` glow would be the only response to tabbing there — and that says "the
+  field is focused", not "this is"
 
 ## Logo mark and wordmark
 
@@ -259,8 +335,8 @@ text-fg-muted` meta line joining price area · weather location · timezone with
 Those three facts are the caveats the page must never bury, so the structure states them
 rather than decorating.
 
-**Mono for data.** Geist Mono is used for times, dates, numbers and provenance; Geist
-Sans for prose. Within a fixed single-family token system this is the one typographic
+**Mono for data.** Geist Mono is used for times, dates, numbers and provenance; Inter
+for prose. Within a fixed single-family token system this is the one typographic
 distinction available, and it earns its place by marking which text is instrument
 readout and which is explanation.
 
@@ -324,18 +400,43 @@ full-width work area, which is the layout that reads as an application rather th
 - the rail is **dark** (`bg-surface-rail`, navy-900) against a light work area. Not
   decoration: it separates chrome from content without a heavier border, and it carries
   the same ink the landing page's bento cards use, so the two halves look like one product
-- **sidebar** (`w-60`, sticky, full height) carries the brand, the filters and Logout.
-  Every entry is a **real filter or a real anchor** — a rail of dead links looks like a
-  dashboard and behaves like a mock-up
+- **sidebar** (`w-60`, sticky, full height) carries the brand, the navigation and filters,
+  and Logout. Every entry is a **real filter or a real anchor** — a rail of dead links
+  looks like a dashboard and behaves like a mock-up
+- **the rail is also a way back.** The wordmark links to `/dashboard`, and "Hour by
+  hour" / "Range views" are absolute hrefs, so they return from `/dashboard/hours` rather
+  than being dead anchors. Below `lg` the rail is hidden and the drawer carries the same
+  content — which is why its trigger says **"Open menu"**, not "Open filters" as it did
+  until 2026-08-14. Someone looking for a way back does not open a thing labelled filters,
+  and a screen-reader user got the same misdirection
+- **but the rail is not a discoverable way back**, which is why `/dashboard/hours` grew an
+  explicit `← Dashboard` link in its header on 2026-08-14. A wordmark reads as a logo, and
+  the two `Views` anchors read as jumps within the page you are already on — so the rail
+  presented "All hours" as current with no visible exit. See *The hours table*
 - items are `rounded-control px-3 py-2`; active is a **fill, an inset ring and a weight
   change** (`bg-surface-rail-active inset-ring-line-inverse-strong font-medium`) plus
   `aria-current`. The fill alone would be colour carrying meaning on its own, and it is
   only 1.19:1 against the rail — it was also the hover fill, so an unselected row under
   the cursor looked selected. The ring (3.3:1) is what makes selection visible; hover
   stays the fill alone
-- **metrics carry a colour swatch, not an icon.** A thermometer beside "Temperature"
-  repeats the word; the swatch says what the label cannot — which line in the chart this
-  is. Unit chips sit on the right (`border-line-inverse-strong`)
+- **metrics carry no swatch and no icon** — just the label, with the unit chip on the
+  right (`border-line-inverse-strong`). A thermometer beside "Temperature" would repeat
+  the word, and the unit is the part that says something the label does not
+
+  > **The swatch was removed 2026-08-14**, closing the open question logged here. It read
+  > `var(--chart-${id})`, and the two-tone chart points all three metric tokens at
+  > `--navy-500` — deliberately, because the chart plots one metric at a time. But the
+  > rail lists all three *side by side*, where three matching dots read as bullet points
+  > rather than as a legend. The argument for the swatch was that it distinguished the
+  > rows; once it stopped doing that, nothing was left. Reinstate it only if the metric
+  > tokens are ever re-differentiated.
+- **the metric group is not drawn on `/dashboard/hours`** (2026-08-14). The hours table
+  renders temperature, wind and solar as three columns at once and never reads
+  `params.metric`, so each entry took the selected fill and `aria-current` and changed
+  nothing on screen. The param still round-trips in the URL, so a metric chosen on the
+  dashboard survives the trip through the hours page and back. `RailSkeleton` takes the
+  same `active` prop and reserves one group fewer there — `shell-skeleton.test.tsx` pins
+  both shapes against the real rail
 - badges are live data (the loaded range), not decoration
 - Logout is pinned to the bottom behind a divider: used once a session, so it does not
   deserve space next to the data
@@ -359,11 +460,14 @@ full-width work area, which is the layout that reads as an application rather th
 - carries the **day switch, once.** It used to exist twice, in the rail and above the
   chart, for one piece of state: two places to look when the wrong day is showing, and two
   things to keep in sync
-- a segmented pill of **links** (`bg-surface-subtle` track, `bg-surface shadow-card` on the
-  selected one) with `aria-current` — a chosen day is shareable and the back button steps
+- a segmented pill of **links** (`bg-surface-subtle` track, `bg-surface` on the selected
+  one) with `aria-current` — a chosen day is shareable and the back button steps
   through previous ones
-- `ScopeLine` states the price area and the weather point beside it. Two caveats this page
-  must never bury, so they sit next to the control rather than in a footnote
+- **`ScopeLine` removed 2026-08-14**, on request. It stated the price area and the weather
+  point (`NO1 East Norway · Oslo`) beside the day switch, on the argument that they are
+  caveats the page must never bury. Both are still stated: the `sr-only` `h1` names them,
+  and `data-note.tsx` carries the required "Oslo as a representative location within NO1"
+  qualifier that `ui-rules.md` mandates near the chart. The header no longer repeats them
 - `DateChip` resolves "today" to an **absolute date**, right-aligned. It is `async` because
   resolving it reads the clock, so it renders behind its own `<Suspense>` with a
   same-footprint placeholder rather than making the whole header request-time
@@ -544,6 +648,16 @@ owns the announcement). `market-correlation/components/skeletons.tsx` composes t
 `hours-table.tsx` — every hour of the last 90 days (~2,160 rows) in one scrollable table,
 reached from the rail's **All hours** entry.
 
+- **`← Dashboard` opens the content column**, directly above the `Every hour, …` heading
+  (`FiArrowLeft` + label, `text-fg-secondary`, `w-fit`). It began in the header's title
+  row and moved here on request — the heading is what it returns you from, so `main` runs
+  at `gap-2` rather than `gap-6` to keep the two reading as one block. A plain text link,
+  not a button: leaving is not the page's primary action. It carries the current view
+  params, and takes the default scroll-to-top — holding the table's offset would land you
+  partway down the dashboard
+- **it sits outside the `Suspense`**, and so outside `hours-view.tsx` where the `h2` it
+  precedes actually lives. On a cold cache the table is ninety price requests away, and
+  the way out must not be the thing you wait for. `loading.tsx` reserves a matching row
 - **Only the visible window is in the DOM** (`useVirtualizer`): roughly 25 rows mounted at
   any scroll position, whatever the page holds. The `tbody` is as tall as the whole page
   of rows and each drawn row is positioned into it, so the scrollbar describes the data
@@ -562,6 +676,10 @@ reached from the rail's **All hours** entry.
   `SCROLLER_HEIGHT` in the component mirrors it as the pre-measurement estimate
 - controls are a **search box, a "only hours with a price" checkbox and a page size**
   (100/500/1000), with `1–100 of 2,160 hours` in `aria-live`
+- the search box is **`Field size="sm"`** from `shared/ui` — see *Text fields*. It was
+  hand-rolled at `border-line`, which does not clear 3:1; the shared shell also let the
+  `FiSearch` icon become a flex child instead of an absolutely positioned one with `pl-9`
+  clearing it. Its label moved from mono uppercase to sentence case with the migration
 - rows are **primitives from the server** — epoch milliseconds and a pre-formatted label,
   never `Date` objects. A few thousand `Intl` calls before the first paint is the cost of
   formatting on the client
@@ -590,7 +708,10 @@ behind an info control in the page header.
 
 ---
 
-## Session call to action
+## Session call to action (removed)
+
+**Removed 2026-08-14** with the landing page — the app is login and dashboard only.
+Kept for the reasoning, which outlives the markup.
 
 `src/app/_components/session-cta.tsx` — used in the navbar (`size="sm"`), the hero and
 the closing band (both `size="lg"`).
@@ -655,10 +776,14 @@ ink, no filled surface**, with the back link outside the card.
 - **no explanatory paragraph.** One used to state that there are no accounts. A labelled
   field and a button do not need a sentence describing them, and it was read past rather
   than read; the demo note carries what mattered
-- the field is a bordered row owning its focus ring via `focus-within`; the input's own
-  outline is suppressed so two rings do not nest
-- **Show/Hide is a real toggle**: `aria-pressed` says which way it is set, the visible
-  word says what pressing it does. Those are different questions and both get an answer
+- **the field is `PasswordField` from `shared/ui`** — see *Text fields*. It was written
+  inline here until the primitive existed, and `login-form.tsx` is now only the part that
+  is about logging in: binding the server action and reporting what it said
+- **no lock icon in the field.** It restated the label and the bullets without adding a
+  third fact, and it was the only ornament on a route whose whole argument is that it has
+  one field and one button
+- **the label is sentence case**, not the mono uppercase it wore first. Mono marks data;
+  a label is prose
 - source links sit inside the card behind a divider
 - **the demo-password note is untinted.** It first used the `info` family, which put a pale
   blue block on a page with no other colour; the restraint pass had already removed exactly
@@ -717,7 +842,10 @@ cannot work is worse than a missing one.
 Adding `dashboard/loading.tsx` also moved that route from fully dynamic to a partial
 prerender, since the Suspense boundary lets Next ship a shell.
 
-## Site footer
+## Site footer (removed)
+
+**Removed 2026-08-14** with the landing page — the app is login and dashboard only.
+Kept for the reasoning, which outlives the markup.
 
 `src/app/_components/site-footer.tsx` — `border-t border-line bg-page`, wordmark and
 source links on one row, small print below.
@@ -731,7 +859,10 @@ source links on one row, small print below.
   under Cache Components with `blocking-prerender-current-time`, and a year hard-coded
   today is wrong in January
 
-## Closing call-to-action band
+## Closing call-to-action band (removed)
+
+**Removed 2026-08-14** with the landing page — the app is login and dashboard only.
+Kept for the reasoning, which outlives the markup.
 
 `src/app/_components/closing-cta.tsx` — a navy panel inset from the page edges, closing
 the landing page.
@@ -749,7 +880,10 @@ Three CTAs now share one page. They are all the same component with the same lab
 they cannot disagree about the session — but they are not interchangeable: the navbar is a
 **text link**, while the hero and this band are **pills**. One page, one primary action.
 
-## Open Graph image
+## Open Graph image (removed)
+
+**Removed 2026-08-14** with the landing page — the app is login and dashboard only.
+Kept for the reasoning, which outlives the markup.
 
 `src/app/opengraph-image.tsx` — the link preview card, 1200×630.
 
@@ -769,7 +903,10 @@ they cannot disagree about the session — but they are not interchangeable: the
 - `PREVIEW_DAY` is a constant, so nothing reads the clock and Next generates it once at
   build time
 
-## Landing page motion
+## Landing page motion (removed)
+
+**Removed 2026-08-14** with the landing page — the app is login and dashboard only.
+Kept for the reasoning, which outlives the markup.
 
 Two utilities in `globals.css`, both pure CSS — the landing page needs no client
 JavaScript and stays prerendered.
@@ -791,7 +928,10 @@ rule alone would leave the reveals fully active for users who asked for less mot
 
 Current stagger: header 0 → headline 90ms → subtitle 180ms → CTA 270ms → visual 340ms.
 
-## Bento metric cards
+## Bento metric cards (removed)
+
+**Removed 2026-08-14** with the landing page — the app is login and dashboard only.
+Kept for the reasoning, which outlives the markup.
 
 `_components/metric-highlights.tsx` + `_components/spotlight-card.tsx`.
 
@@ -854,7 +994,10 @@ metric, on a `bg-page` section.
 - the featured card overrides the focus ring (`focus-visible:outline-fg-inverse`), since
   the global `--focus` navy is invisible on it
 
-## Landing hero band
+## Landing hero band (removed)
+
+**Removed 2026-08-14** with the landing page — the app is login and dashboard only.
+Kept for the reasoning, which outlives the markup.
 
 `src/app/page.tsx` — the band holding the headline, the CTAs and the preview card, over a
 photograph of the region the data describes.
@@ -904,7 +1047,10 @@ photograph of the region the data describes.
   200% zoom, or on a short landscape phone, a fixed height clips the headline and the CTAs
   instead of reflowing — the same rule as `--chart-min-height`, for the same reason
 
-## Hero preview card
+## Hero preview card (removed)
+
+**Removed 2026-08-14** with the landing page — the app is login and dashboard only.
+Kept for the reasoning, which outlives the markup.
 
 `src/app/_components/hero-preview.tsx` — the dashboard preview beside the headline.
 

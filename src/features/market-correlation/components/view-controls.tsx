@@ -75,7 +75,7 @@ function SegmentedLinks({
               aria-current={option.selected ? "page" : undefined}
               className={
                 option.selected
-                  ? "block rounded-pill border border-line-selected bg-surface px-3 py-1 text-sm font-medium text-fg shadow-card"
+                  ? "block rounded-pill border border-line-selected bg-surface px-3 py-1 text-sm font-medium text-fg"
                   : // Same border width in the container's colour, so selecting cannot
                     // shift the layout.
                     "block rounded-pill border border-page px-3 py-1 text-sm text-fg-secondary hover:text-fg"

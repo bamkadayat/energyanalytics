@@ -23,7 +23,7 @@ import {
   formatPrice,
   MISSING_VALUE,
 } from "@/shared/lib/format-number";
-import { Button } from "@/shared/ui";
+import { Button, Field, fieldInputClasses } from "@/shared/ui";
 import type { HourRecord } from "../utils/derive-hour-rows";
 
 /** Row height in pixels. Fixed, because the virtualizer measures before it paints. */
@@ -159,27 +159,44 @@ export function HoursTable({ rows }: { rows: HourRecord[] }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end gap-3">
-        <label className="flex min-w-0 flex-1 flex-col gap-1 sm:max-w-xs">
-          <span className="font-mono text-[0.6875rem] uppercase tracking-wider text-fg-muted">
-            Find an hour
-          </span>
-          <span className="relative flex items-center">
-            <FiSearch
-              aria-hidden="true"
-              className="pointer-events-none absolute left-3 size-4 text-fg-muted"
-            />
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => {
-                setSearch(event.target.value);
-                table.setPageIndex(0);
-              }}
-              placeholder="10.08, 14:00, august…"
-              className="w-full rounded-control border border-line bg-surface py-2 pl-9 pr-3 text-sm text-fg placeholder:text-fg-muted focus-visible:outline-focus"
-            />
-          </span>
-        </label>
+        {/*
+          Sizing lives on the wrapper rather than as a `className` prop on `Field`. How
+          wide this sits in the toolbar is the toolbar's business; letting callers pass
+          classes into the primitive is how the three spellings of a text field got here.
+        */}
+        <div className="min-w-0 flex-1 sm:max-w-xs">
+          <Field label="Find an hour" size="sm">
+            {(control) => (
+              <>
+                {/*
+                  The shell is a flex row, so the icon is simply the first child — no
+                  `absolute` placement and no `pl-9` on the input to clear it.
+                */}
+                <FiSearch
+                  aria-hidden="true"
+                  className="size-4 shrink-0 text-fg-muted"
+                />
+                <input
+                  {...control}
+                  type="search"
+                  value={search}
+                  onChange={(event) => {
+                    setSearch(event.target.value);
+                    table.setPageIndex(0);
+                  }}
+                  /*
+                    Examples that actually match. The filter is a substring test against
+                    the pre-formatted label (`10 Aug, 14:00`), so the previous
+                    `10.08, 14:00, august…` offered two examples that returned nothing —
+                    the label has never contained either `10.08` or a full month name.
+                  */
+                  placeholder="10 Aug, 14:00…"
+                  className={fieldInputClasses}
+                />
+              </>
+            )}
+          </Field>
+        </div>
 
         <label className="flex items-center gap-2 py-2 text-sm text-fg-secondary">
           <input

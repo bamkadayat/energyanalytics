@@ -25,6 +25,18 @@ export function proxy(request: NextRequest) {
   const signedIn = isValidSessionToken(getAuthSecret(), token, Date.now());
   const { pathname } = request.nextUrl;
 
+  /*
+   * There is no public page any more — the landing page is gone and the app is login and
+   * dashboard. `/` is still the address people type, so it forwards rather than 404s.
+   *
+   * Unconditionally to /login, not branched on `signedIn`: the rule below already sends a
+   * signed-in visitor from /login to /dashboard, and duplicating that decision here would
+   * be two places to keep in agreement. A signed-in visitor pays one extra 307 for it.
+   */
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
   // Signed in, but sitting on the login form: its only outcome is where they already
   // have access to.
   if (signedIn && pathname === "/login") {
@@ -39,5 +51,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login"],
+  matcher: ["/", "/dashboard/:path*", "/login"],
 };

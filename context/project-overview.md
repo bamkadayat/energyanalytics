@@ -19,10 +19,15 @@ The first release supports:
 Keep the prototype focused. Do not add a database, global state management, WebSockets, or speculative production infrastructure unless the user explicitly expands the scope.
 
 **Scope expanded 2026-08-09:** the user added a public landing page and a password gate.
-The app is now three routes — `/` (static hero), `/login`, and `/dashboard` (the explorer,
-protected). Authentication is a single shared password in an env var, verified server-side
-and carried in a signed httpOnly cookie. No database, no user records, no auth library.
-Everything else above still holds.
+Authentication is a single shared password in an env var, verified server-side and carried
+in a signed httpOnly cookie. No database, no user records, no auth library.
+
+**Scope narrowed 2026-08-14:** the landing page was removed on request. The app is
+**two routes** — `/login` and `/dashboard` (the explorer, protected). `/` is not a page:
+Proxy forwards it to `/login`, which forwards on to `/dashboard` when a session is valid.
+Nothing is public any more, so the Open Graph image and social metadata went with it and
+`robots: index:false` now applies everywhere rather than being a default one route opted
+out of. Everything else above still holds.
 
 ## Data Sources and Domain Truths
 

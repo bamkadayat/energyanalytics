@@ -48,7 +48,7 @@ export function ChartToolbar({
                 // Fill plus weight, so selection is never carried by colour alone.
                 className={
                   preset.selected
-                    ? "block rounded-control border border-line bg-surface px-3 py-1.5 text-sm font-medium text-fg shadow-card"
+                    ? "block rounded-control border border-line bg-surface px-3 py-1.5 text-sm font-medium text-fg"
                     : // Same border width in the container's colour, so selecting cannot
                       // shift the row.
                       "block rounded-control border border-page px-3 py-1.5 text-sm text-fg-secondary hover:text-fg"

@@ -28,19 +28,43 @@ export interface RailContentProps {
  */
 export const RAIL_VIEW_COUNT = 3;
 
+/**
+ * Rows per rail group, in order, for `RailSkeleton` to reserve.
+ *
+ * A function rather than a constant because the rail is no longer the same shape on both
+ * routes — `/dashboard/hours` drops the metric group. The skeleton reserving a group the
+ * real rail will not draw is the same drift `RAIL_VIEW_COUNT` exists to prevent.
+ */
+export function railGroupRows(active: RailContentProps["active"] = "day") {
+  return active === "hours"
+    ? [RAIL_VIEW_COUNT]
+    : [WEATHER_METRIC_IDS.length, RAIL_VIEW_COUNT];
+}
+
 export function RailContent({ params, active = "day" }: RailContentProps) {
   return (
     <>
-      <Group label="Weather metric">
-        {WEATHER_METRIC_IDS.map((id) => (
-          <MetricLink
-            key={id}
-            href={hrefWith(params, { metric: id })}
-            selected={params.metric === id}
-            id={id}
-          />
-        ))}
-      </Group>
+      {/*
+        Not on `/dashboard/hours`. The table there draws temperature, wind and solar as
+        three columns at once and never reads `params.metric`, so every entry in this
+        group was a link that took the selected fill and `aria-current` and changed
+        nothing on screen — the dead-link failure the rail is otherwise careful to avoid.
+
+        The parameter still round-trips in the URL, so a metric chosen on the dashboard is
+        still the one showing when the header's back link returns you to it.
+      */}
+      {active !== "hours" ? (
+        <Group label="Weather metric">
+          {WEATHER_METRIC_IDS.map((id) => (
+            <MetricLink
+              key={id}
+              href={hrefWith(params, { metric: id })}
+              selected={params.metric === id}
+              id={id}
+            />
+          ))}
+        </Group>
+      ) : null}
 
       <Group label="Views">
         {/* Absolute hrefs: from `/dashboard/hours` a bare `#day-view` would do nothing. */}
@@ -76,8 +100,15 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
 }
 
 /**
- * A metric, carrying the colour it is drawn in. The swatch says what the label cannot —
- * which line in the chart this is. Selection is fill plus weight, never the swatch.
+ * A metric, with the unit it is measured in.
+ *
+ * It carried a `--chart-${id}` swatch until 2026-08-14, on the reasoning that the colour
+ * said what the label cannot — which line in the chart this is. That stopped being true
+ * when the palette went to two tones of navy: all three metric tokens now resolve to the
+ * same `--navy-500` (deliberately — see `globals.css` — since the chart only ever draws
+ * one of them at a time). The rail draws all three side by side, so what was a legend
+ * became three identical squares reading as bullet points. The unit badge is the part
+ * that still distinguishes them.
  */
 function MetricLink({
   href,
@@ -106,11 +137,6 @@ function MetricLink({
             : "flex items-center gap-3 rounded-control px-3 py-2 text-sm text-fg-inverse-muted hover:bg-surface-rail-active hover:text-fg-inverse"
         }
       >
-        <span
-          aria-hidden="true"
-          className="size-2.5 shrink-0 rounded-[3px]"
-          style={{ backgroundColor: `var(--chart-${id})` }}
-        />
         <span className="flex-1 truncate">{WEATHER_METRICS[id].label}</span>
         <span className="shrink-0 rounded-pill border border-line-inverse-strong px-2 py-0.5 font-mono text-[0.625rem] text-fg-inverse-muted">
           {WEATHER_METRICS[id].unit}

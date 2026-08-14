@@ -62,6 +62,138 @@ Plus an unplanned track, added on request partway through and not in `build-plan
 
 ## Completed
 
+### 2026-08-14 — Flat cards, and a way out of the hours page
+
+Two requests, both narrowing what the UI does rather than adding to it.
+
+- **`--shadow-card` is gone.** Its four call sites were all the *selected* segment of a
+  segmented control — the actual cards were already border-only, so "remove the shadow on
+  the cards" meant removing it from the toggles. Each still reads as selected on fill plus
+  weight, and two of them on a border as well, so nothing lost its state indication.
+  `shadow-popover` stays: the data-note tooltip genuinely floats above the page, and it is
+  now the only shadow in the system.
+- **`--radius-card` 0.75rem → 0.5rem**, on request. Token-level, so it reaches the login
+  card and `StatusMessage` too, not only the dashboard. Isolating it to the dashboard
+  would have meant a second card radius, which `ui-rules.md` forbids outright.
+- **`/dashboard/hours` had no discoverable way back** — asked as a question, which is the
+  finding. The rail did link home twice over, but a wordmark reads as a logo and the
+  `Views` entries read as anchors on the current page, so the rail showed "All hours" as
+  current with no visible exit. Now an explicit `← Dashboard` sits above the
+  `Every hour, …` heading, carrying the current params. It was in the header's title row
+  first and moved on request; either way it stays outside the `Suspense`, because the way
+  out should not wait on ninety price requests. Mirrored in `hours/loading.tsx`.
+- **The metric swatches are gone**, closing an open question the registry had already
+  logged. Three dots that all resolve to `--navy-500` are not a legend. The chart is
+  right to keep the tokens identical — it plots one metric at a time — but the rail lists
+  all three side by side, and there the swatch had stopped doing the one thing it was
+  argued for.
+- **The metric group no longer renders on `/dashboard/hours`.** The hours table shows all
+  three metrics as columns and ignores `params.metric`, so those three links took the
+  selected fill and `aria-current` and changed nothing. `RailSkeleton` now takes `active`
+  and reserves one group fewer there; a second test pins that shape too.
+
+### 2026-08-14 — English interface, English numbers
+
+`APP_LOCALE` was `nb-NO` in a document that is `lang="en"`.
+
+- **This was a correctness bug, not a style choice.** `1,322` NOK/kWh means *one point
+  three two two*; an English screen reader announces it as one thousand three hundred and
+  twenty-two. The prior fix had been to mark the landing page's figures with `lang`
+  (WCAG 2.2 §3.1.2) and log the dashboard as owed work — switching the locale removes the
+  mismatch instead, and **closes that known risk** without rebuilding the markup across
+  the KPI cards, tooltips and hours table.
+- **`en-GB`, not `en-US`.** The same formatters produce every hour label in the app, and
+  `en-US` renders `02:00 PM` where the market says `14:00`. `en-GB` keeps 24-hour time and
+  day-first dates; only the separators move — `1.322` and `2,160`.
+- Dates change with it: `9. aug. 2026` → `9 Aug 2026`, and `søndag 9. august 2026` →
+  `Sunday, 9 August 2026`. Norwegian weekday and month names in an English interface were
+  the same inconsistency in another form.
+- **Found while checking the blast radius:** the hours-table search placeholder advertised
+  `10.08, 14:00, august…`, but the filter is a substring test against the label
+  (`10 Aug, 14:00`) — two of those three examples returned nothing, and had done since
+  before this change. Now `10 Aug, 14:00…`.
+- One test asserted `9,1 m/s`; updated. Nothing else in the tree hardcoded a locale.
+
+### 2026-08-14 — Two tones on the dashboard, and a login button that opts out
+
+Both on request. The colour question turned out to be mostly already answered.
+
+- **Dashboard chrome was already two-tone.** The 2026-08-10 restraint pass left zero
+  status-colour classes in any dashboard or market-correlation component; `ui-registry.md`
+  already reads "Colour | data only". The only colour left anywhere was the chart series
+  and the `warning`/`error` status banners.
+- **The chart is now navy-900 (price, solid) and navy-500 (metric, dashed).** Safe because
+  **only two series ever render at once** — price plus the one selected metric. The four
+  hues existed because the metric varies, not because four lines coexist.
+- **Contrast improved.** The old palette cleared 3:1 against `--surface` but sat at
+  near-identical luminance, separating by hue alone (price vs wind ~1.06:1 against each
+  other). The two tones clear 18.67:1 and 5.65:1 against the surface **and 3.30:1 against
+  each other**. Measured, not estimated.
+- **The solid/dashed rule got stricter, not looser.** Hue was a redundant fourth signal;
+  it is now absent, so line style plus the separate axis, the units and the text legend
+  carry the whole distinction. `ui-rules.md`, `ui-tokens.md`, the known-risks list and
+  `series-legend.tsx` all said "four series separate by hue" and were corrected.
+- **Status banners kept their colour**, deliberately. `StatusMessage` carries tone through
+  colour, icon shape *and* text, so removing colour would not have failed accessibility —
+  but a provider error that looks like a plain note gets missed. Colour there is the
+  signal that makes you look.
+- **Login button:** `radius="tight"` (6px, new `--radius-tight`) and a new `primary-soft`
+  variant that swaps rest and hover fills — it rests at navy-800 and *darkens* to navy-900,
+  making the ramp monotonic (800 → 900 → 950) where `primary` lightens then darkens.
+- Both are **named options, not `className` overrides**: two `bg-*` or two `rounded-*`
+  classes in one string resolve by CSS source order rather than by which was written last.
+  A test now asserts a button emits exactly one radius class.
+- **Stale doc found and marked:** `ui-tokens.md` documented a `--heat-*` heatmap ramp that
+  has not existed since the heatmap became a boxplot on 2026-08-10.
+
+### 2026-08-14 — The landing page is gone
+
+On request: the app is login and dashboard only.
+
+- Deleted `app/page.tsx`, its five `_components` (`hero-preview`, `metric-highlights`,
+  `session-cta`, `site-footer`, `spotlight-card`), `opengraph-image.tsx`, and
+  `public/hero.png` — **2.7 MB**, and its only reference was the hero.
+- **`/` forwards in Proxy, not a page.** Unconditionally to `/login`; the pre-existing
+  rule then carries a signed-in visitor to `/dashboard`. Branching on `signedIn` here
+  would put that decision in two places. Verified against a running production build:
+  signed out `/` → 307 → `/login` → 200; signed in `/` → 307 → `/login` → 307 →
+  `/dashboard` → 200. No loop in either direction.
+- **The Open Graph surface went too**, along with the `SITE_URL` /
+  `VERCEL_PROJECT_PRODUCTION_URL` resolution that existed only to make the card's image
+  URL absolute. A preview would advertise a door nobody can open.
+- **Dead CSS removed:** `.animate-enter`, `.animate-reveal` and the `rise-in` keyframes
+  had no consumers left — the landing page was the only one.
+- Three links pointed at `/`. `error.tsx` and `not-found.tsx` now offer the dashboard;
+  login's "Back to the overview" is gone, which also leaves that page with a single
+  destination.
+- Registry sections for the removed surfaces are marked `(removed)` rather than deleted,
+  following the file's existing convention — the reasoning outlives the markup.
+
+### 2026-08-14 — Inter for prose, and one owner for text fields
+
+Two changes, landed together because the second was found while doing the first.
+
+- **`Inter` replaces `Geist` as `--font-sans`** (`layout.tsx`, exposed as `--font-inter`;
+  `globals.css` repoints `--font-sans`). `Geist_Mono` stays: `ui-registry.md` treats
+  mono-for-data as load-bearing, marking which text is instrument readout and which is
+  explanation.
+- **`shared/ui/field.tsx` is now the only place text-field styling is written**, on the
+  `button.tsx` precedent. Three spellings of a field existed — the login password, the
+  hours-table search, and a superseded login variant — and they disagreed on both border
+  token and ring trigger.
+- **This fixed a real contrast bug, not just duplication.** The search field was
+  `border-line`, a hairline that does not clear the 3:1 a control boundary needs. Unifying
+  on `border-line-strong` corrected it.
+- `PasswordField` composes `Field` and owns its own visibility state — no
+  `useLoginForm` hook, because `useActionState` is already the state machine and a wrapper
+  around it plus one boolean removes no decision. `login-form.tsx` went from ~100 lines to
+  ~45, holding only the server-action binding.
+- The migration also let the search icon become a flex child rather than an absolutely
+  positioned one with `pl-9` clearing it.
+- **Visible side effect:** the hours-table filter label moved from mono uppercase
+  micro-caps to sentence case, since `Field` has one label treatment. Mono marks data;
+  a label is prose.
+
 ### 2026-08-10 — A photograph behind the hero
 
 `public/hero.png` — the region the data describes, seen from orbit — now sits behind the
@@ -529,19 +661,23 @@ docs.
   exemption — Satori has no stylesheet for `var()` to resolve against. They will not
   follow `globals.css`; re-check them when a colour moves.
 - **No `robots.ts` / `sitemap.ts`.** Per-page `robots` metadata covers indexing for now.
-- **`<html lang="en">` over `nb-NO` numbers — the dashboard half.** The landing page's
-  figures are now marked with `lang` (WCAG 2.2 §3.1.2); the dashboard's are not. Same
-  problem, same fix, larger surface: the KPI cards, chart tooltips, hours table and
-  observations all render Norwegian-formatted numbers inside an English document.
+- ~~**`<html lang="en">` over `nb-NO` numbers — the dashboard half.**~~ **Resolved
+  2026-08-14** by switching `APP_LOCALE` to `en-GB` rather than by marking up the
+  dashboard's figures. The mismatch was the bug; once the numbers are English in an
+  English document there is nothing left to annotate, and the `lang` scaffolding the
+  landing page carried does not have to be rebuilt across the KPI cards, chart tooltips
+  and hours table.
 - All of Phase 6.
 
 ---
 
 ## Known risks
 
-- **Chart palette separates by hue alone.** All four series sit at near-identical
-  luminance; the solid-vs-dashed distinction is what satisfies "never rely on colour
-  alone." Do not simplify the line styles.
+- **The chart has no hue to fall back on.** It is two tones of navy since 2026-08-14, so
+  the solid-vs-dashed distinction — plus the separate axis, the differing units and the
+  text legend — is the whole of what satisfies "never rely on colour alone." Do not
+  simplify the line styles. This was already a risk when the palette had four hues at
+  near-identical luminance; removing hue removed the redundancy, not the requirement.
 - **Links must be underlined at rest.** `--link` is the near-black primary, so colour
   alone does not distinguish a link from body text.
 - **Tomorrow's prices publish ~13:00 Europe/Oslo.** A miss must not be cached at the same

@@ -96,7 +96,9 @@ export function DurationCurveChart({ curve }: { curve: DurationCurve }) {
           showSymbol: false,
           // 720 points: sampling keeps the draw cheap without changing the shape.
           sampling: "lttb",
-          lineStyle: { color: tokens["--chart-price"], width: 2 },
+          // Matches `correlation-chart.tsx` — the same series drawn at two weights in two
+          // cards is the drift this app keeps having to undo.
+          lineStyle: { color: tokens["--chart-price"], width: 1 },
           itemStyle: { color: tokens["--chart-price"] },
           areaStyle: { color: tokens["--chart-price-fill"] },
 
