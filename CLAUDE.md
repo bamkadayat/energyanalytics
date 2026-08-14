@@ -9,20 +9,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Package manager is **pnpm** (`packageManager: pnpm@9.4.0`).
 
 ```bash
-pnpm dev      # next dev — http://localhost:3000
-pnpm build    # next build — also the de facto type-check gate
-pnpm start    # serve the production build
-pnpm lint     # eslint (flat config, no args needed)
+pnpm dev        # next dev — http://localhost:3000
+pnpm build      # next build — the full gate, including TypeScript
+pnpm start      # serve the production build
+pnpm lint       # eslint (flat config, no args needed)
+pnpm typecheck  # tsc --noEmit
+pnpm test       # vitest run
 ```
-
-No test runner and no `typecheck` script are configured. To type-check alone:
-`pnpm exec tsc --noEmit`.
 
 ## State of the project
 
-`app/` is still the untouched `create-next-app` landing page — there is no application
-code, data layer, or API yet. The notes below describe conventions already baked into the
-scaffold and the workflow in `skills/`, not existing architecture to imitate.
+The app is built: a login route and a dashboard (`/dashboard`, `/dashboard/hours`) over
+two live providers, with a feature-sliced `src/` — `features/*` for domains,
+`shared/{ui,lib,config}` for the rest. There is no landing page; Proxy forwards `/` to
+`/login`. Source lives under `src/`, not a top-level `app/`.
 
 ## Next.js 16 specifics
 

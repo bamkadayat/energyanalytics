@@ -2,27 +2,13 @@ import { Skeleton } from "@/shared/ui";
 import { railGroupRows, type RailContentProps } from "./rail-content";
 
 /**
- * The dashboard shell's placeholders, shared by `/dashboard` and `/dashboard/hours`.
+ * Shell placeholders shared by `/dashboard` and `/dashboard/hours`.
  *
- * Both routes draw the shell flat rather than importing the real components, because the
- * rail and header read `searchParams` and a `loading.tsx` does not receive them. That is
- * unavoidable — but it means the placeholders are a hand-copy of a layout that keeps
- * changing, and the two files had already drifted from it and from each other. Sharing
- * them at least reduces that to one copy to keep honest.
- *
- * The measurements are taken from the real components, not guessed:
- *
- * - the rail is `w-60`, its brand block `px-4 py-4`, its nav `flex-1 gap-7 px-3 py-5`
- * - a rail row is `px-3 py-2 text-sm` — 36px, so `h-9`
- * - the foot carries logout behind a `border-t`, which is what both files were missing
- *
- * The row counts are **derived**, not written as `[3, 3]`. They were literals, and a
- * fourth weather metric would have left the skeleton a row short with nothing to catch
- * it — the same silent-drift problem as the copied shell itself.
+ * Both routes draw the shell flat rather than importing the real components: the rail and
+ * header read `searchParams`, which a `loading.tsx` never receives. That makes this a
+ * hand-copy, so measurements come from the real components and row counts are derived.
  */
 export function RailSkeleton({ active }: { active?: RailContentProps["active"] }) {
-  // Derived from the rail itself, and now route-dependent: `/dashboard/hours` drops the
-  // metric group, so reserving it there would resolve into a visibly shorter rail.
   const railGroups = railGroupRows(active);
 
   return (
@@ -34,10 +20,7 @@ export function RailSkeleton({ active }: { active?: RailContentProps["active"] }
         <div className="h-9 w-40 rounded-control bg-surface-rail-active" />
       </div>
 
-      {/*
-        `flex-1`, as the real nav has. Without it nothing pushes the logout block down and
-        the foot of the rail arrives somewhere different from where it was reserved.
-      */}
+      {/* `flex-1` as the real nav has, or nothing pushes the logout block to the foot. */}
       <div className="flex flex-1 flex-col gap-7 px-3 py-5">
         {railGroups.map((rows, group) => (
           <div key={group} className="flex flex-col gap-1">
@@ -53,7 +36,6 @@ export function RailSkeleton({ active }: { active?: RailContentProps["active"] }
         ))}
       </div>
 
-      {/* Logout. Present in both rails and in neither skeleton until now. */}
       <div className="border-t border-line-inverse px-3 py-3">
         <div className="h-9 rounded-control bg-surface-rail-active" />
       </div>
@@ -61,11 +43,7 @@ export function RailSkeleton({ active }: { active?: RailContentProps["active"] }
   );
 }
 
-/**
- * The header shell. `sticky top-0 z-30` matters: both real headers stick, and a
- * non-sticky placeholder resolving into a sticky bar shifts the page under a reader who
- * has already started scrolling.
- */
+/** `sticky top-0 z-30` matters: a non-sticky placeholder would shift the page as it resolves. */
 export function HeaderSkeleton({ children }: { children: React.ReactNode }) {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-surface">
@@ -78,11 +56,7 @@ export function HeaderSkeleton({ children }: { children: React.ReactNode }) {
   );
 }
 
-/**
- * `DataNote` — an icon plus "How to read this", which appears only from `sm`. Below that
- * the trigger is the icon alone, so the placeholder narrows with it rather than reserving
- * a phone-width block for a 16px icon.
- */
+/** `DataNote`: icon alone below `sm`, icon plus label above it. */
 export function DataNoteSkeleton() {
   return <Skeleton className="h-6 w-8 shrink-0 sm:w-32" />;
 }
