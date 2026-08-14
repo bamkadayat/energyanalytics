@@ -1,9 +1,6 @@
 /**
- * Public API of the market-correlation feature.
- *
- * This feature owns no provider. It composes the public contracts of energy-prices and
- * weather-forecast into the single aligned dataset that the chart, summary cards,
- * insights and data table all read (context/architecture.md §2).
+ * Public API of the market-correlation feature. Owns no provider — it composes the other
+ * two into the one aligned dataset every view reads (context/architecture.md §2).
  */
 export type { AlignedHours, AlignmentCoverage } from "./types";
 export type { SearchParamsInput, ViewMode, ViewParams } from "./utils/view-params";

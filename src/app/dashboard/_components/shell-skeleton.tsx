@@ -2,11 +2,9 @@ import { Skeleton } from "@/shared/ui";
 import { railGroupRows, type RailContentProps } from "./rail-content";
 
 /**
- * Shell placeholders shared by `/dashboard` and `/dashboard/hours`.
- *
- * Both routes draw the shell flat rather than importing the real components: the rail and
- * header read `searchParams`, which a `loading.tsx` never receives. That makes this a
- * hand-copy, so measurements come from the real components and row counts are derived.
+ * Shell placeholders for both dashboard routes. Drawn flat because the real rail and
+ * header read `searchParams`, which a `loading.tsx` never receives — so this is a
+ * hand-copy, and the row counts are derived rather than written as literals.
  */
 export function RailSkeleton({ active }: { active?: RailContentProps["active"] }) {
   const railGroups = railGroupRows(active);

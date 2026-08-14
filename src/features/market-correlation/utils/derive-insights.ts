@@ -9,12 +9,8 @@ import type { AlignedHours } from "../types";
 import { type DaySummary } from "./derive-summary";
 
 /**
- * Two (2026-08-14, on request; was three).
- *
- * The two that show are the cheapest and priciest hour. The weather peak is the one that
- * falls off — it is already its own KPI card — but it stays in the list below, because
- * missing inputs omit an observation rather than hedge it: on a day with no price data it
- * is what fills the space instead of leaving the section empty.
+ * The cheapest and priciest hour. The weather peak is derived below but usually falls off
+ * — it has its own KPI card — and only shows on a day with no price data.
  */
 const MAX_INSIGHTS = 2;
 
@@ -29,15 +25,9 @@ export interface Insight {
 }
 
 /**
- * Factual observations read straight off the displayed data.
- *
- * Every sentence is a **restatement**, never an inference: "the cheapest hour is 03:00"
- * is verifiable from the table, "prices are low because it is windy" is a market claim
- * this app cannot make. No model, no LLM — hence no causal vocabulary anywhere, which a
- * test enforces.
- *
- * Missing inputs omit an observation rather than hedge it. At most `MAX_INSIGHTS`, in
- * the order they are pushed.
+ * Observations read straight off the displayed data. Every sentence is a restatement,
+ * never an inference — "cheapest hour is 03:00" is verifiable, "prices are low because it
+ * is windy" is a market claim. A test enforces the absence of causal vocabulary.
  */
 export function deriveInsights(
   aligned: AlignedHours,

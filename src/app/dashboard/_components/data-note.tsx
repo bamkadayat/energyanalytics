@@ -5,13 +5,9 @@ import { FiInfo } from "react-icons/fi";
 import { PRICE_AREA, WEATHER_LOCATION } from "@/shared/config";
 
 /**
- * The standing qualifications, behind an info control in the header.
- *
- * They were a full-width banner at the foot of the day view — the weight of an alert for
- * a permanent footnote — but `ui-rules.md` requires them reachable wherever data shows.
- *
- * A button, not hover text: hover is unreachable on a touchscreen. Opens on click, Enter
- * and Space, closes on Escape or a click outside, and reports `aria-expanded`.
+ * The standing qualifications, behind an info control — `ui-rules.md` requires them
+ * reachable wherever data shows. A button, not hover text, which a touchscreen cannot
+ * reach: opens on click/Enter/Space, closes on Escape or outside click.
  */
 export function DataNote() {
   const [open, setOpen] = useState(false);

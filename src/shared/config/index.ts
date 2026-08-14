@@ -9,12 +9,9 @@
 export const APP_TIME_ZONE = "Europe/Oslo" as const;
 
 /**
- * Locale for number and date formatting. Units always stay explicit alongside.
- *
- * Must stay an `en-*` locale to match `lang="en"`: under `nb-NO`, `1,322` NOK/kWh is
- * *one point three two two* but an English screen reader says one thousand three hundred
- * and twenty-two. `en-GB` over `en-US` because these formatters also produce every hour
- * label, and `en-US` renders `02:00 PM` where the market says `14:00`.
+ * Must stay `en-*` to match `lang="en"` — under `nb-NO` an English screen reader reads
+ * `1,322` NOK/kWh as one thousand three hundred. `en-GB` over `en-US` because these
+ * formatters also produce hour labels, and `en-US` gives `02:00 PM`, not `14:00`.
  */
 export const APP_LOCALE = "en-GB" as const;
 
@@ -79,13 +76,8 @@ export const WEATHER_METRICS: Readonly<Record<WeatherMetricId, WeatherMetric>> =
 export const WEATHER_METRIC_IDS = Object.keys(WEATHER_METRICS) as WeatherMetricId[];
 
 /**
- * Pins Open-Meteo's response to the contract this app assumes. Dropping any of these
- * changes the data silently:
- *
- * - `wind_speed_unit`: the default is km/h, so readings would be ~3.6x too large under an
- *   "m/s" label
- * - `timeformat`: the default is a naive local string whose zone lives in another field
- * - `timezone`: makes `start_date`/`end_date` mean an Oslo calendar day
+ * Pins Open-Meteo to the contract this app assumes; dropping any changes the data
+ * silently. Defaults are km/h (not m/s), a naive local timestamp, and a UTC date range.
  */
 export const WEATHER_REQUEST_PARAMS = {
   timezone: APP_TIME_ZONE,

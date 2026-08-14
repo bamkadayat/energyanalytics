@@ -5,11 +5,9 @@ import { FiMaximize2, FiMinimize2 } from "react-icons/fi";
 import type { ViewMode } from "../utils/view-params";
 
 /**
- * A chart section with its own chart/table toggle.
- *
- * Both views arrive as server-rendered props, so switching costs no request. The URL
- * tracks the mode via `replaceState` — shareable, no round trip. Buttons, not links:
- * nothing navigates. One toggle per card, since each answers a different question.
+ * A chart section with its own chart/table toggle. Both views arrive as server-rendered
+ * props, so switching costs no request; the URL tracks the mode via `replaceState`.
+ * Buttons, not links — nothing navigates.
  */
 export function ViewCard({
   title,

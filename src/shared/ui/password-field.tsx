@@ -15,15 +15,7 @@ export interface PasswordFieldProps {
   placeholder?: string;
 }
 
-/**
- * A password field that can reveal itself.
- *
- * The visibility state lives here rather than in a `useLoginForm` hook on the consumer.
- * Whether the characters are showing is this control's own business — nothing outside it
- * reads or sets that flag — so lifting it into a hook would hand every caller a piece of
- * state to thread through and forget to reset. Owning it makes the component droppable
- * into any form with no wiring at all, which is the reuse a hook would only describe.
- */
+/** A password field that can reveal itself. Owns the visibility state, so it needs no wiring. */
 export function PasswordField({
   name,
   label,
@@ -51,15 +43,9 @@ export function PasswordField({
           />
 
           {/*
-            A real toggle, not an icon that guesses. `aria-pressed` states which way it is
-            set and the visible word says what pressing it does — different questions, both
-            answered.
-
-            Bare text rather than a bordered chip: a second boxed control inside the
-            field's own box read as a button competing with the submit, when all it does is
-            change how one field renders. It keeps its own `focus-visible` ring, because
-            without a border the shell's `focus-within` glow would be the only response to
-            tabbing here, and that says "the field is focused", not "this is".
+            Bare text, not a chip — a second boxed control inside the field competes with
+            the submit button. It keeps its own `focus-visible` ring: the shell's
+            `focus-within` glow says "the field is focused", not "this is".
           */}
           <button
             type="button"

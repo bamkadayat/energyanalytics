@@ -16,11 +16,8 @@ import { ViewCard } from "./view-card";
 import { HourSpreadChart } from "./hour-spread";
 
 /**
- * The range-scale views: 30 days of hourly prices, ~720 points.
- *
- * All the work is on the server — both providers fetched concurrently, joined, and
- * reduced to exactly what each chart draws. Streams independently of the day view, so a
- * slow 30-day fetch never delays today's chart.
+ * The range-scale views — ~720 hourly points, all reduced on the server. Streams
+ * independently of the day view, so a slow 30-day fetch never delays today's chart.
  */
 export async function RangeViews({ params }: { params: ViewParams }) {
   await connection();

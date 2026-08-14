@@ -6,11 +6,8 @@ import type { AlignmentCoverage } from "../types";
 import { viewParamsHref, type ViewParams } from "../utils/view-params";
 
 /**
- * Turns provider results into the banners a person actually needs to read.
- *
- * Copy rule: say what happened and what it means for the data on screen. Never apologise
- * for a state that is not a failure, and never leave the reader guessing whether what
- * they are looking at is complete.
+ * Provider results as banners. Copy rule: say what happened and what it means for the
+ * data on screen. Never apologise for a state that is not a failure.
  */
 export function SourceStatus({
   prices,

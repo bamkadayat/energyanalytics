@@ -30,11 +30,8 @@ const INITIAL_ROWS = 8;
 const ROWS_PER_STEP = 8;
 
 /**
- * The hourly table, sortable via TanStack. Headless, so the markup and classes stay ours
- * and no second token system arrives with it.
- *
- * Sorting earns its place: the question is rarely "what happened at 14:00" but "when was
- * it cheapest". Nulls sort last either way — a missing hour is not a cheap one.
+ * The hourly table, sortable via headless TanStack so no second token system arrives.
+ * Nulls sort last either way — a missing hour is not a cheap one.
  */
 export function HourlyDataTable({
   rows,

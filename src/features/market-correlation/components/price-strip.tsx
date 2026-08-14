@@ -1,13 +1,9 @@
 import type { AlignedHours } from "../types";
 
 /**
- * The whole day as one bar per hour: what the current price is cheap *relative to*.
- *
- * One mark, not three. Colouring the cheapest and priciest bars said nothing the heights
- * did not — the cheapest hour is the shortest bar by construction. Height cannot show
- * *where you are*, so that is the hour with a fill.
- *
- * `aria-hidden`: every figure here is in the cards above and the table below.
+ * The whole day as one bar per hour — what the current price is cheap *relative to*.
+ * Only the current hour is filled: height already says which is cheapest, but not where
+ * you are. `aria-hidden`, since every figure is in the cards and table around it.
  */
 export function PriceStrip({
   aligned,

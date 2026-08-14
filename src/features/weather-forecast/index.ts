@@ -1,14 +1,8 @@
 /**
- * Public API of the weather-forecast feature.
+ * Public API of the weather-forecast feature. Deep imports are forbidden
+ * (context/architecture.md §2), and the raw provider shapes stay inside deliberately.
  *
- * Import from here and nowhere else — deep imports into this feature's internals are
- * forbidden (context/architecture.md §2).
- *
- * `RawHourlyWeather` and `RawWeatherResponse` are intentionally absent: the provider
- * shape never crosses this boundary, only validated domain data.
- *
- * The fetcher is server-only — it uses `use cache`. Client components must import only
- * the types from here.
+ * The fetcher is server-only (`use cache`); client components may import only types.
  */
 export type {
   HourlyWeather,

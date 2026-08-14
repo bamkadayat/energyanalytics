@@ -5,11 +5,8 @@ import Link from "next/link";
 import { buttonClasses, StatusMessage, Wordmark } from "@/shared/ui";
 
 /**
- * Route-level error boundary.
- *
- * The prop is `retry`, not `reset` — it became stable in Next 16.3. `retry()` re-fetches
- * and re-renders the boundary's children, where `reset()` only re-renders, which for a
- * data-fetching failure would show the same error again.
+ * Route-level error boundary. The prop is `retry`, not `reset` (stable in Next 16.3):
+ * `retry()` re-fetches, where `reset()` only re-renders and shows the same error.
  */
 export default function Error({
   error,

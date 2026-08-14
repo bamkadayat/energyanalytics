@@ -9,11 +9,8 @@ import { Wordmark } from "@/shared/ui";
 import { RailContent, type RailContentProps } from "./rail-content";
 
 /**
- * The rail as an off-canvas drawer, below `lg`.
- *
- * Native `<dialog>` + `showModal()`, so focus trapping, Escape and an inert background
- * come for free. Link clicks are closed by delegation — the drawer navigates client-side
- * and would otherwise sit over the page you just asked for.
+ * The rail as a drawer, below `lg`. Native `<dialog>` + `showModal()`, so focus trapping,
+ * Escape and an inert background come free. Link clicks close it by delegation.
  */
 export function MobileNav({
   params,

@@ -4,15 +4,9 @@ import { SESSION_COOKIE } from "@/features/auth/utils/session-cookie";
 import { getAuthSecret } from "@/shared/config/server";
 
 /**
- * Middleware, renamed to Proxy in Next 16 — the file must be `proxy.ts`, beside `app/`.
- *
- * It runs on the Node runtime, so it verifies the HMAC rather than checking the cookie
- * exists. A presence-only check would bounce an expired cookie between /login and
- * /dashboard forever. Redirecting here also yields a real 307; these routes stream, so a
- * `redirect()` inside one commits a 200 first.
- *
- * Not an authorization layer — the pages still check for themselves. One `matcher` typo
- * and this file protects nothing.
+ * Middleware, renamed to Proxy in Next 16. Verifies the HMAC rather than the cookie's
+ * presence — a presence check would bounce an expired cookie between the two routes
+ * forever. Not an authorization layer: the pages still check for themselves.
  */
 export function proxy(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE)?.value;

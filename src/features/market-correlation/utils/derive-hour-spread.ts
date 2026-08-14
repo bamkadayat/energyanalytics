@@ -2,13 +2,10 @@ import { osloHourOf } from "@/shared/lib/oslo-day";
 import type { AlignedHours } from "../types";
 
 /**
- * What every hour of the day cost, across the whole range.
+ * What every hour cost across the range: `[min, Q1, median, Q3, max]` per hour.
  *
- * `[min, Q1, median, Q3, max]` per hour — the daily shape in the medians, how much to
- * trust it in the box heights. Quartiles are nearest-rank, not interpolated: these are
- * observed prices, and an averaged quartile is a price that never happened.
- *
- * Pure — no clock, no network, no React.
+ * Quartiles are nearest-rank, never interpolated — these are observed prices, and an
+ * averaged quartile is a price that never happened.
  */
 export interface HourSpread {
   /** `00`–`23`, Europe/Oslo wall clock. */

@@ -10,19 +10,13 @@ export interface StatusMessageProps {
   children?: ReactNode;
   /** Retry control or link, where retrying can actually help. */
   action?: ReactNode;
-  /**
-   * Announce to assistive technology when this appears after the initial render.
-   * Off by default — a live region that fires on every server render is noise, and
-   * `ui-rules.md` asks for announcements only where they add real value.
-   */
+  /** Announce when this appears after first render. Off by default — always-on is noise. */
   live?: boolean;
 }
 
 /*
- * Tone classes are written out in full rather than composed as `bg-${tone}-surface`.
- * Tailwind scans source text for complete class names, so an interpolated name produces
- * no CSS at all — and since the default palette is cleared, it would fail silently
- * rather than falling back to something visible.
+ * Written out in full, never `bg-${tone}-surface`: Tailwind scans for complete class
+ * names, so an interpolated one emits no CSS and fails silently.
  */
 const TONE_CLASSES: Record<StatusTone, string> = {
   info: "bg-info-surface border-info-line text-info-fg",
@@ -46,15 +40,10 @@ const TONE_LABELS: Record<StatusTone, string> = {
 };
 
 /**
- * A single status banner: the app's one way of saying "here is the state of the data".
+ * The app's one status banner. Every tone carries colour, a distinct icon shape *and*
+ * text, so none is load-bearing alone — hence a per-tone icon, not one generic dot.
  *
- * Every state carries three independent signals — colour, a distinct icon shape, and
- * text — so none of them is load-bearing alone. That is what satisfies "never rely on
- * colour alone" in `ui-rules.md`, and it is why the icon differs per tone rather than
- * being one generic dot.
- *
- * Presentational and domain-agnostic: it knows nothing about prices or weather. Mapping
- * a domain state to a tone is the caller's job.
+ * Domain-agnostic: mapping a state to a tone is the caller's job.
  */
 export function StatusMessage({
   tone,

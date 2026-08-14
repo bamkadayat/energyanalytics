@@ -3,15 +3,9 @@ import type { PriceFetchResult } from "../types";
 import { parseEnergyPrices } from "./parse-prices";
 
 /**
- * Turns a transport outcome into a domain result.
- *
- * Kept pure and separate from the fetcher so every branch is testable without a network
- * or the Next cache runtime.
- *
- * The mapping that matters: a 404 becomes `not-published`, never an error. Before the
- * day-ahead auction clears, "there are no prices for tomorrow yet" is the correct state
- * of the world, and conflating it with a provider failure would show an error page for
- * a system working exactly as designed.
+ * Transport outcome to domain result. Pure and separate from the fetcher, so every branch
+ * tests without a network. The mapping that matters: a 404 becomes `not-published`, never
+ * an error — before the auction clears, that is the correct state of the world.
  */
 export function toPriceResult(outcome: FetchJsonOutcome): PriceFetchResult {
   if (!outcome.ok) {

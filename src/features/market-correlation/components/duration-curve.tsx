@@ -19,11 +19,8 @@ const TOKENS = [
 ] as const;
 
 /**
- * Every hour in the range sorted from most to least expensive.
- *
- * Reads as "how many hours were above this price" — the left shoulder is the volatility
- * story a chronological chart hides. `dataZoom` because that shoulder is the top few
- * percent, unreadable at 720 points across one axis.
+ * Every hour sorted most to least expensive: "how many hours were above this price".
+ * `dataZoom` because the volatility story is the top few percent of 720 points.
  */
 export function DurationCurveChart({ curve }: { curve: DurationCurve }) {
   const tokens = useChartTokens(TOKENS);

@@ -20,12 +20,9 @@ export interface OsloDay {
 }
 
 /**
- * Every zone-aware operation goes through this module. Nothing elsewhere may call
- * `new Date()` on a naive string, read `getHours()` off a plain Date, or assume a day is
- * 24 hours — all three depend on the server's zone, which is not Europe/Oslo.
- *
- * Functions take the instant as an argument rather than reading a clock, so tests are
- * reproducible.
+ * Every zone-aware operation goes through here: nothing elsewhere may parse a naive
+ * string, read `getHours()` off a plain Date, or assume a 24-hour day. Functions take the
+ * instant as an argument rather than reading a clock, so tests are reproducible.
  */
 
 /** The calendar date an instant falls on, in Oslo. */
@@ -44,11 +41,9 @@ export function osloHourOf(instant: Date): number {
 }
 
 /**
- * Resolves "today" or "tomorrow" against the given instant.
- *
- * Day arithmetic happens on the calendar date, not by adding 86 400 000 ms: across a DST
- * transition a day is 23 or 25 hours, so millisecond arithmetic lands on the wrong date
- * twice a year. Out-of-range days normalise (31 Dec + 1 → 1 Jan of the next year).
+ * Resolves "today" or "tomorrow". Arithmetic is on the calendar date, never on
+ * milliseconds — a DST day is 23 or 25 hours, so ms arithmetic lands on the wrong date
+ * twice a year. Out-of-range days normalise (31 Dec + 1 → 1 Jan).
  */
 export function resolveOsloDay(now: Date, selection: DaySelection): OsloDay {
   const today = osloDayOf(now);
@@ -88,11 +83,9 @@ export function osloDayBounds(day: OsloDay): { start: Date; end: Date } {
 }
 
 /**
- * Path segment for the price API: `{YYYY}/{MM-DD}`, zero-padded.
- *
- * Built from Oslo calendar parts, never from `toISOString()` — that would emit the UTC
- * date, which is the previous day for every Oslo hour between midnight and 01:00 or
- * 02:00, and would silently request the wrong day's prices.
+ * Path segment for the price API: `{YYYY}/{MM-DD}`, zero-padded. From Oslo calendar
+ * parts, never `toISOString()` — that emits the UTC date, a day earlier for every Oslo
+ * hour before 01:00, and would silently request the wrong day.
  */
 export function pricePathFor(day: OsloDay): string {
   const { month, dayOfMonth } = padded(day);
@@ -117,11 +110,8 @@ function padded(day: OsloDay): { month: string; dayOfMonth: string } {
 }
 
 /**
- * The `count` Oslo days ending with the day containing `now`, oldest first.
- *
- * Walks the calendar rather than subtracting milliseconds, for the same reason
- * `resolveOsloDay` does: a DST day is 23 or 25 hours, so millisecond arithmetic drifts
- * onto the wrong date twice a year — and over a 30-day window it would drift silently.
+ * The `count` Oslo days ending with `now`, oldest first. Walks the calendar rather than
+ * subtracting milliseconds, for the reason `resolveOsloDay` gives.
  */
 export function osloDaysBack(now: Date, count: number): OsloDay[] {
   const today = osloDayOf(now);
@@ -148,11 +138,9 @@ export function osloDaysBack(now: Date, count: number): OsloDay[] {
 }
 
 /**
- * Whether tomorrow's day-ahead prices should exist yet.
- *
- * Before publication the provider answers 404. That is a normal state, not a failure,
- * and this predicate is what lets the caller tell "not published yet" from "the provider
- * is broken" — they need different UI and different cache lifetimes.
+ * Whether tomorrow's prices should exist yet. Before publication the provider 404s, which
+ * is normal — this is what lets the caller tell that from a broken provider, and the two
+ * need different UI and different cache lifetimes.
  */
 export function areTomorrowPricesExpected(now: Date): boolean {
   return osloHourOf(now) >= TOMORROW_PRICES_PUBLISHED_HOUR;

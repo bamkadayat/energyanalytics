@@ -9,11 +9,8 @@ import { deriveHourRows } from "../utils/derive-hour-rows";
 import { HoursTable } from "./hours-table";
 
 /**
- * Every hour of the last ninety days, joined on the server and handed to the table as
- * flat primitives — the browser never parses a timestamp or aligns anything.
- *
- * Days whose prices failed are dropped, not propagated; the count below says how many
- * hours actually carry a price.
+ * Ninety days of hours, joined on the server and handed over as flat primitives — the
+ * browser parses no timestamps. Failed days are dropped rather than propagated.
  */
 export async function HoursView() {
   await connection();

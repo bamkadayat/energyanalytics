@@ -1,9 +1,6 @@
 /**
- * A placeholder block, in the shape of what has not arrived yet.
- *
  * One primitive, so every skeleton shares a grey, a radius and a pulse. Always
- * `aria-hidden` — the region owns the one announcement (`SkeletonRegion`). The pulse
- * stops under `prefers-reduced-motion`.
+ * `aria-hidden` — `SkeletonRegion` owns the single announcement.
  */
 export function Skeleton({ className = "" }: { className?: string }) {
   return (

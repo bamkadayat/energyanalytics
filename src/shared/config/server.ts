@@ -1,15 +1,10 @@
 import "server-only";
 
 /**
- * Secrets. Server-only by construction.
+ * Secrets. The `server-only` import makes importing this from a client bundle a build
+ * error — which is why it is separate from the rest of `shared/config`.
  *
- * The `server-only` import makes it a **build error** to pull this module into a client
- * bundle, rather than something review has to catch. Everything else in `shared/config`
- * is safe to import anywhere; this file is not, which is why it is separate.
- *
- * Values are read through functions rather than module-level constants so a missing
- * variable fails where it is used, with a message naming what to set — not at import
- * time with a stack trace pointing at a barrel.
+ * Read through functions, so a missing variable fails where it is used and names itself.
  */
 
 function required(name: string): string {
@@ -48,17 +43,9 @@ export function getDashboardPassword(): string {
 }
 
 /**
- * The password to *print on the login page*, or `null` to print nothing.
- *
- * Deliberately a **second variable** rather than reading `DASHBOARD_PASSWORD` directly.
- * Publishing a credential has to be an explicit act: if the login page rendered the real
- * password variable, then anyone deploying this app for something that mattered would
- * publish their password by simply not knowing this feature existed. Here the default —
- * unset — is the safe one, and disclosure requires typing the value a second time.
- *
- * It is not validated against `DASHBOARD_PASSWORD` on purpose. Comparing them would mean
- * holding the real secret next to the printable one to diff it, and a mismatch is a
- * misconfiguration the login form itself will demonstrate immediately.
+ * The password to *print on the login page*, or `null` to print nothing. A second
+ * variable on purpose: publishing a credential must be an explicit act, so the default —
+ * unset — is the safe one. Not validated against the real password, by design.
  */
 export function getDemoPasswordHint(): string | null {
   const value = process.env.DEMO_PASSWORD_HINT;

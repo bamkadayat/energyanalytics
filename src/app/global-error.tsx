@@ -1,12 +1,8 @@
 "use client";
 
 /*
- * Replaces the root layout when the layout itself fails, so it must render its own
- * <html> and <body>.
- *
- * Next's docs note that this file does not automatically get the app's global styles.
- * Importing them explicitly is what keeps this page on-brand instead of an unstyled
- * fallback — and avoids hard-coding colours that would bypass the design tokens.
+ * Replaces the root layout when it fails, so it renders its own <html> and <body> — and
+ * does not inherit global styles, hence the explicit import below.
  */
 import "./globals.css";
 

@@ -7,12 +7,8 @@ import type { ChartSeries } from "../utils/to-chart-series";
 import { useChartTokens } from "./use-chart-tokens";
 
 /**
- * The one place in this app that needs the DOM: canvas cannot read `var(--token)`, so
- * colours are resolved after mount. Never the only way to read the data — the summary
- * above carries the same numbers, per `ui-rules.md`.
- *
- * Drawn on paper like every other card. On ink the grid was `--chart-grid-inverse` on
- * `--surface-inverse`: 1.19:1, invisible. The series colours are the same either way.
+ * Canvas cannot read `var(--token)`, so colours resolve after mount. Never the only way
+ * to read the data — the summary above carries the same numbers, per `ui-rules.md`.
  */
 export function CorrelationChart({ series }: { series: ChartSeries }) {
   const palette = useChartPalette(series.metricId);
@@ -151,16 +147,8 @@ function buildOption(series: ChartSeries, palette: ChartPalette): EChartsOption 
         data: series.prices as Array<number | null>,
         showSymbol: false,
         /*
-         * Solid, with a restrained fill. Together with the dashed metric line below this
-         * is what stops the chart depending on colour alone — see ui-tokens.md.
-         *
-         * 1 rather than 2 (2026-08-14, on request, via 1.5): at navy-800 across a
-         * full-width card the heavier strokes read as bulk. 1 is the floor — below it
-         * canvas renders sub-pixel and the line thins inconsistently across the width.
-         *
-         * The metric line below moved with it. Thinning only this one would leave the
-         * dashed secondary series visually outweighing the primary, which inverts what
-         * the chart is about.
+         * Solid against the metric's dashed line — the chart's only non-colour channel.
+         * Width 1 is the floor: below it canvas renders sub-pixel and thins unevenly.
          */
         lineStyle: { color: palette.price, width: 1, type: "solid" },
         itemStyle: { color: palette.price },

@@ -25,12 +25,8 @@ export async function getSettledPrices(
 }
 
 /**
- * Prices for a day that may not have been published yet.
- *
- * A separate cached function rather than a branch: `cacheLife` applies to the whole entry
- * and runs before the outcome is known, so the lifetime is chosen by which function you
- * call. Caching a "not published" miss for hours would hide prices that arrive minutes
- * later.
+ * Prices for a day that may not be published yet. A separate function, not a branch:
+ * `cacheLife` applies to the whole entry and runs before the outcome is known.
  */
 export async function getPendingPrices(
   day: OsloDay,

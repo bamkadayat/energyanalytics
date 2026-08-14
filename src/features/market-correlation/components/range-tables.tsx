@@ -4,11 +4,8 @@ import type { HourSpread } from "../utils/derive-hour-spread";
 import type { DurationCurve } from "../utils/derive-range-views";
 
 /**
- * Tabular forms of the two range views.
- *
- * The spread's is the boxplot's five numbers per hour, plus the day count behind them —
- * three days and thirty draw the same box. The curve's is *not* its data: 720 sorted rows
- * answer no question anyone asks, so deciles answer the one the curve exists for.
+ * Tabular forms of the range views. The spread's adds the day count, since three days and
+ * thirty draw the same box. The curve's is deciles, not its 720 rows, which answer nothing.
  */
 
 export function HourSpreadTable({ spread }: { spread: HourSpread }) {

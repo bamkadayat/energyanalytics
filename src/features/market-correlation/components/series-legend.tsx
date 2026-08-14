@@ -1,15 +1,7 @@
 /**
- * The chart's key, in the DOM rather than on the canvas.
- *
- * ECharts can draw its own legend, but a canvas legend is unselectable, invisible to
- * assistive technology, and clipped by the plot area on a narrow screen. Here it is text,
- * it sits in the card header where the eye lands first, and it survives the chart failing
- * to mount at all.
- *
- * Each swatch is a **line sample, not a dot**: solid for the price, dashed for the metric.
- * That distinction is the one ui-tokens.md calls load-bearing. The chart is two tones of
- * navy, so hue does not separate the series at all — line style does, and this legend is
- * where a reader learns to read it. A round swatch would teach the wrong key.
+ * The chart's key, in the DOM — a canvas legend is unselectable, invisible to assistive
+ * tech, and survives nothing. Swatches are line samples, not dots: the chart is two tones
+ * of navy, so solid-vs-dashed is the whole distinction and a round swatch would mistaught it.
  */
 export function SeriesLegend({
   priceLabel,

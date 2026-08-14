@@ -47,11 +47,8 @@ export interface ParsedPrices {
 export type ParsePricesFailure = "malformed-payload";
 
 /**
- * Outcome of asking the provider for one day's prices.
- *
- * `not-published` is a first-class arm, not an error: before roughly 13:00 Europe/Oslo
- * the provider answers 404 for tomorrow because the day-ahead auction has not cleared.
- * The UI explains that; it does not apologise for a failure that did not happen.
+ * `not-published` is a first-class arm, not an error: before the day-ahead auction clears
+ * the provider 404s for tomorrow, and the UI explains rather than apologises.
  */
 export type PriceFetchResult =
   | { status: "ok"; prices: EnergyPrice[]; droppedEntries: number }
