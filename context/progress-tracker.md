@@ -3,10 +3,9 @@
 Living status for **Nordic Power & Weather Explorer**. Per `AGENTS.md`, update this file
 after every feature — alongside `ui-registry.md`.
 
-**Last updated:** 2026-08-09 (end of session)
+**Last updated:** 2026-08-14 (end of session)
 **Current phase:** Phases 0–5 complete → Phase 6 next
-**Gates:** `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm test` ✅ 185 passed · `pnpm build` ✅
-**Deadline:** interview Wednesday — see *Next session* below.
+**Gates:** `pnpm lint` ✅ · `pnpm typecheck` ✅ · `pnpm test` ✅ 230 passed · `pnpm build` ✅
 
 ---
 
@@ -51,12 +50,11 @@ Plus an unplanned track, added on request partway through and not in `build-plan
    it too: the ink chart panel, the KPI strip's bar heights, the dark rail and the login
    card have all been verified as *markup* but never seen rendered.
 3. **Write the README.** Highest-leverage remaining item: it is still create-next-app
-   boilerplate, and it is the first thing a reviewer opens. Should carry the problem, an
+   boilerplate, and it is the first thing a visitor opens. Should carry the problem, an
    architecture sketch, and the decisions with their reasoning — hour-join vs array
    index, category vs time axis, per-day cache keys, server-derived views, the
    solid/dashed accessibility constraint, both Cache Components traps.
-4. **Deploy to Vercel** so there is a live URL rather than a laptop.
-5. Then Phase 6: keyboard pass, 200% zoom, narrow reflow, Lighthouse and bundle numbers.
+4. Phase 6 polish: keyboard pass, 200% zoom, narrow reflow, Lighthouse and bundle numbers.
 
 ---
 
@@ -335,7 +333,7 @@ rendered — no browser extension this session either — so verification ran ag
 Then four additions, chosen from that list:
 
 - **The demo was unreachable.** Nothing told a visitor `/dashboard` was behind a shared
-  password or how to obtain one — an interviewer opening the link hit a password field and
+  password or how to obtain one — anyone opening the link hit a password field and
   stopped. `/login` now prints it, gated on a **new `DEMO_PASSWORD_HINT` variable**. It is
   deliberately not `DASHBOARD_PASSWORD`: publishing a credential must be an explicit act,
   and reading the real variable would mean any deployment published its password by not
@@ -523,8 +521,7 @@ Dashboard, built against a supplied reference:
 
 ### 2026-08-09 — Data-heavy views, dashboard shell, error handling (unplanned)
 
-Second scope expansion, driven by the interview being with a senior frontend developer:
-the goal shifted from domain depth to *handling volume well*.
+Second scope expansion: the goal shifted from domain depth to *handling volume well*.
 
 - **30-day range views** — heatmap (24 rows × N day columns) and price duration curve
   with `dataZoom` and LTTB sampling. Both derived on the server: 720–1,440 hours become
@@ -653,7 +650,7 @@ docs.
   beyond the timestamp, and `cacheLife("hours")` makes that gap real. Listed in
   `ui-rules.md`'s state table but not implemented.
 - **`DEMO_PASSWORD_HINT` must be set on the deployment**, or the login page discloses
-  nothing and a cold reviewer is stuck again. It is in `.env.example` and `.env.local`;
+  nothing and a first-time visitor is stuck again. It is in `.env.example` and `.env.local`;
   Vercel needs it added separately.
 - **`SITE_URL` is unset**, so `metadataBase` falls back to Vercel's production URL and,
   locally, to `http://localhost:3000`. Set it if a custom domain is used.
