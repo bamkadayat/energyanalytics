@@ -8,12 +8,9 @@ import {
 } from "./_components/shell-skeleton";
 
 /**
- * Shown while the dashboard segment loads — a dynamic route behind a session check, so
- * the gap is real.
- *
- * It mirrors the *shell*: a skeleton that resolves into a different arrangement is worse
- * than none. The rail and header are drawn flat rather than imported, since the real ones
- * read `searchParams` and a loading file does not receive them.
+ * Mirrors the shell — a skeleton resolving into a different arrangement is worse than
+ * none. Drawn flat because the real rail and header read `searchParams`, which a
+ * `loading.tsx` never receives.
  */
 export default function DashboardLoading() {
   return (

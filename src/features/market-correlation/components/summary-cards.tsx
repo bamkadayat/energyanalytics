@@ -11,11 +11,8 @@ import type { DaySummary } from "../utils/derive-summary";
 import { PriceStrip } from "./price-strip";
 
 /**
- * The headline numbers, from the same derivation the chart and table read — so a card
- * cannot disagree with the graph beside it. Every card states its unit.
- *
- * The current price gets a card of its own: it is what someone opening this page came
- * for, and the four beside it are the context for reading it.
+ * The headline numbers, from the same derivation the chart and table read. Every card
+ * states its unit. The current price gets its own — it is what the page is opened for.
  */
 export function SummaryCards({
   aligned,

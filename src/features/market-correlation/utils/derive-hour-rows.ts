@@ -5,11 +5,9 @@ import { WEATHER_METRIC_IDS } from "@/shared/config";
 const MS_PER_HOUR = 3_600_000;
 
 /**
- * One hour: the price and all three weather readings.
- *
- * Flat and primitive-only, because these cross the RSC boundary in their thousands — the
- * hour is epoch milliseconds, and the one string is the label the table filters on.
- * Formatting client-side would be thousands of `Intl` calls before the first paint.
+ * One hour: the price and all three weather readings. Flat and primitive-only — these
+ * cross the RSC boundary in their thousands, and client-side formatting would be
+ * thousands of `Intl` calls before first paint.
  */
 export interface HourRecord {
   /** Hour start as epoch milliseconds — sortable as a number, cheap to serialise. */
@@ -23,14 +21,8 @@ export interface HourRecord {
 }
 
 /**
- * Joins a long span of prices and weather into one row per hour.
- *
- * The wide sibling of `alignPriceAndWeather`, sharing the rule that matters: **the join
- * key is a normalised hour, never an array index** — the providers cover different spans
- * and a DST day has 23 or 25 hours. The union of both, ascending, so a one-sided hour
- * stays visible.
- *
- * Pure. `formatHour` is injected rather than imported.
+ * The wide sibling of `alignPriceAndWeather`, sharing the rule that matters: the join key
+ * is a normalised hour, never an array index. Union of both sources, ascending.
  */
 export function deriveHourRows(
   prices: readonly EnergyPrice[],

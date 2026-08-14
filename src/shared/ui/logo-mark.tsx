@@ -1,17 +1,8 @@
 /**
  * The product mark: two wind gusts above a rising measurement line.
  *
- * The idea is the product in one glyph — moving air, read as a series. The upper two
- * strokes are the standard meteorological gust curl; the lower one is a plotted line
- * ending in a data point, which is literally what the dashboard draws.
- *
- * Drawn inline rather than loaded from a file so it needs no request, scales without
- * blurring, and — the reason that matters most here — inherits `currentColor`. The
- * previous PNG had no alpha channel, so it needed a white badge to sit on the navy hero;
- * this simply takes the colour of whatever it is placed in.
- *
- * Kept to three strokes and one dot. Anything more disappears at 36px, which is the size
- * it is used at almost everywhere.
+ * Inline so it inherits `currentColor` and needs no request. Three strokes and one dot —
+ * anything more disappears at the 36px it is usually drawn at.
  */
 export function LogoMark({ className }: { className?: string }) {
   return (
@@ -32,8 +23,7 @@ export function LogoMark({ className }: { className?: string }) {
       {/* Lower gust, curling down, so the two do not read as a repeated shape. */}
       <path d="M2.5 12.5h11a2.5 2.5 0 1 1-2.5 2.5" />
 
-      {/* The series: flat, then climbing, with a dip so it reads as measured rather
-          than as a generic upward arrow. */}
+      {/* The series: a dip keeps it reading as measured, not as a generic up arrow. */}
       <path d="M2.5 19.5h5l4-4.5 3 2 4.5-5.5" />
 
       {/* Terminal data point, filled so it registers as a mark rather than a stroke end. */}

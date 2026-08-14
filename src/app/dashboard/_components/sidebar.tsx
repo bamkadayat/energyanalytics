@@ -6,11 +6,8 @@ import { Wordmark } from "@/shared/ui";
 import { RailContent, type RailContentProps } from "./rail-content";
 
 /**
- * The application rail, from `lg` up. Dark, so chrome separates from content without a
- * heavier border. Below `lg` the same `RailContent` appears in `MobileNav`'s drawer.
- *
- * Every entry is a real filter or a real anchor, and there is no search field: this app
- * has one dataset, and a box that accepts typing and does nothing is worse than none.
+ * The application rail, from `lg` up; below that the same `RailContent` fills the drawer.
+ * Every entry is a real filter or anchor — a rail of dead links behaves like a mock-up.
  */
 export function DashboardSidebar({
   params,

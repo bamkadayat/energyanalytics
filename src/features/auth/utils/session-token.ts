@@ -1,17 +1,9 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 /**
- * A signed, self-contained session token: `<expiresAt>.<signature>`.
- *
- * There is no session store. The token carries its own expiry and an HMAC over that
- * expiry, so the server can validate it with nothing but the secret. For a prototype
- * with one shared password and no per-user state, a database would be storing nothing.
- *
- * The payload is deliberately *only* an expiry. It carries no identity, no role and no
- * user input, so there is nothing in it worth tampering with beyond extending the
- * lifetime — which the signature prevents.
- *
- * Pure and secret-injected, so the whole scheme is testable without env or cookies.
+ * A signed, self-contained session token: `<expiresAt>.<signature>`. No store — the
+ * payload is only an expiry, so there is nothing to tamper with but the lifetime, which
+ * the signature prevents. Secret-injected, so it tests without env or cookies.
  */
 
 const SEPARATOR = ".";
@@ -67,11 +59,9 @@ function sign(secret: string, payload: string): string {
 }
 
 /**
- * Constant-time comparison. A plain `===` leaks how many leading characters matched
- * through its timing, which is enough to forge a signature one byte at a time.
- *
- * Lengths are compared first because `timingSafeEqual` throws on a mismatch — that check
- * reveals only the length, which the format already makes public.
+ * Constant-time comparison — `===` leaks how many leading characters matched, which is
+ * enough to forge a signature byte by byte. Length is checked first because
+ * `timingSafeEqual` throws on a mismatch, and the format makes length public anyway.
  */
 function safeEquals(a: string, b: string): boolean {
   const left = Buffer.from(a, "utf8");

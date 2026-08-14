@@ -21,11 +21,8 @@ import { SourceStatus } from "./source-status";
 import { ViewCard } from "./view-card";
 
 /**
- * The conductor: resolves the day, fetches both providers, joins them, hands off.
- *
- * `await connection()` first — reading the clock is request-time work, and without it the
- * build fails with `blocking-prerender-current-time`. `<Suspense>` alone does not satisfy
- * it (see context/library-docs.md).
+ * Resolves the day, fetches both providers, joins them. `await connection()` first —
+ * reading the clock is request-time work, and `<Suspense>` alone does not satisfy it.
  */
 export async function CorrelationView({ params }: { params: ViewParams }) {
   await connection();

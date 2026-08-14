@@ -51,12 +51,9 @@ export function DaySwitch({ params }: { params: ViewParams }) {
 }
 
 /**
- * The resolved date. "Today" is relative, and a dashboard left open overnight keeps
- * showing it; this is the absolute answer. Async because it reads the clock, so it
- * streams behind its own boundary.
- *
- * A chip, not a picker: this app derives its span from the day preset, so a control that
- * opens nothing would be a dead one.
+ * The resolved date — "today" is relative, and a dashboard left open overnight keeps
+ * showing it. Reads the clock, so it streams behind its own boundary. A chip, not a
+ * picker: the span comes from the day preset, so a control here would open nothing.
  */
 export async function DateChip({ params }: { params: ViewParams }) {
   await connection();
@@ -84,15 +81,8 @@ export function DateChipPlaceholder() {
 }
 
 /*
- * A `<div>`, not a `<p>`.
- *
- * `DateChipPlaceholder` puts a `Skeleton` in here, and `Skeleton` is a `<div>` — which is
- * not valid inside a `<p>`. The browser closes the paragraph before the div, so the server
- * HTML and the client tree disagree and React reports a hydration error.
- *
- * Fixed here rather than by making `Skeleton` a `<span>`: this is a chip holding a date
- * and an icon, not a paragraph of prose, so `<p>` was the wrong element regardless. The
- * classes already say `flex`, so nothing about the layout changes.
+ * A `<div>`, not a `<p>`: this holds a `Skeleton`, which is a div and therefore invalid
+ * inside a paragraph — the browser closes the `<p>` early and hydration fails.
  */
 function ChipShell({ children }: { children: React.ReactNode }) {
   return (

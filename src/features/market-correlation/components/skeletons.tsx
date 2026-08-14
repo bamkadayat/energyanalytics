@@ -1,11 +1,8 @@
 import { Skeleton, SkeletonRegion } from "@/shared/ui";
 
 /**
- * Loading shapes for the three regions that stream.
- *
- * Each mirrors the layout it replaces — same grid, same card count — so nothing reflows
- * on arrival. They sit here rather than in `shared/ui` because knowing this layout is
- * their whole job; `shared/ui` owns only the block and the region wrapper.
+ * Loading shapes for the three streaming regions, each mirroring the layout it replaces
+ * so nothing reflows. Here rather than `shared/ui`, which owns only the block itself.
  */
 
 /** Header row of a card: a title, and the control that sits opposite it. */

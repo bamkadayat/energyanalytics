@@ -2,11 +2,8 @@ import { osloHourOf } from "@/shared/lib/oslo-day";
 import type { AlignedHours } from "../types";
 
 /**
- * Everything the cards, insights and table report is derived here, from the one aligned
- * dataset the chart also uses. Deriving any of it a second way is how a card ends up
- * disagreeing with the graph beside it.
- *
- * Pure and clock-injected.
+ * Everything the cards, insights and table report, derived from the one dataset the chart
+ * reads — a second derivation is how a card ends up disagreeing with the graph beside it.
  */
 
 export interface HourValue {
@@ -82,15 +79,10 @@ export function deriveDaySummary(aligned: AlignedHours, now: Date): DaySummary {
 }
 
 /**
- * The cheapest run of `length` consecutive hours.
+ * The cheapest run of `length` *consecutive* hours — "when should I start the machine",
+ * not "which three hours are cheapest", which could be scattered across the day.
  *
- * This is the question a consumer actually asks — not "which single hour is cheapest" but
- * "when should I start the machine" — and it is why the answer is a *window* rather than
- * the three cheapest hours in the day, which could be scattered across it.
- *
- * A window containing an hour without a price is skipped rather than averaged over the
- * hours it does have: "cheapest three hours" made from two would be a different claim,
- * quietly.
+ * A window with a priceless hour is skipped, never averaged over the rest.
  */
 export function deriveCheapestWindow(
   aligned: AlignedHours,

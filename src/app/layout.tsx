@@ -18,13 +18,8 @@ const DESCRIPTION =
   "Norwegian day-ahead electricity prices for NO1 alongside hourly Oslo weather, hour by hour in Europe/Oslo time.";
 
 /*
- * No Open Graph or Twitter metadata, and no `metadataBase`.
- *
- * That surface existed for the landing page, whose job was to be sent to someone — a link
- * preview was part of the product. With the landing page gone the app is login and
- * dashboard, both behind a password, so a card would advertise a door nobody can open.
- * Removing it also retires the `SITE_URL` / `VERCEL_PROJECT_PRODUCTION_URL` resolution
- * that existed only to make the generated image's URL absolute.
+ * No Open Graph, Twitter card or `metadataBase`: every route is behind a password, so a
+ * link preview would advertise a door nobody can open.
  */
 export const metadata: Metadata = {
   title: TITLE,

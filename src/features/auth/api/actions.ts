@@ -10,15 +10,9 @@ export interface LoginState {
 }
 
 /**
- * Verifies the shared password and starts a session.
- *
- * The failure message is deliberately the same for an empty and a wrong password. There
- * is one credential here, so a message like "password required" versus "incorrect
- * password" would only confirm to a guesser that they are probing the right field.
- *
- * `redirect()` works by throwing, so it must stay outside any try/catch — catching it
- * would swallow the navigation and leave the user on the form with a session already
- * set.
+ * One failure message for both empty and wrong: distinguishing them would confirm to a
+ * guesser that they are probing the right field. `redirect()` throws, so it must stay
+ * outside any try/catch, or the navigation is swallowed with a session already set.
  */
 export async function login(
   _previous: LoginState,

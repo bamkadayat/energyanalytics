@@ -1,14 +1,10 @@
 import type { WeatherMetricId } from "@/shared/config";
 
 /**
- * Prices and weather joined on a shared hour, still columnar.
+ * Prices and weather joined on a shared hour, still columnar: `hours[i]`, `nokPerKwh[i]`
+ * and `metricValues[i]` describe the same hour, and `null` means absent, never zero.
  *
- * `hours[i]`, `nokPerKwh[i]` and `metricValues[i]` all describe the same hour. A `null`
- * means that source had nothing for that hour — never that the value was zero.
- *
- * This is the single dataset the chart, the summary cards, the insights and the data
- * table all read from. Deriving any of them from a second source would let them
- * disagree.
+ * The one dataset every view reads — a second source would let them disagree.
  */
 export interface AlignedHours {
   metricId: WeatherMetricId;
@@ -19,11 +15,7 @@ export interface AlignedHours {
   coverage: AlignmentCoverage;
 }
 
-/**
- * How well the two sources actually overlapped. Drives the partial-data messaging in
- * the UI — an hour present in only one source is a real gap the user should see, not
- * something to quietly hide.
- */
+/** How well the sources overlapped. Drives partial-data messaging; a one-sided hour is a real gap. */
 export interface AlignmentCoverage {
   /** Hours where both a price and a metric reading were present. */
   matchedHours: number;

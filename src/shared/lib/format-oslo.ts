@@ -2,15 +2,8 @@ import { APP_LOCALE, APP_TIME_ZONE } from "@/shared/config";
 import { osloDayBounds, type OsloDay } from "./oslo-day";
 
 /**
- * All user-facing date and time formatting.
- *
- * Every formatter pins `timeZone` explicitly. `Intl` defaults to the *runtime's* zone,
- * so an unpinned formatter would print Oslo data in whatever zone the server happens to
- * run in — the same class of bug as parsing a naive timestamp, just at the other end of
- * the pipeline.
- *
- * Formatters are constructed once: `Intl.DateTimeFormat` is comparatively expensive, and
- * these run per hour of the day in the table and axis labels.
+ * All user-facing date and time formatting. Every formatter pins `timeZone` — `Intl`
+ * otherwise defaults to the runtime's zone and would print Oslo data in the server's.
  */
 
 const timeFormatter = new Intl.DateTimeFormat(APP_LOCALE, {

@@ -23,11 +23,8 @@ export interface DurationCurve {
 }
 
 /**
- * The price duration curve: every hour sorted from most to least expensive.
- *
- * Standard in energy analysis because it answers "how many hours were above X?" at a
- * glance — the steepness of the left shoulder is the volatility story, which a
- * chronological chart buries.
+ * The price duration curve: every hour sorted most to least expensive. Answers "how many
+ * hours were above X?" at a glance, which a chronological chart buries.
  */
 export function deriveDurationCurve(aligned: AlignedHours): DurationCurve {
   const prices = aligned.nokPerKwh

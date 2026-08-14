@@ -6,24 +6,9 @@ import type { AlignedHours } from "../types";
 const MS_PER_HOUR = 3_600_000;
 
 /**
- * Joins day-ahead prices to an hourly weather metric.
- *
- * **Joins on a normalized hour, never on array index.** The two providers are
- * independent: they can start at different hours, cover different spans, drop hours, or
- * return 23 or 25 of them across a DST transition. Index-joining survives none of that —
- * it would pair 03:00 prices with 02:00 weather and produce a chart that looks entirely
- * reasonable while being wrong. That is the single most dangerous bug available in this
- * project, so the join key is derived from the timestamp itself.
- *
- * Both inputs are absolute instants, and Europe/Oslo's UTC offset is a whole number of
- * hours, so flooring to the hour is zone-independent and needs no conversion. The
- * timezone matters for *labelling* and day selection, not for matching.
- *
- * The result is the union of both sources' hours, not the intersection: an hour only one
- * provider supplied is a real gap the user should be able to see, and silently dropping
- * it would hide missing data behind a shorter chart.
- *
- * Pure — no clock, no network, no React.
+ * Joins prices to a weather metric **on a normalized hour, never array index** — the
+ * providers drop hours and differ across DST. Returns the union, not the intersection:
+ * a one-sided hour is a real gap, and dropping it would hide it behind a shorter chart.
  */
 export function alignPriceAndWeather(
   prices: readonly EnergyPrice[],
@@ -97,12 +82,7 @@ export function alignPriceAndWeather(
   };
 }
 
-/**
- * Floors an instant to the start of its hour, as epoch milliseconds.
- *
- * Returns null for an invalid Date so a single bad timestamp cannot poison the join with
- * a NaN key.
- */
+/** Floors to the hour. Null for an invalid Date, so one bad timestamp cannot NaN the join. */
 function toHourKey(at: Date): number | null {
   const time = at.getTime();
   if (Number.isNaN(time)) {

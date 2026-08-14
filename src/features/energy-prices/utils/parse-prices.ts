@@ -5,12 +5,9 @@ import type {
 } from "../types";
 
 /**
- * The only place raw provider data becomes domain data.
- *
- * Takes `unknown` because the payload is untrusted, and narrows deliberately. Invalid
- * entries are dropped and counted rather than repaired: a missing or non-numeric price
- * stays missing, never becomes zero. A zero price and an absent price render identically
- * on a chart and mean opposite things.
+ * The only place raw provider data becomes domain data. Invalid entries are dropped and
+ * counted, never repaired — a zero price and an absent price draw the same and mean
+ * opposite things.
  */
 export function parseEnergyPrices(input: unknown): ParsePricesResult {
   if (!Array.isArray(input)) {

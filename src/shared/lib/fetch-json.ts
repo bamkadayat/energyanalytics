@@ -1,11 +1,9 @@
 import { REQUEST_TIMEOUT_MS } from "@/shared/config";
 
 /**
- * Why a request did not produce usable JSON.
- *
- * `not-found` is separate from `provider-error` on purpose: the price API answers 404
- * for a day whose prices simply have not been published yet, which is a normal state
- * with its own UI and its own cache lifetime, not a failure.
+ * Why a request did not produce usable JSON. `not-found` is separate from
+ * `provider-error` on purpose: a 404 from the price API means "not published yet", a
+ * normal state with its own UI and cache lifetime.
  */
 export type FetchFailureReason =
   | "not-found"
@@ -19,14 +17,10 @@ export type FetchJsonOutcome =
   | { ok: false; reason: FetchFailureReason; status?: number };
 
 /**
- * Performs a JSON GET and converts every failure mode into a value.
+ * A JSON GET with every failure mode returned as a value, never thrown — a slow or dead
+ * provider is an operating condition here, and the union forces the caller to handle it.
  *
- * Nothing here throws: a provider being slow, unreachable, or returning HTML is an
- * expected operating condition for this app, not an exception. Returning a union forces
- * the caller to handle each case and keeps a dead provider from becoming a 500.
- *
- * Returns `unknown` rather than a parsed type — validation belongs to each feature's
- * parser, at the boundary.
+ * Returns `unknown`; validation belongs to each feature's parser.
  */
 export async function fetchJson(
   url: string,

@@ -1,11 +1,9 @@
 import { APP_LOCALE } from "@/shared/config";
 
 /**
- * Number formatting for display.
- *
- * Units are never folded in — the caller places them, so a figure cannot be rendered
- * without one. Every formatter shares `APP_LOCALE`: grouping thousands one way and
- * decimals another on the same page is what makes numbers unreadable.
+ * Units are never folded in — the caller places them, so a figure cannot render without
+ * one. Every formatter shares `APP_LOCALE`, or the page would group and separate numbers
+ * two different ways at once.
  */
 
 /** Three decimals: spot prices sit near 1 NOK/kWh but individual hours fall below 0.01. */

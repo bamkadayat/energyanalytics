@@ -1,11 +1,8 @@
 import type { WeatherMetricId } from "@/shared/config";
 
 /**
- * Shape returned by the Open-Meteo Forecast API, mirrored as received.
- *
- * Untrusted: nothing outside this feature's parser may consume it. Open-Meteo answers
- * columnar — one `time` array plus one parallel array per requested variable — and that
- * shape is preserved all the way to the chart rather than expanded into objects.
+ * Open-Meteo's shape, mirrored as received. Untrusted — only this feature's parser may
+ * consume it. The columnar layout is preserved all the way to the chart.
  */
 export interface RawHourlyWeather {
   time: unknown;
@@ -19,11 +16,8 @@ export interface RawWeatherResponse {
 }
 
 /**
- * Validated forecast, still columnar.
- *
- * `times[i]` describes `values[metric][i]` for every metric. A `null` is a genuine gap:
- * the provider had no reading for that hour. It is never a zero — zero wind and missing
- * wind are different facts, and a chart cannot tell them apart once conflated.
+ * Validated forecast, still columnar: `times[i]` describes `values[metric][i]`. A `null`
+ * is a real gap, never a zero — zero wind and missing wind are different facts.
  */
 export interface HourlyWeather {
   /** Absolute instants, ascending, one per hour. */

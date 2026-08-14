@@ -1,14 +1,8 @@
 import type { Insight } from "../utils/derive-insights";
 
 /**
- * Plain restatements of what the data says.
- *
- * Rendered as a list rather than prose because each item is independent — a reader
- * scanning for the cheapest hour should not have to read a paragraph.
- *
- * The hour sits in a chip in its own column rather than at the head of the sentence. That
- * is what makes the list scannable: the times line up, so "when" is answered by running
- * an eye down the left edge, and each sentence is free to start with what it is about.
+ * Plain restatements of what the data says. A list, not prose — each item is independent.
+ * The hour sits in its own column so the times line up and the list stays scannable.
  */
 export function InsightsList({ insights }: { insights: Insight[] }) {
   if (insights.length === 0) {

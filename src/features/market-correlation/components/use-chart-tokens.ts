@@ -4,20 +4,9 @@ import { useMemo, useSyncExternalStore } from "react";
 const noSubscription = () => () => {};
 
 /**
- * Reads design tokens off the document root, once there is a document.
- *
- * Every chart needs this: ECharts draws to a canvas, and canvas cannot consume
- * `var(--token)`. Shared so the three charts cannot drift into reading tokens three
- * slightly different ways.
- *
- * `useSyncExternalStore` rather than a `setState` in an effect — this is a browser-only
- * value, not state a component owns. The server snapshot is `false` and the client
- * snapshot `true`, so React resolves it during hydration instead of costing an extra
- * render.
- *
- * `getComputedStyle` resolves `var()` chains, so a token defined as `var(--slate-600)`
- * returns the literal colour. The result can carry leading whitespace, hence the trim —
- * ECharts silently ignores a value like `" #475569"`.
+ * Reads design tokens off the document root — a canvas cannot consume `var(--token)`.
+ * `useSyncExternalStore` over an effect, so React resolves it during hydration. The trim
+ * matters: ECharts silently ignores a value like `" #475569"`.
  */
 export function useChartTokens<K extends string>(
   names: readonly K[],

@@ -19,14 +19,10 @@ const TOKENS = [
 ] as const;
 
 /**
- * The price of every hour of the day, as twenty-four boxes.
+ * Every hour of the day as twenty-four boxes. Position over colour intensity — a fixed
+ * colour scale collapses once this market's regular near-zero hours stretch it.
  *
- * Replaced a heatmap of the same data: colour intensity on a fixed scale collapses once
- * a few near-zero hours stretch it, which this market produces regularly. Position has
- * no such ceiling, and the box heights add what the grid could not — the spread.
- *
- * The trade: the heatmap could say *which day* an extreme fell on. This cannot; that is
- * the duration curve's question and the table's.
+ * It cannot say which *day* an extreme fell on; that is the table's question.
  */
 export function HourSpreadChart({ spread }: { spread: HourSpread }) {
   const tokens = useChartTokens(TOKENS);

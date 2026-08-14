@@ -9,16 +9,9 @@ export interface ToolbarPreset {
 }
 
 /**
- * The toolbar above a chart section: range presets on the left, the period covered on
- * the right.
- *
- * The presets are links, so a chosen range is shareable and the back button steps through
- * previous ones.
- *
- * The period is a **chip, not a button**. The reference design makes it a date-range
- * picker; this app derives its span from the preset, so a button opening nothing would be
- * a dead control. Stated as read-only text, it answers the question the picker exists to
- * answer — "what am I actually looking at?" — without pretending to be interactive.
+ * Range presets on the left, the period covered on the right. Presets are links, so a
+ * range is shareable. The period is a read-only chip, not a button — its span comes from
+ * the preset, so a picker here would be a control that opens nothing.
  */
 export function ChartToolbar({
   label,

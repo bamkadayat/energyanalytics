@@ -10,11 +10,8 @@ import {
 } from "@/shared/config";
 
 /**
- * The view's entire state, and the URL is where it lives.
- *
- * Keeping day and metric in search params rather than component state makes every view
- * linkable, shareable and restorable, and means the back button works. Nothing else in
- * the app stores these — everything derives from them.
+ * The view's entire state, held in the URL rather than component state, so every view is
+ * linkable and the back button works. Nothing else stores these.
  */
 export interface ViewParams {
   day: DaySelection;
@@ -52,11 +49,8 @@ const VIEW_MODES: readonly ViewMode[] = ["chart", "table"];
 export type SearchParamsInput = Record<string, string | string[] | undefined>;
 
 /**
- * Resolves URL params to a valid view, always.
- *
- * Never throws and never 404s on a bad value. A hand-edited or stale URL should show the
- * default view, not an error page — the params are a *preference*, not a resource
- * identifier, and there is no such thing as a day or metric that does not exist here.
+ * Always resolves to a valid view — never throws, never 404s. These params are a
+ * preference, not a resource identifier, so a stale URL shows the default view.
  */
 export function parseViewParams(input: SearchParamsInput): ViewParams {
   return {
@@ -100,11 +94,8 @@ function normalize(raw: string | string[] | undefined): string | undefined {
 }
 
 /**
- * Builds the href for a view, writing both params explicitly.
- *
- * Always emitting both keeps links stable and self-describing: a shared URL carries the
- * full view rather than depending on which defaults happened to apply when it was
- * copied.
+ * Writes every param explicitly, so a shared URL carries the full view rather than
+ * depending on which defaults applied when it was copied.
  */
 export function viewParamsHref(params: ViewParams): string {
   const search = new URLSearchParams({

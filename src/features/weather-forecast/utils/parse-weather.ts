@@ -7,17 +7,9 @@ import type {
 } from "../types";
 
 /**
- * Matches an ISO timestamp that states its offset — trailing `Z`, `+02:00` or `+0200`.
- *
- * Open-Meteo's default `timeformat` returns *naive* local strings ("2026-08-09T00:00")
- * whose zone lives in a separate `utc_offset_seconds` field. Passing one to `new Date()`
- * silently interprets it in the **server's** local zone, which would shift every reading
- * by however many hours the deployment region differs from Europe/Oslo — and the chart
- * would look entirely plausible while being wrong.
- *
- * Rather than guess, this parser accepts only unambiguous instants: epoch seconds
- * (`timeformat=unixtime`, which the fetcher requests) or an ISO string carrying its own
- * offset. Naive strings are rejected as unusable.
+ * An ISO timestamp stating its offset. Only unambiguous instants are accepted: Open-Meteo's
+ * default naive strings would be read in the *server's* zone by `new Date()`, shifting
+ * every reading while the chart still looked plausible.
  */
 const HAS_EXPLICIT_OFFSET = /(?:Z|[+-]\d{2}:?\d{2})$/;
 

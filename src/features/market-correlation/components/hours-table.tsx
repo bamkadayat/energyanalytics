@@ -51,11 +51,9 @@ function present(value: number | null): number | undefined {
 }
 
 /**
- * A few thousand hours as one scrollable table. Only the visible window is mounted;
- * sorting and filtering still run over the whole set, not the page.
- *
- * `aria-rowcount`/`aria-rowindex` restore what virtualization takes from a screen reader,
- * and the grid-display layout drops the implicit table roles, so each `role` is explicit.
+ * A few thousand hours as one scrollable table. Only the visible window mounts, but
+ * sorting and filtering run over the whole set. `aria-rowcount`/`aria-rowindex` restore
+ * what virtualization takes from a screen reader; grid display drops the implicit roles.
  */
 export function HoursTable({ rows }: { rows: HourRecord[] }) {
   const [sorting, setSorting] = useState<SortingState>([{ id: "at", desc: true }]);
